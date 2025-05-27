@@ -249,26 +249,26 @@ rule fastqc_trimmed:
         r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz",
         r2_trim="results/trimmed/{sample}_R2_trimmed.fastq.gz"
     output:
-        html1="results/qc/fastqc/trimmed/{sample}_R1_fastqc.html",
-        zip1 ="results/qc/fastqc/trimmed/{sample}_R1_fastqc.zip",
-        html2="results/qc/fastqc/trimmed/{sample}_R2_fastqc.html",
-        zip2 ="results/qc/fastqc/trimmed/{sample}_R2_fastqc.zip"
+        html3="results/qc/fastqc/trimmed/{sample}_R1_fastqc.html",
+        zip3 ="results/qc/fastqc/trimmed/{sample}_R1_fastqc.zip",
+        html4="results/qc/fastqc/trimmed/{sample}_R2_fastqc.html",
+        zip4 ="results/qc/fastqc/trimmed/{sample}_R2_fastqc.zip"
     envmodules:
         config["fastqc"]
     log:
         "results/logs/fastqc/{sample}_trimmed.log"
     shell:
         """
-        fastqc -o results/qc/fastqc {input.r1} {input.r2} 2> {log}
+        fastqc -o results/qc/fastqc {input.r1_trim} {input.r2_trim} 2> {log}
 
         dir="results/qc/fastqc/trimmed"
-        baseR1=$(basename {input.r1} .fastq.gz)
-        mv $dir/${{baseR1}}_fastqc.html {output.html1} || true
-        mv $dir/${{baseR1}}_fastqc.zip {output.zip1} || true
+        baseR1=$(basename {input.r1_trim} .fastq.gz)
+        mv $dir/${{baseR1}}_fastqc.html {output.html3} || true
+        mv $dir/${{baseR1}}_fastqc.zip {output.zip3} || true
 
-        baseR2=$(basename {input.r2} .fastq.gz)
-        mv $dir/${{baseR2}}_fastqc.html {output.html2} || true
-        mv $dir/${{baseR2}}_fastqc.zip {output.zip2} || true
+        baseR2=$(basename {input.r2_trim} .fastq.gz)
+        mv $dir/${{baseR2}}_fastqc.html {output.html4} || true
+        mv $dir/${{baseR2}}_fastqc.zip {output.zip4} || true
         """
 
 
