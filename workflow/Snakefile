@@ -115,8 +115,8 @@ rule all:
         expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES),
         
         # FastQC / MultiQC reports for trimmed data
-        expand("results/qc/fastqc/{sample}_R1_trimmed_fastqc.html", sample=SAMPLES),
-        expand("results/qc/fastqc/{sample}_R2_trimmed_fastqc.html", sample=SAMPLES),
+        expand("results/qc/fastqc/trimmed/{sample}_R1_fastqc.html", sample=SAMPLES),
+        expand("results/qc/fastqc/trimmed/{sample}_R2_fastqc.html", sample=SAMPLES),
         "results/qc/multiqc/trimmed/multiqc_report_trimmed.html"
 
 
