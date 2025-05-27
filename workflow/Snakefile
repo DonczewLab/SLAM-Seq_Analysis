@@ -244,7 +244,7 @@ rule trim_adapters:
 ##                   Fastqc on Trimmed Fastqs                   ##
 ##################################################################
 
-rule fastqc_raw:
+rule fastqc_trimmed:
     input:
         r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz",
         r2_trim="results/trimmed/{sample}_R2_trimmed.fastq.gz"
@@ -276,7 +276,7 @@ rule fastqc_raw:
 ##                   Multiqc on Trimmed Fastqs                  ##
 ##################################################################
 
-rule multiqc_raw:
+rule multiqc_trimmed:
     input:
         expand("results/qc/fastqc/trimmed/{sample}_R1_fastqc.zip", sample=SAMPLES),
         expand("results/qc/fastqc/trimmed/{sample}_R2_fastqc.zip", sample=SAMPLES)
