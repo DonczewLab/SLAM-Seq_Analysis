@@ -1,0 +1,836 @@
+configfile: "config/config.yml"
+
+##################################################################
+##                         Author Info                          ##
+##################################################################
+
+# Author: Kevin A. Boyd
+# Email: kevinboyd76@gmail.com
+# GitHub: https://github.com/kevinboyd76
+# Date Created: May 27, 2025
+# Last Modified: May 27, 2025
+# Version: 1.0.0
+#
+# Description: This workflow processes Chec-Seq data from raw FASTQ
+# files to normalized signal tracks with spike-in and scale factor 
+# correction.
+# 
+# Adapted from: Chec-Seq Protocol from Rafal Donczew & John Ridenour
+
+##################################################################
+##                  Specific Steps in Pipeline                  ##
+##################################################################
+
+#  Steps:
+#  1) FastQC / MultiQC
+#  2) Adapter Trim (BBDuk)
+#  3) Align to S. cerevisiae (primary, no spike-in)
+#  4) Align to D. melanogaster (spike-in)
+#  5) Create Raw BigWig (from scer)
+#  6) Create Raw BedGraph (from scer)
+#  7) Calculate Spike-In Factors (all samples → single CSV)
+#  8) Create Spike-In Normalized BigWigs (per sample)
+#  9) Create Spike-In Normalized BedGraphs (per sample)
+# 10a) Create Spike-In Normalized Mean BedGraphs (group average)
+# 10b) Create Spike-In Normalized Mean BigWigs (group average)
+# 10c) Create Spike-In Normalized Mean Wig files (group average)
+# 11a) Calculate scale-in factor from include list (CPM normalization)
+# 11b) Save total read counts from include list
+# 12) Create CPM Normalized BigWigs (per sample)
+# 13) Create CPM Normalized BedGraphs (per sample)
+# 14a) Create Mean CPM BedGraphs (group average)
+# 14b) Create Mean CPM BigWigs (group average)
+# 14c) Create Mean CPM Wig files (group average)
+# 15a) Create Raw Wig files (per sample)
+# 15b) Create Spike-in Wig files (per sample)
+# 15c) Create CPM Wig files (per sample)
+# 16) Plot Alignment Stats (stacked bar and box plots)
+# 17) Generate Fragment Length Files (per sample)
+# 18) Plot Fragment Length Distribution (violin & line plots)
+
+##################################################################
+##                    Define input functions                    ##
+##################################################################
+
+import os
+import pandas as pd
+
+# load samples table and set samples naming
+samples_df = pd.read_csv("config/samples.csv").set_index("sample", drop=False)
+SAMPLES = samples_df.index.tolist()
+
+# dictionary based input function
+def fq_dict_from_sample(wildcards):
+    """
+    Return a dict: {"r1": <R1path>, "r2": <R2path>} for each sample.
+    Use 'unpack(...)' in the rules so we can reference input.r1, input.r2.
+    """
+    row = samples_df.loc[wildcards.sample]
+    return {
+        "r1": row["fastq1"],
+        "r2": row["fastq2"]
+    }
+
+# Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
+merge_groups = samples_df["merge_group"].unique().tolist()
+
+# define begraphs input for average scale factor (CPM) tracks
+def bedgraphs_for_group(wildcards):
+    """
+    Return a list of bedGraph files belonging to 'merge_group' == wildcards.group.
+    """
+    # Filter samples by group
+    samples_in_group = [
+        s for s in SAMPLES
+        if samples_df.loc[s, "merge_group"] == wildcards.group
+    ]
+    # Build the bedGraph filenames for those samples
+    return [
+        f"results/bedgraph/cpm/{sample}_cpm.bg"
+        for sample in samples_in_group
+    ]
+
+# define bedgraphs input for average spike in tracks
+def spikein_bedgraphs_for_group(wildcards):
+    """
+    Return a list of spike-in normalized bedGraph files for the given merge_group.
+    """
+    samples_in_group = [
+        s for s in SAMPLES
+        if samples_df.loc[s, "merge_group"] == wildcards.group
+    ]
+    return [
+        f"results/bedgraph/spikein/{sample}_spikein.bg"
+        for sample in samples_in_group
+    ]
+
+##################################################################
+##                          Rule All                            ##
+##################################################################
+
+rule all:
+    input:
+        # 1) FastQC / MultiQC
+        expand("results/qc/fastqc/{sample}_R1_fastqc.html", sample=SAMPLES),
+        expand("results/qc/fastqc/{sample}_R2_fastqc.html", sample=SAMPLES),
+        "results/qc/multiqc/multiqc_report.html",
+
+        # 2) Trimmed FASTQs (commented out because they are temp files)
+        #expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
+        #expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES),
+
+        # 3) scer BAM + BAI
+        expand("results/alignment/scer/{sample}.bam", sample=SAMPLES),
+        expand("results/alignment/scer/{sample}.bam.bai", sample=SAMPLES),
+
+        # 4) Spike-In (dmel) BAM + BAI
+        expand("results/alignment/spikein/{sample}.bam", sample=SAMPLES),
+        expand("results/alignment/spikein/{sample}.bam.bai", sample=SAMPLES),
+
+        # 5) Raw BigWigs
+        expand("results/bigwig/raw/{sample}_raw.bw", sample=SAMPLES),
+
+        # 6) Raw BedGraph
+        expand("results/bedgraph/raw/{sample}_raw.bg", sample=SAMPLES),
+
+        # 7) single CSV with spike-in factors
+        "results/spikein_factors/spikein_factors.csv",
+
+        # 8) Spike-in normalized BigWigs
+        expand("results/bigwig/spikein/{sample}_spikein.bw", sample=SAMPLES),
+
+        # 9) Spike-in normalized BedGraph
+        expand("results/bedgraph/spikein/{sample}_spikein.bg", sample=SAMPLES),
+
+        # 10) Spike-in normalized average signal BedGraph, BigWig, and Wig
+        expand("results/bedgraph/spikein_mean/{group}_spikein_mean.bg", group=merge_groups),
+        expand("results/bigwig/spikein_mean/{group}_spikein_mean.bw", group=merge_groups),
+        expand("results/wig/spikein_mean/{group}_spikein_mean.wig", group=merge_groups),
+
+        # 11) Calculate scale in factor for CPM files
+        expand("results/scale_reads/{sample}_total_reads_cpm.txt", sample=SAMPLES),
+        expand("results/scale_reads/{sample}_scale_factor_include.txt", sample=SAMPLES),
+        "results/scale_reads/cpm_scale_factors.csv",
+
+        # 12) CPM BigWigs
+        expand("results/bigwig/cpm/{sample}_cpm.bw", sample=SAMPLES),
+
+        # 13) CPM BegGraphs
+        expand("results/bedgraph/cpm/{sample}_cpm.bg", sample=SAMPLES),
+
+        # 14) Mean coverage BedGraphs, BigWigs, and Wigs
+        expand("results/bedgraph/cpm_mean/{group}_cpm_mean.bg", group=merge_groups),
+        expand("results/bigwig/cpm_mean/{group}_cpm_mean.bw", group=merge_groups),
+        expand("results/wig/cpm_mean/{group}_cpm_mean.wig", group=merge_groups),
+
+        # 15) Make all Wigs
+        expand("results/wig/raw/{sample}_raw.wig", sample=SAMPLES),
+        expand("results/wig/spikein/{sample}_spikein.wig", sample=SAMPLES),
+        expand("results/wig/cpm/{sample}_cpm.wig", sample=SAMPLES),
+
+        # 16) Alignment Stats Plot (stacked bar and box plots)
+        "results/plots/alignment_stats.png",
+
+        # 17) Fragment Length Files
+        expand("results/alignment/scer/{sample}_fragmentLen.txt", sample=SAMPLES),
+
+        # 18) Fragment Length Distribution Plot (violin & line plots)
+        "results/plots/fragment_length_plot.png"
+
+
+##################################################################
+##                       Quality Control                        ##
+##################################################################
+
+rule fastqc_raw:
+    input:
+        unpack(fq_dict_from_sample)
+    output:
+        html1="results/qc/fastqc/{sample}_R1_fastqc.html",
+        zip1 ="results/qc/fastqc/{sample}_R1_fastqc.zip",
+        html2="results/qc/fastqc/{sample}_R2_fastqc.html",
+        zip2 ="results/qc/fastqc/{sample}_R2_fastqc.zip"
+    envmodules:
+        config["fastqc"]
+    log:
+        "results/logs/fastqc/{sample}.log"
+    shell:
+        """
+        fastqc -o results/qc/fastqc {input.r1} {input.r2} 2> {log}
+
+        dir="results/qc/fastqc"
+        baseR1=$(basename {input.r1} .fastq.gz)
+        mv $dir/${{baseR1}}_fastqc.html {output.html1} || true
+        mv $dir/${{baseR1}}_fastqc.zip {output.zip1} || true
+
+        baseR2=$(basename {input.r2} .fastq.gz)
+        mv $dir/${{baseR2}}_fastqc.html {output.html2} || true
+        mv $dir/${{baseR2}}_fastqc.zip {output.zip2} || true
+        """
+
+
+##################################################################
+##                     Summarize with MultiQC                   ##
+##################################################################
+
+rule multiqc_fastqc:
+    input:
+        expand("results/qc/fastqc/{sample}_R1_fastqc.zip", sample=SAMPLES),
+        expand("results/qc/fastqc/{sample}_R2_fastqc.zip", sample=SAMPLES)
+    output:
+        html="results/qc/multiqc/multiqc_report.html"
+    params:
+        outdir="results/qc/multiqc"
+    envmodules:
+        config["multiqc"]
+    log:
+        "results/logs/multiqc/multiqc.log"
+    shell:
+        """
+        rm -rf {params.outdir}
+        mkdir -p {params.outdir}
+        multiqc results/qc/fastqc -o {params.outdir} 2> {log}
+        """
+
+
+##################################################################
+##                      Adapter Trimming                        ##
+##################################################################
+
+rule trim_adapters:
+    input:
+        unpack(fq_dict_from_sample)
+    output:
+        r1_trim=temp("results/trimmed/{sample}_R1_trimmed.fastq.gz"),
+        r2_trim=temp("results/trimmed/{sample}_R2_trimmed.fastq.gz")
+    params:
+        bbmap_ref=config["bbmap_ref"]
+    envmodules:
+        config["bbmap"]
+    log:
+        "results/logs/trim/{sample}.log"
+    shell:
+        """
+        bbduk.sh -Xmx1g \
+          in1={input.r1} \
+          in2={input.r2} \
+          out1={output.r1_trim} \
+          out2={output.r2_trim} \
+          ref={params.bbmap_ref} \
+          k=23 ktrim=r mink=11 hdist=1 tpe=t tbo=t \
+          threads=8 2> {log}
+        """
+
+
+##################################################################
+##            Align to Primary Genome (S. cerevisiae)           ##
+##################################################################
+
+rule align_scer:
+    input:
+        r1="results/trimmed/{sample}_R1_trimmed.fastq.gz",
+        r2="results/trimmed/{sample}_R2_trimmed.fastq.gz"
+    output:
+        bam="results/alignment/scer/{sample}.bam",
+        bai="results/alignment/scer/{sample}.bam.bai"
+    params:
+        bowtie2_scer=config["scer_genome"]
+    envmodules:
+        config["bowtie2"],
+        config["samtools"]
+    log:
+        "results/logs/alignment/scer/{sample}.log"
+    shell:
+        """
+        bowtie2 --very-sensitive-local --threads 16 \
+            -x {params.bowtie2_scer} \
+            -1 {input.r1} -2 {input.r2} \
+            --maxins 700 --dovetail --no-unal --no-mixed --no-discordant \
+            2> {log} | \
+        samtools fixmate -O bam -@ 8 -m - - | \
+        samtools sort -O bam -@ 8 -o {output.bam}
+        samtools index -@ 8 {output.bam} {output.bai}
+        """
+
+
+##################################################################
+##             Align to Spike-In Genome (S. pombe)              ##
+##################################################################
+
+rule align_spikein:
+    input:
+        r1="results/trimmed/{sample}_R1_trimmed.fastq.gz",
+        r2="results/trimmed/{sample}_R2_trimmed.fastq.gz"
+    output:
+        bam="results/alignment/spikein/{sample}.bam",
+        bai="results/alignment/spikein/{sample}.bam.bai"
+    params:
+        bowtie2_spikein=config["spikein_genome"]
+    envmodules:
+        config["bowtie2"],
+        config["samtools"]
+    log:
+        "results/logs/alignment/spikein/{sample}.log"
+    shell:
+        """
+        bowtie2 --very-sensitive-local --threads 16 \
+            -x {params.bowtie2_spikein} \
+            -1 {input.r1} -2 {input.r2} \
+            --maxins 700 --dovetail --no-unal --no-mixed --no-discordant \
+            2> {log} | \
+        samtools fixmate -O bam -@ 8 -m - - | \
+        samtools sort -O bam -@ 8 -o {output.bam}
+        samtools index -@ 8 {output.bam} {output.bai}
+        """
+
+
+##################################################################
+##                   BigWig Generation (raw)                    ##
+##################################################################
+
+rule make_bigwig_raw_scer:
+    input:
+        "results/alignment/scer/{sample}.bam"
+    output:
+        "results/bigwig/raw/{sample}_raw.bw"
+    params:
+        binSize=config["binSize"],
+        blacklist=config["blacklist_scer"]
+    envmodules:
+        config["deeptools"]
+    log:
+        "results/logs/bigwig/scer_raw/{sample}.log"
+    shell:
+        """
+        bamCoverage --bam {input} \
+            --outFileName {output} \
+            --binSize {params.binSize} \
+            --numberOfProcessors 4 \
+            --normalizeUsing None \
+            --blackListFileName {params.blacklist} 2> {log}
+        """
+
+
+##################################################################
+##                  BedGraph Generation (raw)                   ##
+##################################################################
+
+rule make_bedgraph_raw_scer:
+    input:
+        "results/alignment/scer/{sample}.bam"
+    output:
+        "results/bedgraph/raw/{sample}_raw.bg"
+    params:
+        binSize=config["binSize"],
+        blacklist=config["blacklist_scer"]
+    envmodules:
+        config["deeptools"]
+    log:
+        "results/logs/bedgraph/scer_raw/{sample}.log"
+    shell:
+        """
+        bamCoverage --bam {input} \
+            --outFileName {output} \
+            --outFileFormat bedgraph \
+            --binSize {params.binSize} \
+            --numberOfProcessors 4 \
+            --normalizeUsing None \
+            --blackListFileName {params.blacklist} 2> {log}
+        """
+
+
+##################################################################
+##                  Calculate Spike-In Factors                  ##
+##################################################################
+
+rule calc_spikein_factors:
+    """
+    Gather ALL scer + spikein BAMs, pass them to scripts/calc_spikein.py,
+    which writes results/spikein_factors/spikein_factors.csv.
+    """
+    input:
+        scer_bams = expand("results/alignment/scer/{sample}.bam", sample=SAMPLES),
+        spikein_bams = expand("results/alignment/spikein/{sample}.bam", sample=SAMPLES)
+    output:
+        "results/spikein_factors/spikein_factors.csv"
+    envmodules:
+        config["samtools"],
+        config["python"]
+    log:
+        "results/logs/spikein/calc_spikein.log"
+    shell:
+        """
+        python scripts/calc_spikein.py {output} {input.scer_bams} {input.spikein_bams} \
+        2> {log}
+        """
+
+
+##################################################################
+##                 BigWig Generation (spike-in)                 ##
+##################################################################
+
+rule make_bigwig_scer_spikein:
+    """
+    Use the factor from spikein_factors.csv to scale coverage in scer BAM,
+    producing a spike-in normalized bigWig.
+    """
+    input:
+        bam="results/alignment/scer/{sample}.bam",
+        csv="results/spikein_factors/spikein_factors.csv"
+    output:
+        "results/bigwig/spikein/{sample}_spikein.bw"
+    params:
+        binSize=config["binSize"],
+        blacklist=config["blacklist_scer"]
+    envmodules:
+        config["deeptools"],
+        config["python"]
+    log:
+        "results/logs/bigwig/spikein/{sample}.log"
+    shell:
+        r"""
+        # 1) Extract the factor for this sample from CSV
+        factor=$(python <<EOF
+import csv
+sample_name = "{wildcards.sample}"
+factor = 1.0
+with open("{input.csv}", "r") as inf:
+    reader = csv.DictReader(inf)
+    for row in reader:
+        if row["sample"] == sample_name:
+            factor = float(row["inverse_spikein_factor"])
+            break
+print(factor)
+EOF
+)
+
+        echo "Spike-in factor for {wildcards.sample} = $factor" >> {log}
+
+        # 2) Run bamCoverage with that scale factor
+        bamCoverage --bam {input.bam} \
+                    --outFileName {output} \
+                    --binSize {params.binSize} \
+                    --numberOfProcessors 4 \
+                    --scaleFactor $factor \
+                    --blackListFileName {params.blacklist}
+        """
+
+
+##################################################################
+##                BedGraph Generation (spike-in)                ##
+##################################################################
+
+rule make_bedgraph_scer_spikein:
+    """
+    Use the factor from spikein_factors.csv to scale coverage in scer BAM,
+    producing a spike-in normalized bigWig.
+    """
+    input:
+        bam="results/alignment/scer/{sample}.bam",
+        csv="results/spikein_factors/spikein_factors.csv"
+    output:
+        "results/bedgraph/spikein/{sample}_spikein.bg"
+    params:
+        binSize=config["binSize"],
+        blacklist=config["blacklist_scer"]
+    envmodules:
+        config["deeptools"],
+        config["python"]
+    log:
+        "results/logs/bedgraph/spikein/{sample}.log"
+    shell:
+        r"""
+        # 1) Extract the factor for this sample from CSV
+        factor=$(python <<EOF
+import csv
+sample_name = "{wildcards.sample}"
+factor = 1.0
+with open("{input.csv}", "r") as inf:
+    reader = csv.DictReader(inf)
+    for row in reader:
+        if row["sample"] == sample_name:
+            factor = float(row["inverse_spikein_factor"])
+            break
+print(factor)
+EOF
+)
+
+        echo "Spike-in factor for {wildcards.sample} = $factor" >> {log}
+
+        # 2) Run bamCoverage with that scale factor
+        bamCoverage --bam {input.bam} \
+                    --outFileName {output} \
+                    --outFileFormat bedgraph \
+                    --binSize {params.binSize} \
+                    --numberOfProcessors 4 \
+                    --scaleFactor $factor \
+                    --blackListFileName {params.blacklist}
+        """
+
+
+##################################################################
+##                     Merge SpikeIn Bedgraphs                  ##
+##################################################################
+
+rule merge_bedgraphs_mean_spikein:
+    """
+    Combine all spike-in bedGraphs for a given merge_group and calculate the average.
+    """
+    input:
+        spikein_bedgraphs_for_group
+    output:
+        "results/bedgraph/spikein_mean/{group}_spikein_mean.bg"
+    envmodules:
+        config["bedtools"]
+    log:
+        "results/logs/bedgraph/merge_spikein_{group}.log"
+    shell:
+        r"""
+        bedtools unionbedg -i {input} | \
+        awk 'OFS="\t" {{
+          sum=0; for (col=4; col<=NF; col++) sum += $col;
+          print $1,$2,$3,sum/(NF-3);
+        }}' | sort -k1,1 -k2,2n > {output}
+        """
+
+
+##################################################################
+##                 BedGraph to BigWig (Spike In)                ##
+##################################################################
+
+rule bedgraph_to_bigwig_mean_spikein:
+    input:
+        "results/bedgraph/spikein_mean/{group}_spikein_mean.bg"
+    output:
+        "results/bigwig/spikein_mean/{group}_spikein_mean.bw"
+    params:
+        genome_file=config["genome_file_scer"]
+    envmodules:
+        config["ucsc"]
+    log:
+        "results/logs/bedgraph/bw_spikein_mean_{group}.log"
+    shell:
+        """
+        bedGraphToBigWig {input} {params.genome_file} {output} 2> {log}
+        """
+
+
+##################################################################
+##                   BedGraph to Wig (Spike In)                 ##
+##################################################################
+
+rule bedgraph_to_wig_mean_spikein:
+    input:
+        "results/bedgraph/spikein_mean/{group}_spikein_mean.bg"
+    output:
+        "results/wig/spikein_mean/{group}_spikein_mean.wig"
+    envmodules:
+        config["python"]
+    log:
+        "results/logs/bedgraph/wig_convert_spikein_{group}.log"
+    shell:
+        """
+        python scripts/convert_bedgraph_to_wig.py {input} {output} 2> {log}
+        """
+
+
+##################################################################
+##                 Scale Factor (Include Filter)                ##
+##################################################################
+
+rule calculate_total_reads_cpm:
+    input:
+        sorted_bam = "results/alignment/scer/{sample}.bam"
+    output:
+        total_reads = "results/scale_reads/{sample}_total_reads_cpm.txt",
+        scale_factor = "results/scale_reads/{sample}_scale_factor_include.txt"
+    params:
+        includelist = config["include_list"]
+    envmodules:
+        config["samtools"]
+    log:
+        "results/logs/snakelogs/calculate_total_reads_include.{sample}.log"
+    shell:
+        """
+        total_reads=$(samtools view -c -F 4 -L {params.includelist} {input.sorted_bam})
+        scale_factor=$(echo "1 / ($total_reads / 1000000)" | bc -l)
+        echo $total_reads > {output.total_reads}
+        echo $scale_factor > {output.scale_factor}
+        """
+
+
+##################################################################
+##                      Scale Factor Summary                    ##
+##################################################################
+
+rule gather_cpm_factors:
+    input:
+        total_reads = expand("results/scale_reads/{sample}_total_reads_cpm.txt", sample=SAMPLES),
+        scale_factors = expand("results/scale_reads/{sample}_scale_factor_include.txt", sample=SAMPLES)
+    output:
+        "results/scale_reads/cpm_scale_factors.csv"
+    run:
+        import pandas as pd
+
+        records = []
+        for sample in SAMPLES:
+            with open(f"results/scale_reads/{sample}_total_reads_cpm.txt") as f:
+                total = int(f.read().strip())
+            with open(f"results/scale_reads/{sample}_scale_factor_include.txt") as f:
+                factor = float(f.read().strip())
+            records.append({"sample": sample, "total_reads_cpm": total, "scale_factor_cpm": round(factor, 6)})
+
+        df = pd.DataFrame(records)
+        df.to_csv(output[0], index=False)
+
+
+##################################################################
+##                   BigWig Generation (cpm)                    ##
+##################################################################
+
+rule make_bigwig_scer_cpm:
+    input:
+        bam = "results/alignment/scer/{sample}.bam",
+        scale_factor = "results/scale_reads/{sample}_scale_factor_include.txt"
+    output:
+        bigwig_scaled = "results/bigwig/cpm/{sample}_cpm.bw"
+    params:
+        binSize = config["binSize"],
+        blacklist = config["blacklist_scer"]
+    envmodules:
+        config["deeptools"]
+    log:
+        "results/logs/bigwig/scer_cpm_scaled/{sample}.log"
+    shell:
+        """
+        scale_factor=$(cat {input.scale_factor})
+        bamCoverage \
+            -b {input.bam} \
+            -o {output.bigwig_scaled} \
+            --binSize {params.binSize} \
+            --scaleFactor $scale_factor \
+            --numberOfProcessors 4 \
+            --blackListFileName {params.blacklist} 2> {log}
+        """
+
+
+##################################################################
+##                   Generate BedGraphs (cpm)                   ##
+##################################################################
+
+rule make_bedgraph_scer_cpm:
+    input:
+        bam = "results/alignment/scer/{sample}.bam",
+        scale_factor = "results/scale_reads/{sample}_scale_factor_include.txt"
+    output:
+        "results/bedgraph/cpm/{sample}_cpm.bg"
+    params:
+        binSize = config["binSize"],
+        blacklist = config["blacklist_scer"]
+    envmodules:
+        config["deeptools"]
+    log:
+        "results/logs/bedgraph/scer_cpm_scaled/{sample}.log"
+    shell:
+        """
+        scale_factor=$(cat {input.scale_factor})
+        bamCoverage \
+            -b {input.bam} \
+            -o {output} \
+            --outFileFormat bedgraph \
+            --binSize {params.binSize} \
+            --scaleFactor $scale_factor \
+            --numberOfProcessors 4 \
+            --blackListFileName {params.blacklist} 2> {log}
+        """
+
+
+##################################################################
+##                  Merge Bedgraphs (Mean CPM)                  ##
+##################################################################
+
+rule merge_bedgraphs_mean_cpm:
+    """
+    Combine all bedGraphs for a given merge_group (e.g., DMSO, IAA) into one.
+    Then average coverage across the replicate bedGraphs, using bedtools unionbedg.
+    """
+    input:
+        bedgraphs_for_group
+    output:
+        "results/bedgraph/cpm_mean/{group}_cpm_mean.bg"
+    envmodules:
+        config["bedtools"]
+    log:
+        "results/logs/bedgraph/merge_{group}.log"
+    shell:
+        r"""
+        bedtools unionbedg -i {input} | \
+        awk 'OFS="\t" {{
+          sum=0; for (col=4; col<=NF; col++) sum += $col;
+          print $1,$2,$3,sum/(NF-3);
+        }}' | sort -k1,1 -k2,2n > {output}
+        """
+
+
+##################################################################
+##               Mean Coverage BedGraph to BigWig               ##
+##################################################################
+
+rule bedgraph_to_bigwig_mean_cpm:
+    input:
+        "results/bedgraph/cpm_mean/{group}_cpm_mean.bg"
+    output:
+        "results/bigwig/cpm_mean/{group}_cpm_mean.bw"
+    params:
+        genome_file=config["genome_file_scer"]
+    envmodules:
+        config["ucsc"]
+    log:
+        "results/logs/bedgraph/bw_mean_{group}.log"
+    shell:
+        """
+        bedGraphToBigWig {input} {params.genome_file} {output} 2> {log}
+        """
+
+
+##################################################################
+##          Convert Mean Coverage BedGraph to WIG File          ##
+##################################################################
+
+rule bedgraph_to_wig_mean_cpm:
+    input:
+        cpm_mean="results/bedgraph/cpm_mean/{group}_cpm_mean.bg"
+    output:
+        wig_cpm_mean="results/wig/cpm_mean/{group}_cpm_mean.wig"
+    envmodules:
+        config["python"]
+    log:
+        "results/logs/bedgraph/wig_convert_{group}.log"
+    shell:
+        """
+        python scripts/convert_bedgraph_to_wig.py {input.cpm_mean} {output.wig_cpm_mean} 2> {log}
+        """
+
+
+##################################################################
+##               Convert CPM BedGraph to WIG File               ##
+##################################################################
+
+rule bedgraph_to_wig_cpm:
+    input:
+        raw="results/bedgraph/raw/{sample}_raw.bg",
+        cpm="results/bedgraph/cpm/{sample}_cpm.bg",
+        spikein="results/bedgraph/spikein/{sample}_spikein.bg"
+    output:
+        wig_raw="results/wig/raw/{sample}_raw.wig",
+        wig_cpm="results/wig/cpm/{sample}_cpm.wig",
+        wig_spikein="results/wig/spikein/{sample}_spikein.wig"
+    envmodules:
+        config["python"]
+    log:
+        log_raw="results/logs/bedgraph/wig_convert_{sample}_raw.log",
+        log_cpm="results/logs/bedgraph/wig_convert_{sample}_cpm.log",
+        log_spikein="results/logs/bedgraph/wig_convert_{sample}_spikein.log"
+    shell:
+        """
+        python scripts/convert_bedgraph_to_wig.py {input.raw} {output.wig_raw} 2> {log.log_raw}
+        python scripts/convert_bedgraph_to_wig.py {input.cpm} {output.wig_cpm} 2> {log.log_cpm}
+        python scripts/convert_bedgraph_to_wig.py {input.spikein} {output.wig_spikein} 2> {log.log_spikein}
+        """
+
+
+##################################################################
+##            Plot Alignment Stats (Box and Bar Plots)          ##
+##################################################################
+rule plot_alignment_stats:
+    input:
+        logs = expand("results/logs/alignment/scer/{sample}.log", sample=SAMPLES),
+        spikein_csv = "results/spikein_factors/spikein_factors.csv"
+    output:
+        "results/plots/alignment_stats.png"
+    envmodules:
+        config["R"]
+    log:
+        "results/logs/plots/alignment_stats.log"
+    shell:
+        """
+        Rscript scripts/plot_alignment_stats.R results/logs/alignment/scer/ {input.spikein_csv} {output}
+        """
+
+
+##################################################################
+##            Generate Fragment Length Files                  ##
+##################################################################
+rule generate_fragment_length:
+    input:
+        bam="results/alignment/scer/{sample}.bam"
+    output:
+        "results/alignment/scer/{sample}_fragmentLen.txt"
+    envmodules:
+        config["samtools"]
+    log:
+        "results/logs/alignment/fragmentLen_{sample}.log"
+    shell:
+        """
+        samtools view -F 0x04 {input.bam} | \
+        awk -F'\\t' '{{print ($9 < 0 ? -$9 : $9)}}' | \
+        sort | uniq -c | awk -v OFS="\\t" '{{print $2, $1}}' > {output}
+        """
+
+
+##################################################################
+##          Plot Fragment Length Distribution (Violin)        ##
+##################################################################
+rule plot_fragment_length:
+    input:
+        fragFiles = expand("results/alignment/scer/{sample}_fragmentLen.txt", sample=SAMPLES)
+    output:
+        "results/plots/fragment_length_plot.png"
+    envmodules:
+        config["R"]
+    log:
+        "results/logs/plots/fragment_length_plot.log"
+    shell:
+        """
+        Rscript scripts/plot_fragment_length.R {input.fragFiles} results/plots/ 2> {log}
+        """
