@@ -198,8 +198,8 @@ rule process_umis:
             --disable_trim_poly_g \
             --disable_quality_filtering \
             --disable_length_filtering \
-	    --json results/logs/fastp/{sample}_umi_fastp.json \
-	    --html results/logs/fastp/{sample}_umi_fastp.html \
+	    --json results/logs/fastp/{wildcards.sample}_umi_fastp.json \
+	    --html results/logs/fastp/{wildcards.sample}_umi_fastp.html \
             2> {log}
         """
 
