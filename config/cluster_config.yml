@@ -1,6 +1,6 @@
 # cluster_config.yml - cluster configuration
 __default__:
-  account: donczew-lab
+  account: sansam-lab
   partition: serial
   time: "08:00:00"
   cpus-per-task: 2
@@ -9,7 +9,7 @@ __default__:
   error: logs/slurm-%x.%A.%a.err
 
 # ------------------------------------------------------------------------------
-# Quality Control
+# Raw Quality Control
 # ------------------------------------------------------------------------------
 fastqc_raw:
   cpus-per-task: 4
@@ -20,7 +20,7 @@ fastqc_raw:
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-multiqc_fastqc:
+multiqc_raw:
   cpus-per-task: 4
   mem: "32G"
   cores: 4
@@ -29,6 +29,21 @@ multiqc_fastqc:
   output: logs/{rule}.out
   error: logs/{rule}.err
   
+# ------------------------------------------------------------------------------
+# UMIs processing with fastp
+# ------------------------------------------------------------------------------
+process_umis:
+  cpus-per-task: 4
+  mem: "32G"
+  cores: 4
+  time: "02:00:00"
+  name: "{rule}.{wildcards.sample}"
+  output: logs/{rule}.{wildcards.sample}.out
+  error: logs/{rule}.{wildcards.sample}.err
+
+# ------------------------------------------------------------------------------
+# Adapter Trimming with BBDuk
+# ------------------------------------------------------------------------------
 trim_adapters:
   cpus-per-task: 8
   mem: "32G"
@@ -39,9 +54,30 @@ trim_adapters:
   error: logs/{rule}.{wildcards.sample}.err
 
 # ------------------------------------------------------------------------------
-# Alignment
+# Trimmed Quality Control
 # ------------------------------------------------------------------------------
-align_scer:
+fastqc_trimmed:
+  cpus-per-task: 4
+  mem: "32G"
+  cores: 4
+  time: "02:00:00"
+  name: "{rule}.{wildcards.sample}"
+  output: logs/{rule}.{wildcards.sample}.out
+  error: logs/{rule}.{wildcards.sample}.err
+
+multiqc_trimmed:
+  cpus-per-task: 4
+  mem: "32G"
+  cores: 4
+  time: "02:00:00"
+  name: "{rule}"
+  output: logs/{rule}.out
+  error: logs/{rule}.err
+
+# ------------------------------------------------------------------------------
+# SLAMDUNK - main processing step
+# ------------------------------------------------------------------------------
+slamdunk_all:
   cpus-per-task: 16
   mem: "64G"
   cores: 16
@@ -50,7 +86,7 @@ align_scer:
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-align_spikein:
+slamdunk_count:
   cpus-per-task: 16
   mem: "64G"
   cores: 16
@@ -60,192 +96,88 @@ align_spikein:
   error: logs/{rule}.{wildcards.sample}.err
 
 # ------------------------------------------------------------------------------
-# BigWig creation
+# Alleyoop (analysis on SLAM-Seq results)
 # ------------------------------------------------------------------------------
-make_bigwig_raw_scer:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "02:00:00"
+alleyoop_rates:
+  cpus-per-task: 16
+  mem: "64G"
+  cores: 16
+  time: "04:00:00"
   name: "{rule}.{wildcards.sample}"
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-make_bigwig_scer_spikein:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "02:00:00"
+alleyoop_tccontext:
+  cpus-per-task: 16
+  mem: "64G"
+  cores: 16
+  time: "04:00:00"
   name: "{rule}.{wildcards.sample}"
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-make_bigwig_scer_cpm:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "02:00:00"
+alleyoop_utrrates:
+  cpus-per-task: 16
+  mem: "64G"
+  cores: 16
+  time: "04:00:00"
   name: "{rule}.{wildcards.sample}"
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-bedgraph_to_bigwig_mean_cpm:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "01:00:00"
-  name: "{rule}.{wildcards.group}"
-  output: logs/{rule}.{wildcards.group}.out
-  error: logs/{rule}.{wildcards.group}.err
-
-bedgraph_to_bigwig_mean_spikein:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "01:00:00"
-  name: "{rule}.{wildcards.group}"
-  output: logs/{rule}.{wildcards.group}.out
-  error: logs/{rule}.{wildcards.group}.err
-
-# ------------------------------------------------------------------------------
-# BedGraph creation
-# ------------------------------------------------------------------------------
-make_bedgraph_raw_scer:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "02:00:00"
+alleyoop_snpeval:
+  cpus-per-task: 16
+  mem: "64G"
+  cores: 16
+  time: "04:00:00"
   name: "{rule}.{wildcards.sample}"
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-make_bedgraph_scer_spikein:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "02:00:00"
+alleyoop_summary:
+  cpus-per-task: 16
+  mem: "64G"
+  cores: 16
+  time: "04:00:00"
   name: "{rule}.{wildcards.sample}"
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-make_bedgraph_scer_cpm:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "02:00:00"
+alleyoop_merge:
+  cpus-per-task: 8
+  mem: "32G"
+  cores: 8
+  time: "04:00:00"
   name: "{rule}.{wildcards.sample}"
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-# ------------------------------------------------------------------------------
-# CPM normalization / Scaling Summary
-# ------------------------------------------------------------------------------
-calculate_total_reads_cpm:
-  cpus-per-task: 2
-  mem: "8G"
-  time: "00:30:00"
+alleyoop_tcperreadpos:
+  cpus-per-task: 8
+  mem: "32G"
+  cores: 8
+  time: "04:00:00"
   name: "{rule}.{wildcards.sample}"
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-gather_cpm_factors:
-  cpus-per-task: 2
-  mem: "8G"
-  cores: 2
-  time: "00:20:00"
-  name: "{rule}"
-  output: logs/{rule}.out
-  error: logs/{rule}.err
-  
-# ------------------------------------------------------------------------------
-# Merging coverage
-# ------------------------------------------------------------------------------
-merge_bedgraphs_mean_cpm:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "02:00:00"
-  name: "{rule}.{wildcards.group}"
-  output: logs/{rule}.{wildcards.group}.out
-  error: logs/{rule}.{wildcards.group}.err
-
-merge_bedgraphs_mean_spikein:
-  cpus-per-task: 4
-  mem: "16G"
-  cores: 4
-  time: "02:00:00"
-  name: "{rule}.{wildcards.group}"
-  output: logs/{rule}.{wildcards.group}.out
-  error: logs/{rule}.{wildcards.group}.err
-
-# ------------------------------------------------------------------------------
-# Calculating spike-in
-# ------------------------------------------------------------------------------
-calc_spikein_factors:
-  cpus-per-task: 2
-  mem: "16G"
-  cores: 2
-  time: "02:00:00"
-  name: "{rule}"
-  output: logs/{rule}.out
-  error: logs/{rule}.err
-
-# ------------------------------------------------------------------------------
-# WIG conversion
-# ------------------------------------------------------------------------------
-bedgraph_to_wig_mean_cpm:
-  cpus-per-task: 2
-  mem: "8G"
-  cores: 2
-  time: "01:00:00"
-  name: "{rule}.{wildcards.group}"
-  output: logs/{rule}.{wildcards.group}.out
-  error: logs/{rule}.{wildcards.group}.err
-
-bedgraph_to_wig_mean_spikein:
-  cpus-per-task: 2
-  mem: "8G"
-  cores: 2
-  time: "01:00:00"
-  name: "{rule}.{wildcards.group}"
-  output: logs/{rule}.{wildcards.group}.out
-  error: logs/{rule}.{wildcards.group}.err
-
-bedgraph_to_wig_cpm:
-  cpus-per-task: 2
-  mem: "8G"
-  cores: 2
-  time: "01:00:00"
+alleyoop_dump:
+  cpus-per-task: 8
+  mem: "32G"
+  cores: 8
+  time: "04:00:00"
   name: "{rule}.{wildcards.sample}"
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
 # ------------------------------------------------------------------------------
-# Plot Generation
+# MultiQC on Slam Dunk output
 # ------------------------------------------------------------------------------
-plot_alignment_stats:
-  cpus-per-task: 2
-  mem: "16G"
-  cores: 2
-  time: "01:00:00"
-  name: "{rule}"
-  output: logs/{rule}.out
-  error: logs/{rule}.err
-
-generate_fragment_length:
-  cpus-per-task: 2
-  mem: "8G"
-  cores: 2
-  time: "01:00:00"
-  name: "{rule}.{wildcards.sample}"
-  output: logs/{rule}.{wildcards.sample}.out
-  error: logs/{rule}.{wildcards.sample}.err
-
-plot_fragment_length:
-  cpus-per-task: 2
-  mem: "16G"
-  cores: 2
-  time: "01:00:00"
+multiqc_slamdunk:
+  cpus-per-task: 4
+  mem: "32G"
+  cores: 4
+  time: "02:00:00"
   name: "{rule}"
   output: logs/{rule}.out
   error: logs/{rule}.err
