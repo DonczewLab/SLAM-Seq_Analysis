@@ -5,7 +5,7 @@
 ## 9) Instructions to run on Slurm managed HPC
 9A. Download version controlled repository
 ```
-
+git clone https://github.com/RD-Cobre-Help/SLAM-Seq_Analysis.git
 ```
 9B. Load modules
 ```
