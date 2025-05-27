@@ -1,7 +1,7 @@
 sample,fastq1,fastq2,merge_group
-RDY226_DMSO_A,../fastqs/RDHTS789_S121_R1_001.fastq.gz,../fastqs/RDHTS789_S121_R2_001.fastq.gz,DMSO
-RDY226_IAA_A,../fastqs/RDHTS790_S122_R1_001.fastq.gz,../fastqs/RDHTS790_S122_R2_001.fastq.gz,IAA
-RDY226_DMSO_B,../fastqs/RDHTS791_S123_R1_001.fastq.gz,../fastqs/RDHTS791_S123_R2_001.fastq.gz,DMSO
-RDY226_IAA_B,../fastqs/RDHTS792_S124_R1_001.fastq.gz,../fastqs/RDHTS792_S124_R2_001.fastq.gz,IAA
-RDY226_DMSO_C,../fastqs/RDHTS793_S125_R1_001.fastq.gz,../fastqs/RDHTS793_S125_R2_001.fastq.gz,DMSO
-RDY226_IAA_C,../fastqs/RDHTS794_S126_R1_001.fastq.gz,../fastqs/RDHTS794_S126_R2_001.fastq.gz,IAA
+RDY73_DMSO_A,../fastq_files/RDHTS192_S63_R1_001.fastq.gz,../fastq_files/RDHTS192_S63_R2_001.fastq.gz,DMSO
+RDY73_IAA_A,../fastq_files/RDHTS193_S64_R1_001.fastq.gz,../fastq_files/RDHTS193_S64_R2_001.fastq.gz,IAA
+RDY73_DMSO_B,../fastq_files/RDHTS195_S66_R1_001.fastq.gz,../fastq_files/RDHTS195_S66_R2_001.fastq.gz,DMSO
+RDY73_IAA_B,../fastq_files/RDHTS196_S67_R1_001.fastq.gz,../fastq_files/RDHTS196_S67_R2_001.fastq.gz,IAA
+RDY73_DMSO_C,../fastq_files/RDHTS198_S69_R1_001.fastq.gz,../fastq_files/RDHTS198_S69_R2_001.fastq.gz,DMSO
+RDY73_IAA_C,../fastq_files/RDHTS199_S70_R1_001.fastq.gz,../fastq_files/RDHTS199_S70_R2_001.fastq.gz,IAA
