@@ -28,20 +28,35 @@ spikein_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_
 bbmap_ref: "/hpc-prj/donczew/genomic_resources/bbmap/truseq_universal_adapters.fa"
 
 # ==============================================================================
-# BIGWIG / DEEPTOOLS PARAMETERS
+# FASTP PARAMETERS
 # ==============================================================================
-binSize: 1
+umi_loc: "read2"
+umi_len: 12
+
+# ==============================================================================
+# SLAMDUNK PARAMETERS
+# ==============================================================================
+slamdunk_ref: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome_bowtie2_index/SGD_R64-3-1_genome" # Genome reference for SLAMDUNK
+bed_file: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/Scerevisiae_R64-3-1_gene3utr.bed" # Gene + 3-prime UTR BED file
+
+# SLAMDUNK additional options
+trim_5p: 5
+topn: 100
+multimap: true
+min_coverage: 10
+var_fraction: 0.8
+max_read_length: 151
+min_base_qual: 26
+skip_sam: true
 
 # ==============================================================================
 # SOFTWARE MODULE VERSIONS
 # ==============================================================================
 fastqc: "fastqc/0.12.1"
 multiqc: "multiqc/1.21"
+fastp: "fastp/0.23.2"
 bbmap: "bbmap/39.06"
-bowtie2: "bowtie2/2.5.0"
+slamdunk: "slamdunk/0.4.3"
 samtools: "samtools/1.18"
-deeptools: "deeptools/3.5.4"
-bedtools: "bedtools/2.30.0"
-ucsc: "ucsc/20200225"
 python: "python/3.10.2"
 R: "R/4.4.1-mkl"
