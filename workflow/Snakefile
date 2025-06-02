@@ -161,13 +161,17 @@ rule multiqc_raw:
         expand("results/qc/fastqc/{sample}_R2_fastqc.zip", sample=SAMPLES)
     output:
         "results/qc/multiqc/multiqc_report_raw.html"
+    params:
+        outdir="results/qc/multiqc"
     envmodules:
         config["multiqc"]
     log:
         "results/logs/multiqc/multiqc_raw.log"
     shell:
         """
-        multiqc results/qc/fastqc -o results/qc/multiqc 2> {log}
+        rm -rf {params.outdir}
+        mkdir -p {params.outdir}
+        multiqc results/qc/fastqc -o {params.outdir} 2> {log}
         """
 
 
@@ -282,13 +286,17 @@ rule multiqc_trimmed:
         expand("results/qc/fastqc/trimmed/{sample}_R2_fastqc.zip", sample=SAMPLES)
     output:
         "results/qc/multiqc/trimmed/multiqc_report_trimmed.html"
+    params:
+        outdir="results/qc/multiqc/trimmed"
     envmodules:
         config["multiqc"]
     log:
         "results/logs/multiqc/multiqc_trimmed.log"
     shell:
         """
-        multiqc results/qc/fastqc -o results/qc/multiqc 2> {log}
+        rm -rf {params.outdir}
+        mkdir -p {params.outdir}
+        multiqc results/qc/fastqc/trimmed -o {params.outdir} 2> {log}
         """
 
 
