@@ -8,7 +8,7 @@ configfile: "config/config.yml"
 # Email: kevinboyd76@gmail.com
 # GitHub: https://github.com/kevinboyd76
 # Date Created: May 27, 2025
-# Last Modified: May 27, 2025
+# Last Modified: June 2, 2025
 # Version: 1.0.0
 #
 # Description: This workflow processes SLAM-Seq data from raw FASTQ
@@ -102,9 +102,9 @@ def spikein_bedgraphs_for_group(wildcards):
 rule all:
     input:
         # 1) FastQC / MultiQC reports for raw data
-        expand("results/qc/fastqc/{sample}_R1_fastqc.html", sample=SAMPLES),
-        expand("results/qc/fastqc/{sample}_R2_fastqc.html", sample=SAMPLES),
-        "results/qc/multiqc/multiqc_report_raw.html",
+        expand("results/qc/raw/fastqc/{sample}_R1_fastqc.html", sample=SAMPLES),
+        expand("results/qc/raw/fastqc/{sample}_R2_fastqc.html", sample=SAMPLES),
+        "results/qc/raw/multiqc/multiqc_report.html",
 
         # 2) Processed UMIs from raw FASTQ files
         expand("results/fastp/{sample}_umi_R1.fastq.gz", sample=SAMPLES),
@@ -115,9 +115,9 @@ rule all:
         expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES),
         
         # FastQC / MultiQC reports for trimmed data
-        expand("results/qc/fastqc/trimmed/{sample}_R1_fastqc.html", sample=SAMPLES),
-        expand("results/qc/fastqc/trimmed/{sample}_R2_fastqc.html", sample=SAMPLES),
-        "results/qc/multiqc/trimmed/multiqc_report_trimmed.html"
+        expand("results/qc/trimmed/fastqc/{sample}_R1_fastqc.html", sample=SAMPLES),
+        expand("results/qc/trimmed/fastqc/{sample}_R2_fastqc.html", sample=SAMPLES),
+        "results/qc/trimmed/multiqc/multiqc_report.html"
 
 
 ##################################################################
@@ -128,19 +128,19 @@ rule fastqc_raw:
     input:
         unpack(fq_dict_from_sample)
     output:
-        html1="results/qc/fastqc/{sample}_R1_fastqc.html",
-        zip1 ="results/qc/fastqc/{sample}_R1_fastqc.zip",
-        html2="results/qc/fastqc/{sample}_R2_fastqc.html",
-        zip2 ="results/qc/fastqc/{sample}_R2_fastqc.zip"
+        html1="results/qc/raw/fastqc/{sample}_R1_fastqc.html",
+        zip1 ="results/qc/raw/fastqc/{sample}_R1_fastqc.zip",
+        html2="results/qc/raw/fastqc/{sample}_R2_fastqc.html",
+        zip2 ="results/qc/raw/fastqc/{sample}_R2_fastqc.zip"
     envmodules:
         config["fastqc"]
     log:
         "results/logs/fastqc/{sample}_raw.log"
     shell:
         """
-        fastqc -o results/qc/fastqc {input.r1} {input.r2} 2> {log}
+        fastqc -o results/qc/raw/fastqc {input.r1} {input.r2} 2> {log}
 
-        dir="results/qc/fastqc"
+        dir="results/qc/raw/fastqc"
         baseR1=$(basename {input.r1} .fastq.gz)
         mv $dir/${{baseR1}}_fastqc.html {output.html1} || true
         mv $dir/${{baseR1}}_fastqc.zip {output.zip1} || true
@@ -157,12 +157,12 @@ rule fastqc_raw:
 
 rule multiqc_raw:
     input:
-        expand("results/qc/fastqc/{sample}_R1_fastqc.zip", sample=SAMPLES),
-        expand("results/qc/fastqc/{sample}_R2_fastqc.zip", sample=SAMPLES)
+        expand("results/qc/raw/fastqc/{sample}_R1_fastqc.zip", sample=SAMPLES),
+        expand("results/qc/raw/fastqc/{sample}_R2_fastqc.zip", sample=SAMPLES)
     output:
-        "results/qc/multiqc/multiqc_report_raw.html"
+        "results/qc/raw/multiqc/multiqc_report.html"
     params:
-        outdir="results/qc/multiqc"
+        outdir="results/qc/raw/multiqc"
     envmodules:
         config["multiqc"]
     log:
@@ -171,7 +171,7 @@ rule multiqc_raw:
         """
         rm -rf {params.outdir}
         mkdir -p {params.outdir}
-        multiqc results/qc/fastqc -o {params.outdir} 2> {log}
+        multiqc results/qc/raw/fastqc -o {params.outdir} 2> {log}
         """
 
 
@@ -233,7 +233,7 @@ rule trim_adapters:
             out2={output.r2_trim} \
             ref={params.bbmap_ref} \
             trimpolyg=12 \
-    		trimpolya=12 \
+		trimpolya=12 \
     		k=13 \
     		ktrim=r \
     		mink=5 \
@@ -253,19 +253,19 @@ rule fastqc_trimmed:
         r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz",
         r2_trim="results/trimmed/{sample}_R2_trimmed.fastq.gz"
     output:
-        html3="results/qc/fastqc/trimmed/{sample}_R1_fastqc.html",
-        zip3 ="results/qc/fastqc/trimmed/{sample}_R1_fastqc.zip",
-        html4="results/qc/fastqc/trimmed/{sample}_R2_fastqc.html",
-        zip4 ="results/qc/fastqc/trimmed/{sample}_R2_fastqc.zip"
+        html3="results/qc/trimmed/fastqc/{sample}_R1_fastqc.html",
+        zip3 ="results/qc/trimmed/fastqc/{sample}_R1_fastqc.zip",
+        html4="results/qc/trimmed/fastqc/{sample}_R2_fastqc.html",
+        zip4 ="results/qc/trimmed/fastqc/{sample}_R2_fastqc.zip"
     envmodules:
         config["fastqc"]
     log:
         "results/logs/fastqc/{sample}_trimmed.log"
     shell:
         """
-        fastqc -o results/qc/fastqc {input.r1_trim} {input.r2_trim} 2> {log}
+        fastqc -o results/qc/trimmed/fastqc {input.r1_trim} {input.r2_trim} 2> {log}
 
-        dir="results/qc/fastqc/trimmed"
+        dir="results/qc/trimmed/fastqc"
         baseR1=$(basename {input.r1_trim} .fastq.gz)
         mv $dir/${{baseR1}}_fastqc.html {output.html3} || true
         mv $dir/${{baseR1}}_fastqc.zip {output.zip3} || true
@@ -282,12 +282,12 @@ rule fastqc_trimmed:
 
 rule multiqc_trimmed:
     input:
-        expand("results/qc/fastqc/trimmed/{sample}_R1_fastqc.zip", sample=SAMPLES),
-        expand("results/qc/fastqc/trimmed/{sample}_R2_fastqc.zip", sample=SAMPLES)
+        expand("results/qc/trimmed/fastqc/{sample}_R1_fastqc.zip", sample=SAMPLES),
+        expand("results/qc/trimmed/fastqc/{sample}_R2_fastqc.zip", sample=SAMPLES)
     output:
-        "results/qc/multiqc/trimmed/multiqc_report_trimmed.html"
+        "results/qc/trimmed/multiqc/multiqc_report.html"
     params:
-        outdir="results/qc/multiqc/trimmed"
+        outdir="results/qc/trimmed/multiqc"
     envmodules:
         config["multiqc"]
     log:
@@ -296,7 +296,7 @@ rule multiqc_trimmed:
         """
         rm -rf {params.outdir}
         mkdir -p {params.outdir}
-        multiqc results/qc/fastqc/trimmed -o {params.outdir} 2> {log}
+        multiqc results/qc/trimmed/fastqc -o {params.outdir} 2> {log}
         """
 
 
