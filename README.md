@@ -2,13 +2,13 @@
 
 ---
 
-## 1) Summary
+# 1) Summary
 This workflow processes SLAM-Seq data, performing quality control on raw and trimmed FASTQ files, extracting UMIs, trimming adapters, running SlamDunk for read counts, and analyzing the data with Alleyoop for various evaluations. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
 
 ---
 
-## 2) Detailed Steps
-### Steps:
+# 2) Detailed Steps
+## Steps:
 + **1)** **FastQC / MultiQC (Raw Samples)** - Perform quality control on raw FASTQ files.
 + **2)** **Process Raw Fastq UMIs** - Process UMIs (Unique Molecular Identifiers) in the raw FASTQ files.
 + **3)** **Adapter Trim (BBDuk)** - Trim adapters from the raw FASTQ files using BBDuk.
