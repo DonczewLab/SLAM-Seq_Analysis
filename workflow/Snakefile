@@ -367,8 +367,8 @@ rule alleyoop_rates:
     output:
         "results/slamdunk_scer/alleyoop/rates"
     params:
-	slamdunk_ref = config["slamdunk_ref"],
-	min_base_qual = config["min_base_qual"]
+        slamdunk_ref=config["slamdunk_ref"],
+        min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"]
     log:
@@ -390,8 +390,8 @@ rule alleyoop_tccontext:
     output:
         "results/slamdunk_scer/alleyoop/tccontext"
     params:
-        slamdunk_ref = config["slamdunk_ref"],
-        min_base_qual = config["min_base_qual"]
+        slamdunk_ref=config["slamdunk_ref"],
+        min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"]
     log:
