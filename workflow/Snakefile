@@ -316,7 +316,8 @@ rule slamdunk_all:
         expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
         expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/count_twotcreadcount"
+        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
+        expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES)
     params:
         reference=config["slamdunk_ref"],
         bed=config["bed_file"]
@@ -339,9 +340,10 @@ rule slamdunk_all:
 
 rule slamdunk_count:
     input:
-        "results/slamdunk_scer/filter/*.bam"
+        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/count_twotcreadcount"
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES),
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv", sample=SAMPLES)
     params:
         reference=config["slamdunk_ref"],
         bed=config["bed_file"]
@@ -363,20 +365,20 @@ rule slamdunk_count:
 
 rule alleyoop_rates:
     input:
-        "results/slamdunk_scer/filter/*.bam"
+        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/rates"
+        "results/slamdunk_scer/alleyoop/{sample}_rates"
     params:
         slamdunk_ref=config["slamdunk_ref"],
         min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"]
     log:
-        "results/logs/alleyoop/alleyoop_rates.log"
+        "results/logs/alleyoop/alleyoop_rates_{sample}.log"
     shell:
         """
-        alleyoop rates --outputDir {output} --reference {params.slamdunk_ref} --min-basequality {params.min_base_qual} \
-            --threads 24
+        alleyoop rates --outputDir {output} --reference {params.slamdunk_ref} \
+            --min-basequality {params.min_base_qual} --threads 24 {input}
         """
 
 
@@ -386,16 +388,16 @@ rule alleyoop_rates:
 
 rule alleyoop_tccontext:
     input:
-        "results/slamdunk_scer/filter/*.bam"
+        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/tccontext"
+        "results/slamdunk_scer/alleyoop/{sample}_tccontext"
     params:
         slamdunk_ref=config["slamdunk_ref"],
         min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"]
     log:
-        "results/logs/alleyoop/alleyoop_tccontext.log"
+        "results/logs/alleyoop/alleyoop_tccontext_{wildcards.sample}.log"
     shell:
         """
         alleyoop tccontext --outputDir {output} --reference {params.slamdunk_ref} --min-basequality {params.min_base_qual} \
@@ -409,9 +411,9 @@ rule alleyoop_tccontext:
 
 rule alleyoop_utrrates:
     input:
-        "results/slamdunk_scer/filter/*.bam"
+        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/utrrates"
+        "results/slamdunk_scer/alleyoop/{sample}_utrrates"
     params:
         slamdunk_ref=config["slamdunk_ref"],
         bed_file=config["bed_file"],
@@ -420,12 +422,12 @@ rule alleyoop_utrrates:
     envmodules:
         config["slamdunk"]
     log:
-        "results/logs/alleyoop/alleyoop_utrrates.log"
+        "results/logs/alleyoop/alleyoop_utrrates_{sample}.log"
     shell:
         """
         alleyoop utrrates --outputDir {output} --reference {params.slamdunk_ref} --bed {params.bed_file} \
             --multiTCStringency --max-read-length {params.max_read_length} --min-basequality {params.min_base_qual} \
-            --threads 24
+            --threads 24 {input}
         """
 
 
@@ -435,9 +437,9 @@ rule alleyoop_utrrates:
 
 rule alleyoop_snpeval:
     input:
-        "results/slamdunk_scer/filter/*.bam"
+        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/snpeval"
+        "results/slamdunk_scer/alleyoop/{sample}_snpeval"
     params:
         slamdunk_ref = config["slamdunk_ref"],
         bed_file = config["bed_file"],
@@ -448,13 +450,13 @@ rule alleyoop_snpeval:
     envmodules:
         config["slamdunk"]
     log:
-        "results/logs/alleyoop/alleyoop_snpeval.log"
+        "results/logs/alleyoop/alleyoop_snpeval_{sample}.log"
     shell:
         """
         alleyoop snpeval --outputDir {output} --snp-directory {output}/snp --reference {params.slamdunk_ref} \
             --bed {params.bed_file} --min-coverage {params.min_coverage} --var-fraction {params.var_fraction} \
             --multiTCStringency --max-read-length {params.max_read_length} --min-base-qual {params.min_base_qual} \
-            --threads 24
+            --threads 24 {input}
         """
 
 
@@ -465,11 +467,11 @@ rule alleyoop_snpeval:
 
 rule alleyoop_summary_onetcreadcount:
     input:
-        "results/slamdunk_scer/count_onetcreadcount/*.tsv"
+        expand("results/slamdunk_scer/count_onetcreadcount/{sample}.tsv", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv"
+        "results/slamdunk_scer/alleyoop/{sample}_summary_onetcreadcount.tsv"
     log:
-        "results/logs/alleyoop/alleyoop_summary_onetcreadcount.log"
+        "results/logs/alleyoop/alleyoop_summary_onetcreadcount_{sample}.log"
     shell:
         """
         alleyoop summary --output {output} --tcountDir {input} --threads 24
@@ -482,11 +484,11 @@ rule alleyoop_summary_onetcreadcount:
 
 rule alleyoop_summary_twotcreadcount:
     input:
-        "results/slamdunk_scer/count_twotcreadcount/*.tsv"
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv"
+        "results/slamdunk_scer/alleyoop/{sample}_summary_twotcreadcount.tsv"
     log:
-        "results/logs/alleyoop/alleyoop_summary_twotcreadcount.log"
+        "results/logs/alleyoop/alleyoop_summary_twotcreadcount_{wildcards.sample}.log"
     shell:
         """
         alleyoop summary --output {output} --tcountDir {input} --threads 24
@@ -499,11 +501,11 @@ rule alleyoop_summary_twotcreadcount:
 
 rule alleyoop_merge_onetcreadcount:
     input:
-        "results/slamdunk_scer/count_onetcreadcount/*.tsv"
+        expand("results/slamdunk_scer/count_onetcreadcount/{sample}.tsv", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv"
+        "results/slamdunk_scer/alleyoop/{sample}_merge_onetcreadcount.tsv"
     log:
-        "results/logs/alleyoop/alleyoop_merge_onetcreadcount.log"
+        "results/logs/alleyoop/alleyoop_merge_onetcreadcount_{sample}.log"
     shell:
         """
         alleyoop merge --output {output} --column "TcReadCount" {input} --threads 24
@@ -516,11 +518,11 @@ rule alleyoop_merge_onetcreadcount:
 
 rule alleyoop_merge_twotcreadcount:
     input:
-        "results/slamdunk_scer/count_twotcreadcount/*.tsv"
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv"
+        "results/slamdunk_scer/alleyoop/{sample}_merge_twotcreadcount.tsv"
     log:
-        "results/logs/alleyoop/alleyoop_merge_twotcreadcount.log"
+        "results/logs/alleyoop/alleyoop_merge_twotcreadcount_{sample}.log"
     shell:
         """
         alleyoop merge --output {output} --column "TcReadCount" {input} --threads 24
@@ -533,9 +535,9 @@ rule alleyoop_merge_twotcreadcount:
 
 rule alleyoop_tcperreadpos:
     input:
-        "results/slamdunk_scer/filter/*.bam"
+        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/tcperreadpos"
+        "results/slamdunk_scer/alleyoop/{sample}_tcperreadpos"
     params:
         slamdunk_ref = config["slamdunk_ref"],
         max_read_length = config["max_read_length"],
@@ -543,11 +545,11 @@ rule alleyoop_tcperreadpos:
     envmodules:
         config["slamdunk"]
     log:
-        "results/logs/alleyoop/alleyoop_tcperreadpos.log"
+        "results/logs/alleyoop/alleyoop_tcperreadpos_{sample}.log"
     shell:
         """
         alleyoop tcperreadpos --outputDir {output} --reference {params.slamdunk_ref} --snp-directory {output}/snp \
-            --max-read-length {params.max_read_length} --min-basequality {params.min_base_qual} --threads 24
+            --max-read-length {params.max_read_length} --min-basequality {params.min_base_qual} --threads 24 {input}
         """
 
 
@@ -557,20 +559,20 @@ rule alleyoop_tcperreadpos:
 
 rule alleyoop_dump:
     input:
-        "results/slamdunk_scer/filter/*.bam"
+        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/dump"
+        "results/slamdunk_scer/alleyoop/{sample}_dump"
     params:
         slamdunk_ref = config["slamdunk_ref"],
         min_base_qual = config["min_base_qual"]
     envmodules:
         config["slamdunk"]
     log:
-        "results/logs/alleyoop/alleyoop_dump.log"
+        "results/logs/alleyoop/alleyoop_dump_{sample}.log"
     shell:
         """
         alleyoop dump --outputDir {output} --reference {params.slamdunk_ref} --snp-directory {output}/snp \
-            --min-basequality {params.min_base_qual} --threads 24
+            --min-basequality {params.min_base_qual} --threads 24 {input}
         """
 
 
