@@ -488,7 +488,7 @@ rule alleyoop_summary_twotcreadcount:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_summary_twotcreadcount.tsv"
     log:
-        "results/logs/alleyoop/alleyoop_summary_twotcreadcount_{wildcards.sample}.log"
+        "results/logs/alleyoop/alleyoop_summary_twotcreadcount_{sample}.log"
     shell:
         """
         alleyoop summary --output {output} --tcountDir {input} --threads 24
