@@ -413,12 +413,12 @@ rule alleyoop_utrrates:
     output:
         "results/slamdunk_scer/alleyoop/utrrates"
     params:
-        slamdunk_ref = config["slamdunk_ref"],
-        bed_file = config["bed_file"],
-        max_read_length = config["max_read_length"],
-        min_base_qual = config["min_base_qual"]
+        slamdunk_ref=config["slamdunk_ref"],
+        bed_file=config["bed_file"],
+        max_read_length=config["max_read_length"],
+        min_base_qual=config["min_base_qual"]
     envmodules:
-        config["alleyoop"]
+        config["slamdunk"]
     log:
         "results/logs/alleyoop/alleyoop_utrrates.log"
     shell:
