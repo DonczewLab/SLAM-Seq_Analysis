@@ -320,6 +320,10 @@ rule slamdunk_all:
     params:
         reference=config["slamdunk_ref"],
         bed=config["bed_file"]
+    envmodules:
+        config["slamdunk"]
+    log:
+        "results/logs/slamdunk/slamdunk_all.log"
     shell:
         """
         slamdunk all --reference {params.reference} --bed {params.bed} --outputDir {output} --threads 24 \
@@ -341,6 +345,10 @@ rule slamdunk_count:
     params:
         reference=config["slamdunk_ref"],
         bed=config["bed_file"]
+    envmodules:
+        config["slamdunk"]
+    log:
+        "results/logs/slamdunk/slamdunk_count.log"
     shell:
         """
         slamdunk count --reference {params.reference} --bed {params.bed} --snp-directory {output}/snp \
@@ -358,9 +366,16 @@ rule alleyoop_rates:
         "results/slamdunk_scer/filter/*.bam"
     output:
         "results/slamdunk_scer/alleyoop/rates"
+    params:
+	slamdunk_ref = config["slamdunk_ref"],
+	min_base_qual = config["min_base_qual"]
+    envmodules:
+        config["alleyoop"]
+    log:
+        "results/logs/alleyoop/alleyoop_rates.log"
     shell:
         """
-        alleyoop rates --outputDir {output} --reference {config[slamdunk_ref]} --min-basequality {config[min_base_qual]} \
+        alleyoop rates --outputDir {output} --reference {params.slamdunk_ref} --min-basequality {params.min_base_qual} \
             --threads 24
         """
 
@@ -521,6 +536,8 @@ rule multiqc_slamdunk:
         expand("results/slamdunk_scer/alleyoop/{sample}_summary", sample=SAMPLES)
     output:
         "results/logs/multiqc/slamdunk_scer/multiqc_report.html"
+    envmodules:
+        config["multiqc"]
     shell:
         """
         multiqc results/slamdunk_scer/alleyoop -o {output} --quiet
