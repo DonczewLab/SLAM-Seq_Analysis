@@ -369,18 +369,13 @@ rule slamdunk_count:
         "results/logs/slamdunk/slamdunk_count.log"
     shell:
         """
-        slamdunk count --reference {params.reference} --bed {params.bed} --snp-directory {output}/snp \
-            --outputDir {output} --max-read-length {params.max_read_len} --min-base-qual {params.min_base_qual} \
-            --conversion-threshold 2 --threads 24
-        """
-        """
         # Define the output directory
         output_dir="results/slamdunk_scer/count_twotcreadcount"
 
-        # Create the output directory if it doesn't exist
+        # Create the output directory
         mkdir -p $output_dir
 
-        # Run slam dunk count with outputDir pointing to the specific directory for each sample
+        # Run slam dunk count
         slamdunk count --reference {params.reference} --bed {params.bed} --snp-directory $output_dir/snp \
             --outputDir $output_dir --max-read-length {params.max_read_len} \
             --min-base-qual {params.min_base_qual} --conversion-threshold 2 --threads 24
