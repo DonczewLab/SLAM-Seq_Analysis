@@ -379,7 +379,7 @@ rule slamdunk_count:
 
 rule alleyoop_rates:
     input:
-        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_rates"
     params:
@@ -402,7 +402,7 @@ rule alleyoop_rates:
 
 rule alleyoop_tccontext:
     input:
-        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_tccontext"
     params:
@@ -425,7 +425,7 @@ rule alleyoop_tccontext:
 
 rule alleyoop_utrrates:
     input:
-        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_utrrates"
     params:
@@ -451,7 +451,7 @@ rule alleyoop_utrrates:
 
 rule alleyoop_snpeval:
     input:
-        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_snpeval"
     params:
@@ -474,14 +474,13 @@ rule alleyoop_snpeval:
         """
 
 
-
 ##################################################################
 ##                      Alleyoop Summary 1                      ##
 ##################################################################
 
 rule alleyoop_summary_onetcreadcount:
     input:
-        expand("results/slamdunk_scer/count_onetcreadcount/{sample}.tsv", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)  # Corrected input directory
     output:
         "results/slamdunk_scer/alleyoop/{sample}_summary_onetcreadcount.tsv"
     log:
@@ -498,7 +497,7 @@ rule alleyoop_summary_onetcreadcount:
 
 rule alleyoop_summary_twotcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)  # Corrected input directory
     output:
         "results/slamdunk_scer/alleyoop/{sample}_summary_twotcreadcount.tsv"
     log:
@@ -515,7 +514,7 @@ rule alleyoop_summary_twotcreadcount:
 
 rule alleyoop_merge_onetcreadcount:
     input:
-        expand("results/slamdunk_scer/count_onetcreadcount/{sample}.tsv", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)  # Corrected input directory
     output:
         "results/slamdunk_scer/alleyoop/{sample}_merge_onetcreadcount.tsv"
     log:
@@ -532,7 +531,7 @@ rule alleyoop_merge_onetcreadcount:
 
 rule alleyoop_merge_twotcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)  # Corrected input directory
     output:
         "results/slamdunk_scer/alleyoop/{sample}_merge_twotcreadcount.tsv"
     log:
@@ -549,7 +548,7 @@ rule alleyoop_merge_twotcreadcount:
 
 rule alleyoop_tcperreadpos:
     input:
-        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_tcperreadpos"
     params:
@@ -573,7 +572,7 @@ rule alleyoop_tcperreadpos:
 
 rule alleyoop_dump:
     input:
-        expand("results/slamdunk_scer/filter/{sample}.bam", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_dump"
     params:
