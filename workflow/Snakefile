@@ -397,7 +397,7 @@ rule alleyoop_tccontext:
     envmodules:
         config["slamdunk"]
     log:
-        "results/logs/alleyoop/alleyoop_tccontext_{wildcards.sample}.log"
+        "results/logs/alleyoop/alleyoop_tccontext_{sample}.log"
     shell:
         """
         alleyoop tccontext --outputDir {output} --reference {params.slamdunk_ref} --min-basequality {params.min_base_qual} \
