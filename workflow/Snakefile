@@ -446,7 +446,7 @@ rule alleyoop_snpeval:
         max_read_length = config["max_read_length"],
         min_base_qual = config["min_base_qual"]
     envmodules:
-        config["alleyoop"]
+        config["slamdunk"]
     log:
         "results/logs/alleyoop/alleyoop_snpeval.log"
     shell:
@@ -541,7 +541,7 @@ rule alleyoop_tcperreadpos:
         max_read_length = config["max_read_length"],
         min_base_qual = config["min_base_qual"]
     envmodules:
-        config["alleyoop"]
+        config["slamdunk"]
     log:
         "results/logs/alleyoop/alleyoop_tcperreadpos.log"
     shell:
@@ -564,7 +564,7 @@ rule alleyoop_dump:
         slamdunk_ref = config["slamdunk_ref"],
         min_base_qual = config["min_base_qual"]
     envmodules:
-        config["alleyoop"]
+        config["slamdunk"]
     log:
         "results/logs/alleyoop/alleyoop_dump.log"
     shell:
