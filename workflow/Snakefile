@@ -356,11 +356,13 @@ rule slamdunk_count:
     input:
         expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES)
     output:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES),
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv", sample=SAMPLES)
+        bams="results/slamdunk_scer/count_twotcreadcount/{sample}.bam",
+        csv="results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv"
     params:
         reference=config["slamdunk_ref"],
-        bed=config["bed_file"]
+        bed=config["bed_file"],
+	max_read_len=config["max_read_length"],
+	min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"]
     log:
@@ -368,10 +370,21 @@ rule slamdunk_count:
     shell:
         """
         slamdunk count --reference {params.reference} --bed {params.bed} --snp-directory {output}/snp \
-            --outputDir {output} --max-read-length {config[max_read_length]} --min-base-qual {config[min_base_qual]} \
+            --outputDir {output} --max-read-length {params.max_read_len} --min-base-qual {params.min_base_qual} \
             --conversion-threshold 2 --threads 24
         """
+        """
+        # Define the output directory
+        output_dir="results/slamdunk_scer/count_twotcreadcount"
 
+        # Create the output directory if it doesn't exist
+        mkdir -p $output_dir
+
+        # Run slam dunk count with outputDir pointing to the specific directory for each sample
+        slamdunk count --reference {params.reference} --bed {params.bed} --snp-directory $output_dir/snp \
+            --outputDir $output_dir --max-read-length {params.max_read_len} \
+            --min-base-qual {params.min_base_qual} --conversion-threshold 2 --threads 24
+        """
 
 ##################################################################
 ##                        Alleyoop Rates                        ##
@@ -480,7 +493,7 @@ rule alleyoop_snpeval:
 
 rule alleyoop_summary_onetcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)  # Corrected input directory
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_summary_onetcreadcount.tsv"
     log:
@@ -497,7 +510,7 @@ rule alleyoop_summary_onetcreadcount:
 
 rule alleyoop_summary_twotcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)  # Corrected input directory
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_summary_twotcreadcount.tsv"
     log:
@@ -514,7 +527,7 @@ rule alleyoop_summary_twotcreadcount:
 
 rule alleyoop_merge_onetcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)  # Corrected input directory
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_merge_onetcreadcount.tsv"
     log:
@@ -531,7 +544,7 @@ rule alleyoop_merge_onetcreadcount:
 
 rule alleyoop_merge_twotcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)  # Corrected input directory
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
     output:
         "results/slamdunk_scer/alleyoop/{sample}_merge_twotcreadcount.tsv"
     log:
