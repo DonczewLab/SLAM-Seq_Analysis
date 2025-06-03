@@ -117,7 +117,14 @@ rule all:
         # FastQC / MultiQC reports for trimmed data
         expand("results/qc/trimmed/fastqc/{sample}_R1_fastqc.html", sample=SAMPLES),
         expand("results/qc/trimmed/fastqc/{sample}_R2_fastqc.html", sample=SAMPLES),
-        "results/qc/trimmed/multiqc/multiqc_report.html"
+        "results/qc/trimmed/multiqc/multiqc_report.html",
+
+	# Slam Dunk and Alleyoop Outputs
+        "results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
+        "results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
+        "results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
+        "results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv",
+        "results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv",
 
 
 ##################################################################
@@ -301,6 +308,220 @@ rule multiqc_trimmed:
 
 
 ##################################################################
-##                           Slam Dunk                          ##
+##                         Slam Dunk All                        ##
 ##################################################################
 
+rule slamdunk_all:
+    input:
+        expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
+        expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES)
+    output:
+        "results/slamdunk_scer/count_twotcreadcount"
+    params:
+        reference=config["slamdunk_ref"],
+        bed=config["bed_file"]
+    shell:
+        """
+        slamdunk all --reference {params.reference} --bed {params.bed} --outputDir {output} --threads 24 \
+            --trim-5p {config[trim_5p]} --topn {config[topn]} --multimap --min-coverage {config[min_coverage]} \
+            --var-fraction {config[var_fraction]} --max-read-length {config[max_read_length]} \
+            --min-base-qual {config[min_base_qual]} --skip-sam
+        """
+
+
+##################################################################
+##                        Slam Dunk Count                       ##
+##################################################################
+
+rule slamdunk_count:
+    input:
+        "results/slamdunk_scer/filter/*.bam"
+    output:
+        "results/slamdunk_scer/count_twotcreadcount"
+    params:
+        reference=config["slamdunk_ref"],
+        bed=config["bed_file"]
+    shell:
+        """
+        slamdunk count --reference {params.reference} --bed {params.bed} --snp-directory {output}/snp \
+            --outputDir {output} --max-read-length {config[max_read_length]} --min-base-qual {config[min_base_qual]} \
+            --conversion-threshold 2 --threads 24
+        """
+
+
+##################################################################
+##                        Alleyoop Rates                        ##
+##################################################################
+
+rule alleyoop_rates:
+    input:
+        "results/slamdunk_scer/filter/*.bam"
+    output:
+        "results/slamdunk_scer/alleyoop/rates"
+    shell:
+        """
+        alleyoop rates --outputDir {output} --reference {config[slamdunk_ref]} --min-basequality {config[min_base_qual]} \
+            --threads 24
+        """
+
+
+##################################################################
+##                      Alleyoop TCcontext                      ##
+##################################################################
+
+rule alleyoop_tccontext:
+    input:
+        "results/slamdunk_scer/filter/*.bam"
+    output:
+        "results/slamdunk_scer/alleyoop/tccontext"
+    shell:
+        """
+        alleyoop tccontext --outputDir {output} --reference {config[slamdunk_ref]} --min-basequality {config[min_base_qual]} \
+            --threads 24
+        """
+
+
+##################################################################
+##                       Alleyoop UTRrates                      ##
+##################################################################
+
+rule alleyoop_utrrates:
+    input:
+        "results/slamdunk_scer/filter/*.bam"
+    output:
+        "results/slamdunk_scer/alleyoop/utrrates"
+    shell:
+        """
+        alleyoop utrrates --outputDir {output} --reference {config[slamdunk_ref]} --bed {config[bed_file]} \
+            --multiTCStringency --max-read-length {config[max_read_length]} --min-basequality {config[min_base_qual]} \
+            --threads 24
+        """
+
+
+##################################################################
+##                       Alleyoop SNPeval                       ##
+##################################################################
+
+rule alleyoop_snpeval:
+    input:
+        "results/slamdunk_scer/filter/*.bam"
+    output:
+        "results/slamdunk_scer/alleyoop/snpeval"
+    shell:
+        """
+        alleyoop snpeval --outputDir {output} --snp-directory {output}/snp --reference {config[slamdunk_ref]} \
+            --bed {config[bed_file]} --min-coverage {config[min_coverage]} --var-fraction {config[var_fraction]} \
+            --multiTCStringency --max-read-length {config[max_read_length]} --min-base-qual {config[min_base_qual]} \
+            --threads 24
+        """
+
+
+##################################################################
+##                      Alleyoop Summary 1                      ##
+##################################################################
+
+rule alleyoop_summary_onetcreadcount:
+    input:
+        "results/slamdunk_scer/count_onetcreadcount/*.tsv"
+    output:
+        "results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv"
+    shell:
+        """
+        alleyoop summary --output {output} --tcountDir {input} --threads 24
+        """
+
+
+##################################################################
+##                      Alleyoop Summary 2                      ##
+##################################################################
+
+rule alleyoop_summary_twotcreadcount:
+    input:
+        "results/slamdunk_scer/count_twotcreadcount/*.tsv"
+    output:
+        "results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv"
+    shell:
+        """
+        alleyoop summary --output {output} --tcountDir {input} --threads 24
+        """
+
+
+##################################################################
+##                   Alleyoop Summary 1 Merged                  ##
+##################################################################
+
+rule alleyoop_merge_onetcreadcount:
+    input:
+        "results/slamdunk_scer/count_onetcreadcount/*.tsv"
+    output:
+        "results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv"
+    shell:
+        """
+        alleyoop merge --output {output} --column "TcReadCount" {input} --threads 24
+        """
+
+
+##################################################################
+##                   Alleyoop Summary 2 Merged                  ##
+##################################################################
+
+rule alleyoop_merge_twotcreadcount:
+    input:
+        "results/slamdunk_scer/count_twotcreadcount/*.tsv"
+    output:
+        "results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv"
+    shell:
+        """
+        alleyoop merge --output {output} --column "TcReadCount" {input} --threads 24
+        """
+
+
+##################################################################
+##                     Alleyoop TCperReadpos                    ##
+##################################################################
+
+rule alleyoop_tcperreadpos:
+    input:
+        "results/slamdunk_scer/filter/*.bam"
+    output:
+        "results/slamdunk_scer/alleyoop/tcperreadpos"
+    shell:
+        """
+        alleyoop tcperreadpos --outputDir {output} --reference {config[slamdunk_ref]} --snp-directory {output}/snp \
+            --max-read-length {config[max_read_length]} --min-basequality {config[min_base_qual]} --threads 24
+        """
+
+
+##################################################################
+##                         Alleyoop Dump                        ##
+##################################################################
+
+rule alleyoop_dump:
+    input:
+        "results/slamdunk_scer/filter/*.bam"
+    output:
+        "results/slamdunk_scer/alleyoop/dump"
+    shell:
+        """
+        alleyoop dump --outputDir {output} --reference {config[slamdunk_ref]} --snp-directory {output}/snp \
+            --min-basequality {config[min_base_qual]} --threads 24
+        """
+
+
+##################################################################
+##                  MultiQC on Slam Dunk Output                 ##
+##################################################################
+
+rule multiqc_slamdunk:
+    input:
+        expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/{sample}_tccontext", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/{sample}_utrrates", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/{sample}_snpeval", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/{sample}_summary", sample=SAMPLES)
+    output:
+        "results/logs/multiqc/slamdunk_scer/multiqc_report.html"
+    shell:
+        """
+        multiqc results/slamdunk_scer/alleyoop -o {output} --quiet
+        """
