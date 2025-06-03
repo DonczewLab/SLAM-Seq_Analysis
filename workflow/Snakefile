@@ -366,7 +366,7 @@ rule slamdunk_count:
     envmodules:
         config["slamdunk"]
     log:
-        "results/logs/slamdunk/slamdunk_count.log"
+        "results/logs/slamdunk/slamdunk_count_{sample}.log" 
     shell:
         """
         # Define the output directory
