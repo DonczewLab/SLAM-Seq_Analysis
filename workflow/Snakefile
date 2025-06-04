@@ -59,21 +59,25 @@ def fq_dict_from_sample(wildcards):
 # Function to return fastq files from "results/trimmed" folder based on sample name
 def fq_dict_trimmed_sample(wildcards):
     """
-    Return a list of fastq files for the given sample using wildcards.
+    Return a dictionary with keys 'r1' and 'r2' that match fastq files 
+    for the given sample using wildcards.
     """
     sample = wildcards.sample
-    trimmed_dir = f"results/trimmed/{sample}"
+    trimmed_dir = "results/trimmed"  # All fastq files are in this directory
     
-    # Get all the fastq files from the results/trimmed folder
-    r1_files = sorted([f for f in os.listdir(trimmed_dir) if f.endswith("R1_trimmed.fastq.gz")])
-    r2_files = sorted([f for f in os.listdir(trimmed_dir) if f.endswith("R2_trimmed.fastq.gz")])
+    # Get all the fastq files from the results/trimmed folder for the specific sample
+    r1_files = sorted([f for f in os.listdir(trimmed_dir) if f.startswith(f"{sample}_R1_trimmed.fastq.gz")])
+    r2_files = sorted([f for f in os.listdir(trimmed_dir) if f.startswith(f"{sample}_R2_trimmed.fastq.gz")])
 
     # Ensure we have the same number of R1 and R2 files
     if len(r1_files) != len(r2_files):
         raise ValueError(f"Mismatch in number of R1 and R2 files for sample {sample}.")
 
-    # Return the list of R1 and R2 files (flattened, no dictionaries)
-    return [f"{trimmed_dir}/{r1_file}" for r1_file in r1_files] + [f"{trimmed_dir}/{r2_file}" for r2_file in r2_files]
+    # Return the dict with paired files
+    return {
+        "r1": [f"{trimmed_dir}/{file}" for file in r1_files],
+        "r2": [f"{trimmed_dir}/{file}" for file in r2_files]
+    }
 
 # Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
 merge_groups = samples_df["merge_group"].unique().tolist()
@@ -369,10 +373,6 @@ rule slamdunk_all:
         "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
         """
-	# Print input fastq files for debugging
-        echo "Input R1 files: {input.r1}"
-        echo "Input R2 files: {input.r2}"
-
         slamdunk all \
 		--reference {params.scer_genome} \
 		--bed {params.scer_bed} \
