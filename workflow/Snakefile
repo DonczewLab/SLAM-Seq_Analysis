@@ -384,7 +384,7 @@ rule slamdunk_all:
 		--min-base-qual {params.min_base_qual} \
 		--skip-sam \
 		--threads 24 \
-		{input}
+		{input.r1} {input.r2}
         """
 
 
