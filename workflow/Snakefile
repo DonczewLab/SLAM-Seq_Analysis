@@ -254,13 +254,13 @@ rule trim_adapters:
             out2={output.r2_trim} \
             ref={params.bbmap_ref} \
             trimpolyg=12 \
-		trimpolya=12 \
-    		k=13 \
-    		ktrim=r \
-    		mink=5 \
-    		qtrim=r \
-    		trimq=10 \
-    		minlength=20 \
+	    trimpolya=12 \
+            k=13 \
+    	    ktrim=r \
+    	    mink=5 \
+            qtrim=r \
+    	    trimq=10 \
+    	    minlength=20 \
             2> {log}
         """
 
