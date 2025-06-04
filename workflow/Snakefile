@@ -353,8 +353,8 @@ rule multiqc_trimmed:
 
 rule slamdunk_all:
     input:
-        r1=fq_dict_trimmed_sample,
-        r2=fq_dict_trimmed_sample
+        r1=fq_dict_trimmed_sample(wildcards),
+        r2=fq_dict_trimmed_sample(wildcards)
     output:
         bams="results/slamdunk_scer/all_counts/{sample}.bam",
         csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
@@ -374,6 +374,9 @@ rule slamdunk_all:
         "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
         """
+    	echo "Input R1 files: {input.r1}"
+    	echo "Input R2 files: {input.r2}"
+
         slamdunk all \
 		--reference {params.scer_genome} \
 		--bed {params.scer_bed} \
