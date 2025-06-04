@@ -351,7 +351,7 @@ rule multiqc_trimmed:
 
 rule slamdunk_all:
     input:
-		fq_dict_trimmed_sample
+        fq_dict_trimmed_sample
     output:
         bams="results/slamdunk_scer/all_counts/{sample}.bam",
         csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
