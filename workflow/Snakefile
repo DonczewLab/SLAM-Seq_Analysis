@@ -57,22 +57,25 @@ def fq_dict_from_sample(wildcards):
     }
 
 # Function to return fastq files from "results/trimmed" folder based on sample name
-def fq_dict_from_trimmed_sample(wildcards):
+def fq_dict_trimmed_sample(wildcards):
     """
-    Return a dict: {"r1": <R1path>, "r2": <R2path>} for each sample from the 'results/trimmed' folder.
+    Return a dictionary with keys 'r1' and 'r2' that match fastq files 
+    for the given sample using wildcards.
     """
-    sample_name = wildcards.sample
-    r1_path = f"results/trimmed/{sample_name}_R1_trimmed.fastq.gz"
-    r2_path = f"results/trimmed/{sample_name}_R2_trimmed.fastq.gz"
-    
-    # Check if both R1 and R2 files exist
-    if os.path.exists(r1_path) and os.path.exists(r2_path):
-        return {
-            "r1": r1_path,
-            "r2": r2_path
-        }
-    else:
-        raise FileNotFoundError(f"FASTQ files not found for sample {sample_name}.")
+    sample = wildcards.sample
+    # Get all the fastq files from the results/trimmed folder
+    r1_files = sorted([f for f in os.listdir(f"results/trimmed/{sample}") if f.endswith("R1_trimmed.fastq.gz")])
+    r2_files = sorted([f for f in os.listdir(f"results/trimmed/{sample}") if f.endswith("R2_trimmed.fastq.gz")])
+
+    # Ensure we have the same number of R1 and R2 files
+    if len(r1_files) != len(r2_files):
+        raise ValueError(f"Mismatch in number of R1 and R2 files for sample {sample}.")
+
+    # Return the dict with paired files
+    return {
+        "r1": [f"results/trimmed/{sample}/{file}" for file in r1_files],
+        "r2": [f"results/trimmed/{sample}/{file}" for file in r2_files]
+    }
 
 # Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
 merge_groups = samples_df["merge_group"].unique().tolist()
@@ -336,6 +339,11 @@ rule multiqc_trimmed:
         multiqc results/qc/trimmed/fastqc -o {params.outdir} 2> {log}
         """
 
+###################################################################################################################################################
+###################################################################################################################################################
+#                       					Working Area									  #
+###################################################################################################################################################
+###################################################################################################################################################
 
 ##################################################################
 ##                         Slam Dunk All                        ##
@@ -343,8 +351,7 @@ rule multiqc_trimmed:
 
 rule slamdunk_all:
     input:
-	r1s="results/trimmed/{sample}_R1_trimmed.fastq.gz",
-        r2s="results/trimmed/{sample}_R2_trimmed.fastq.gz"
+	fq_dict_trimmed_sample
     output:
         bams="results/slamdunk_scer/all_counts/{sample}.bam",
         csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
