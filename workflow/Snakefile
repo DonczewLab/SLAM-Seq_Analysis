@@ -56,6 +56,24 @@ def fq_dict_from_sample(wildcards):
         "r2": row["fastq2"]
     }
 
+# Function to return fastq files from "results/trimmed" folder based on sample name
+def fq_dict_from_trimmed_sample(wildcards):
+    """
+    Return a dict: {"r1": <R1path>, "r2": <R2path>} for each sample from the 'results/trimmed' folder.
+    """
+    sample_name = wildcards.sample
+    r1_path = f"results/trimmed/{sample_name}_R1_trimmed.fastq.gz"
+    r2_path = f"results/trimmed/{sample_name}_R2_trimmed.fastq.gz"
+    
+    # Check if both R1 and R2 files exist
+    if os.path.exists(r1_path) and os.path.exists(r2_path):
+        return {
+            "r1": r1_path,
+            "r2": r2_path
+        }
+    else:
+        raise FileNotFoundError(f"FASTQ files not found for sample {sample_name}.")
+
 # Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
 merge_groups = samples_df["merge_group"].unique().tolist()
 
@@ -325,8 +343,7 @@ rule multiqc_trimmed:
 
 rule slamdunk_all:
     input:
-        r1s=expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
-        r2s=expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES)
+	unpack(fq_dict_from_trimmed_sample)
     output:
         bams="results/slamdunk_scer/all_counts/{sample}.bam",
         csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
@@ -358,8 +375,8 @@ rule slamdunk_all:
 		--max-read-length {params.max_read_len} \
 		--min-base-qual {params.min_base_qual} \
 		--skip-sam \
-		--threads 24
-		{input.r1s} {input.r2s}
+		--threads 24 \
+		{input}
         """
 
 
