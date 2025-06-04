@@ -373,6 +373,10 @@ rule slamdunk_all:
         "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
         """
+	# Print input fastq files for debugging
+        echo "Input R1 files: {input.r1}"
+        echo "Input R2 files: {input.r2}"
+
         slamdunk all \
 		--reference {params.scer_genome} \
 		--bed {params.scer_bed} \
