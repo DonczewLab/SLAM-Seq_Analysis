@@ -343,7 +343,8 @@ rule multiqc_trimmed:
 
 rule slamdunk_all:
     input:
-	unpack(fq_dict_from_trimmed_sample)
+	r1s=expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
+        r2s=expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES)
     output:
         bams="results/slamdunk_scer/all_counts/{sample}.bam",
         csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
@@ -376,7 +377,7 @@ rule slamdunk_all:
 		--min-base-qual {params.min_base_qual} \
 		--skip-sam \
 		--threads 24 \
-		{input}
+		{input.r1s} {input.r2s}
         """
 
 
