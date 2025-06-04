@@ -136,7 +136,7 @@ rule all:
 
         # 5) BAM and CSV files from Slam Dunk All
         expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
-        expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES)
 
         # 6) Slam Dunk Count files
         #expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES),
