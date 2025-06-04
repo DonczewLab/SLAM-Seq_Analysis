@@ -113,32 +113,30 @@ rule all:
         expand("results/qc/trimmed/fastqc/{sample}_R2_fastqc.html", sample=SAMPLES),
         "results/qc/trimmed/multiqc/multiqc_report.html",
 
-        # 5) BAM files from Slam Dunk (all counts)
+        # 5) BAM and CSV files from Slam Dunk All
         expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
-
-        # 6) Count CSVs from Slam Dunk (all counts)
         expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES),
 
-        # 7) Slam Dunk Count files
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES),
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv", sample=SAMPLES),
+        # 6) Slam Dunk Count files
+        #expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES),
+        #expand("results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv", sample=SAMPLES),
 
-        # 8) Alleyoop outputs
-        expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/{sample}_tccontext", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/{sample}_utrrates", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/{sample}_snpeval", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/{sample}_summary", sample=SAMPLES),
+        # 7) Alleyoop outputs
+        #expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
+        #expand("results/slamdunk_scer/alleyoop/{sample}_tccontext", sample=SAMPLES),
+        #expand("results/slamdunk_scer/alleyoop/{sample}_utrrates", sample=SAMPLES),
+        #expand("results/slamdunk_scer/alleyoop/{sample}_snpeval", sample=SAMPLES),
+        #expand("results/slamdunk_scer/alleyoop/{sample}_summary", sample=SAMPLES),
 
-        # 9) Slam Dunk and Alleyoop Merged Outputs
-        expand("results/slamdunk_scer/alleyoop/{sample}_merge_totalreadcount.tsv", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/{sample}_merge_onetcreadcount.tsv", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/{sample}_merge_twotcreadcount.tsv", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/{sample}_summary_onetcreadcount.tsv", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/{sample}_summary_twotcreadcount.tsv", sample=SAMPLES),
+        # 8) Slam Dunk and Alleyoop Merged Outputs
+        #expand("results/slamdunk_scer/alleyoop/{sample}_merge_totalreadcount.tsv", sample=SAMPLES),
+        #expand("results/slamdunk_scer/alleyoop/{sample}_merge_onetcreadcount.tsv", sample=SAMPLES),
+        #expand("results/slamdunk_scer/alleyoop/{sample}_merge_twotcreadcount.tsv", sample=SAMPLES),
+        #expand("results/slamdunk_scer/alleyoop/{sample}_summary_onetcreadcount.tsv", sample=SAMPLES),
+        #expand("results/slamdunk_scer/alleyoop/{sample}_summary_twotcreadcount.tsv", sample=SAMPLES),
 
-        # 10) Final MultiQC on Slam Dunk Outputs
-        "results/logs/multiqc/slamdunk_scer/multiqc_report.html"
+        # 9) Final MultiQC on Slam Dunk Outputs
+        #"results/logs/multiqc/slamdunk_scer/multiqc_report.html"
 
 
 ##################################################################
@@ -327,24 +325,41 @@ rule multiqc_trimmed:
 
 rule slamdunk_all:
     input:
-        expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
-        expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES)
+        r1s=expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
+        r2s=expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES)
     output:
-        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
-        expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES)
+        bams="results/slamdunk_scer/all_counts/{sample}.bam",
+        csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
     params:
-        reference=config["slamdunk_ref"],
-        bed=config["bed_file"]
+        scer_genome=config["scer_genome"],
+        scer_bed=config["bed_file"],
+	trim_5p=config["trim_5p"],
+	topn=config["topn"],
+	max_read_len=config["max_read_length"],
+	min_base_qual=config["min_base_qual"],
+	var_fraction=config["var_fraction"],
+	min_coverage=config["min_coverage"],
+	output_dir="results/slamdunk_scer/all_counts"
     envmodules:
         config["slamdunk"]
     log:
         "results/logs/slamdunk/slamdunk_all.log"
     shell:
         """
-        slamdunk all --reference {params.reference} --bed {params.bed} --outputDir {output} --threads 24 \
-            --trim-5p {config[trim_5p]} --topn {config[topn]} --multimap --min-coverage {config[min_coverage]} \
-            --var-fraction {config[var_fraction]} --max-read-length {config[max_read_length]} \
-            --min-base-qual {config[min_base_qual]} --skip-sam
+        slamdunk all \
+		--reference {params.scer_genome} \
+		--bed {params.scer_bed} \
+		--outputDir {params.output_dir} \
+		--trim-5p {params.trim_5p} \
+		--topn {params.topn} \
+		--multimap \
+		--min-coverage {params.min_coverage} \
+		--var-fraction {params.var_fraction} \
+		--max-read-length {params.max_read_len} \
+		--min-base-qual {params.min_base_qual} \
+		--skip-sam \
+		--threads 24
+		{input.r1s} {input.r2s}
         """
 
 
@@ -376,9 +391,15 @@ rule slamdunk_count:
         mkdir -p $output_dir
 
         # Run slam dunk count
-        slamdunk count --reference {params.reference} --bed {params.bed} --snp-directory $output_dir/snp \
-            --outputDir $output_dir --max-read-length {params.max_read_len} \
-            --min-base-qual {params.min_base_qual} --conversion-threshold 2 --threads 24
+        slamdunk count \
+		--reference {params.reference} \
+		--bed {params.bed} \
+		--snp-directory $output_dir/snp \
+		--outputDir $output_dir \
+		--max-read-length {params.max_read_len} \
+		--min-base-qual {params.min_base_qual} \
+		--conversion-threshold 2 \
+		--threads 24
         """
 
 ##################################################################
