@@ -63,9 +63,15 @@ def fq_dict_trimmed_sample(wildcards):
     for the given sample using wildcards.
     """
     sample = wildcards.sample
+    trimmed_dir = f"results/trimmed/{sample}"
+    
+    # Check if the directory exists, if not create it
+    if not os.path.exists(trimmed_dir):
+        os.makedirs(trimmed_dir)
+    
     # Get all the fastq files from the results/trimmed folder
-    r1_files = sorted([f for f in os.listdir(f"results/trimmed/{sample}") if f.endswith("R1_trimmed.fastq.gz")])
-    r2_files = sorted([f for f in os.listdir(f"results/trimmed/{sample}") if f.endswith("R2_trimmed.fastq.gz")])
+    r1_files = sorted([f for f in os.listdir(trimmed_dir) if f.endswith("R1_trimmed.fastq.gz")])
+    r2_files = sorted([f for f in os.listdir(trimmed_dir) if f.endswith("R2_trimmed.fastq.gz")])
 
     # Ensure we have the same number of R1 and R2 files
     if len(r1_files) != len(r2_files):
@@ -73,8 +79,8 @@ def fq_dict_trimmed_sample(wildcards):
 
     # Return the dict with paired files
     return {
-        "r1": [f"results/trimmed/{sample}/{file}" for file in r1_files],
-        "r2": [f"results/trimmed/{sample}/{file}" for file in r2_files]
+        "r1": [f"{trimmed_dir}/{file}" for file in r1_files],
+        "r2": [f"{trimmed_dir}/{file}" for file in r2_files]
     }
 
 # Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
