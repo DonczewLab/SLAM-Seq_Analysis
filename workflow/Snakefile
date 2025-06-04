@@ -343,7 +343,7 @@ rule slamdunk_all:
     envmodules:
         config["slamdunk"]
     log:
-        "results/logs/slamdunk/slamdunk_all.log"
+        "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
         """
         slamdunk all \
