@@ -271,6 +271,9 @@ rule trim_adapters:
         "results/logs/trim/{sample}.log"
     shell:
         """
+        # Ensure the trimmed directory exists
+        mkdir -p results/trimmed
+
         bbduk.sh \
             in1={input.r1} \
             in2={input.r2} \
