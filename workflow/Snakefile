@@ -369,6 +369,9 @@ rule slamdunk_all:
         "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
         """
+        # Cleanup any pre-existing directories
+        rm -rf {params.output_dir}/map
+
     	echo "Input files: {input}"
 
         slamdunk all \
