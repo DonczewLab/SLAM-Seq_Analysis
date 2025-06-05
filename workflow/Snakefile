@@ -369,8 +369,7 @@ rule slamdunk_all:
         "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
         """
-    	echo "Input R1 files: {input.r1}"
-    	echo "Input R2 files: {input.r2}"
+    	echo "Input files: {input}"
 
         slamdunk all \
 		--reference {params.scer_genome} \
