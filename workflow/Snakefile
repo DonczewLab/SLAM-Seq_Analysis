@@ -65,8 +65,7 @@ def fq_dict_trimmed_sample(sample):
     trimmed_dir = "results/trimmed"  # All fastq files are in this directory
 
     # Ensure the directory exists
-    if not os.path.exists(trimmed_dir):
-        raise FileNotFoundError(f"The directory {trimmed_dir} does not exist.")
+    os.makedirs(trimmed_dir, exist_ok=True)
     
     # Get all the fastq files from the results/trimmed folder for the specific sample
     r1_files = sorted([f for f in os.listdir(trimmed_dir) if f.startswith(f"{sample}_R1_trimmed.fastq.gz")])
