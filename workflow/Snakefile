@@ -57,12 +57,11 @@ def fq_dict_from_sample(wildcards):
     }
 
 # Function to return fastq files from "results/trimmed" folder based on sample name
-def fq_dict_trimmed_sample(wildcards):
+def fq_dict_trimmed_sample(sample):
     """
     Return a dictionary with keys 'r1' and 'r2' that match fastq files 
-    for the given sample using wildcards.
+    for the given sample from the 'results/trimmed' folder.
     """
-    sample = wildcards.sample
     trimmed_dir = "results/trimmed"  # All fastq files are in this directory
     
     # Get all the fastq files from the results/trimmed folder for the specific sample
@@ -353,8 +352,8 @@ rule multiqc_trimmed:
 
 rule slamdunk_all:
     input:
-        r1=fq_dict_trimmed_sample(wildcards)["r1"],
-        r2=fq_dict_trimmed_sample(wildcards)["r2"]
+        r1 = lambda wildcards: fq_dict_trimmed_sample(wildcards.sample)["r1"],
+        r2 = lambda wildcards: fq_dict_trimmed_sample(wildcards.sample)["r2"]
     output:
         bams="results/slamdunk_scer/all_counts/{sample}.bam",
         csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
