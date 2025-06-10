@@ -344,12 +344,30 @@ rule multiqc_trimmed:
 ###################################################################################################################################################
 
 ##################################################################
+##                        Rename R1 files                       ##
+##################################################################
+
+# new rule
+rule rename_trimmed_fastqs:
+    input:
+        r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz"
+    output:
+        r1_trim_rename="results/trimmed/{sample}_trimmed.fastq.gz"
+    log:
+        "results/logs/trimmed/rename_trimmed_fastqs_{sample}.log"
+    shell:
+        """
+        mv {input} {output}
+        """
+
+
+##################################################################
 ##                         Slam Dunk All                        ##
 ##################################################################
 
 rule slamdunk_all:
     input:
-        fq_dict_trimmed_sample
+        r1_trim_rename="results/trimmed/{sample}_trimmed.fastq.gz"
     output:
         bams="results/slamdunk_scer/all_counts/{sample}.bam",
         csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
@@ -387,7 +405,7 @@ rule slamdunk_all:
 		--min-base-qual {params.min_base_qual} \
 		--skip-sam \
 		--threads 24 \
-		{input}
+		{input.r1_trim_rename}
         """
 
 
