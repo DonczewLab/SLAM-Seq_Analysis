@@ -367,7 +367,7 @@ rule rename_trimmed_fastqs:
 
 rule slamdunk_all:
     input:
-        fastqs=expand("results/bbduk/{sample}_trimmed_R1_001.fastq.gz", sample=SAMPLES) + expand("results/bbduk/{sample}_trimmed_R2_001.fastq.gz", sample=SAMPLES)
+        fastqs=expand("results/trimmed/{sample}_trimmed_R1_001.fastq.gz", sample=SAMPLES) + expand("results/trimmed/{sample}_trimmed_R2_001.fastq.gz", sample=SAMPLES)
     output:
         bams="results/slamdunk_scer/all_counts/{sample}.bam",
         csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
