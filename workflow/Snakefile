@@ -383,7 +383,9 @@ rule slamdunk_all:
 	output_dir="results/slamdunk_scer/all_counts"
     envmodules:
         config["slamdunk"],
-	config["nextgenmap"]
+	config["nextgenmap"],
+	config["varscan"],
+	config["samtools"]
     log:
         "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
