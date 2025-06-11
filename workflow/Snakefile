@@ -382,7 +382,8 @@ rule slamdunk_all:
 	min_coverage=config["min_coverage"],
 	output_dir="results/slamdunk_scer/all_counts"
     envmodules:
-        config["slamdunk"]
+        config["slamdunk"],
+	config["nextgenmap"]
     log:
         "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
