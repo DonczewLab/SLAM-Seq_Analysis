@@ -324,8 +324,8 @@ rule fastqc_trimmed:
 
 rule multiqc_trimmed:
     input:
-        expand("results/qc/trimmed/fastqc/{sample}_R1_fastqc.zip", sample=SAMPLES),
-        expand("results/qc/trimmed/fastqc/{sample}_R2_fastqc.zip", sample=SAMPLES)
+        expand("results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.zip", sample=SAMPLES),
+        expand("results/qc/trimmed/fastqc/{sample}_R2_trimmed_fastqc.zip", sample=SAMPLES)
     output:
         "results/qc/trimmed/multiqc/multiqc_report.html"
     params:
