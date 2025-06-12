@@ -426,7 +426,7 @@ rule slamdunk_count:
         bams="results/slamdunk_scer/count_twotcreadcount/{sample}.bam",
         csv="results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv"
     params:
-        reference=config["slamdunk_ref"],
+        reference=config["scer_genome"],
         bed=config["bed_file"],
 	max_read_len=config["max_read_length"],
 	min_base_qual=config["min_base_qual"]
@@ -464,7 +464,7 @@ rule alleyoop_rates:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_rates"
     params:
-        slamdunk_ref=config["slamdunk_ref"],
+        slamdunk_ref=config["scer_genome"],
         min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"]
@@ -487,7 +487,7 @@ rule alleyoop_tccontext:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_tccontext"
     params:
-        slamdunk_ref=config["slamdunk_ref"],
+        slamdunk_ref=config["scer_genome"],
         min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"]
@@ -510,7 +510,7 @@ rule alleyoop_utrrates:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_utrrates"
     params:
-        slamdunk_ref=config["slamdunk_ref"],
+        slamdunk_ref=config["scer_genome"],
         bed_file=config["bed_file"],
         max_read_length=config["max_read_length"],
         min_base_qual=config["min_base_qual"]
@@ -536,7 +536,7 @@ rule alleyoop_snpeval:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_snpeval"
     params:
-        slamdunk_ref = config["slamdunk_ref"],
+        slamdunk_ref = config["scer_genome"],
         bed_file = config["bed_file"],
         min_coverage = config["min_coverage"],
         var_fraction = config["var_fraction"],
@@ -633,7 +633,7 @@ rule alleyoop_tcperreadpos:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_tcperreadpos"
     params:
-        slamdunk_ref = config["slamdunk_ref"],
+        slamdunk_ref = config["scer_genome"],
         max_read_length = config["max_read_length"],
         min_base_qual = config["min_base_qual"]
     envmodules:
@@ -657,7 +657,7 @@ rule alleyoop_dump:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_dump"
     params:
-        slamdunk_ref = config["slamdunk_ref"],
+        slamdunk_ref = config["scer_genome"],
         min_base_qual = config["min_base_qual"]
     envmodules:
         config["slamdunk"]
