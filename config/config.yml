@@ -36,7 +36,7 @@ umi_len: 12
 # ==============================================================================
 # SLAMDUNK PARAMETERS
 # ==============================================================================
-slamdunk_ref: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome_bowtie2_index/SGD_R64-3-1_genome" # Genome reference for SLAMDUNK
+slamdunk_ref: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome.fna" # Genome reference for SLAMDUNK
 bed_file: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/Scerevisiae_R64-3-1_gene3utr.bed" # Gene + 3-prime UTR BED file
 
 # SLAMDUNK additional options
