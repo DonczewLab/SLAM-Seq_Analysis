@@ -91,9 +91,9 @@ slamdunk_all:
   mem: "64G"
   cores: 16
   time: "08:00:00"
-  name: "{rule}.{wildcards.sample}"
-  output: logs/{rule}.{wildcards.sample}.out
-  error: logs/{rule}.{wildcards.sample}.err
+  name: "{rule}"
+  output: logs/{rule}.out
+  error: logs/{rule}.err
 
 slamdunk_count:
   cpus-per-task: 16
