@@ -2,27 +2,6 @@
 samples_csv: "config/samples.csv"
 
 # ==============================================================================
-# GENOME and BLACKLIST PATHS
-# ==============================================================================
-
-# Primary (no spike-in) genome = S. cerevisiae
-scer_genome: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome_bowtie2_index/SGD_R64-3-1_genome"
-genome_file_scer: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genomefile.txt"
-blacklist_scer: "/hpc-prj/donczew/genomic_resources/blacklist_chrMT/SGD_R64-3-1_blacklist.bed"
-include_list: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_includelist.bed"
-
-# Default spike-in genome = S. pombe
-spikein_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_ASM294v2_genome_bowtie2_index/NCBI_ASM294v2_genome"
-
-# ------------------------------------------------------------------------------
-# Optionally, if you want to switch to D. melanogaster as spike-in, change spikein_genome with specified path found below:
-# spom
-# spom_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_ASM294v2_genome_bowtie2_index/NCBI_ASM294v2_genome"
-# dmel
-# dmel_genome: "/hpc-prj/donczew/genomic_resources/Dmelanogaster_GCF_000001215.4/NCBI_R6plusISO1MT_genome_bowtie2_index/NCBI_R6plusISO1MT_genome"
-# ------------------------------------------------------------------------------
-
-# ==============================================================================
 # ADAPTER FILE (BBDuk)
 # ==============================================================================
 bbmap_ref: "/hpc-prj/donczew/genomic_resources/bbmap/truseq_universal_adapters.fa"
@@ -34,12 +13,18 @@ umi_loc: "read2"
 umi_len: 12
 
 # ==============================================================================
-# SLAMDUNK PARAMETERS
+# GENOME and BED Files Path
 # ==============================================================================
-slamdunk_ref: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome.fna" # Genome reference for SLAMDUNK
+# Primary (no spike-in) genome = S. cerevisiae
+scer_genome: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome.fna" # Genome reference for SLAMDUNK
 bed_file: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/Scerevisiae_R64-3-1_gene3utr.bed" # Gene + 3-prime UTR BED file
 
-# SLAMDUNK additional options
+# Default spike-in genome = S. pombe
+spikein_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_ASM294v2_genome_bowtie2_index/NCBI_ASM294v2_genome"
+
+# ==============================================================================
+# SLAMDUNK PARAMETERS
+# ==============================================================================
 trim_5p: 5
 topn: 100
 multimap: true
