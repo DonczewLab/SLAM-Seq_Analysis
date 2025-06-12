@@ -305,16 +305,8 @@ rule fastqc_trimmed:
         "results/logs/fastqc/{sample}_trimmed.log"
     shell:
         """
+	mkdir -p results/qc/trimmed/fastqc
         fastqc -o results/qc/trimmed/fastqc {input.r1_trim} {input.r2_trim} 2> {log}
-
-        dir="results/qc/trimmed/fastqc"
-        baseR1=$(basename {input.r1_trim} .fastq.gz)
-        mv $dir/${{baseR1}}_fastqc.html {output.html3} || true
-        mv $dir/${{baseR1}}_fastqc.zip {output.zip3} || true
-
-        baseR2=$(basename {input.r2_trim} .fastq.gz)
-        mv $dir/${{baseR2}}_fastqc.html {output.html4} || true
-        mv $dir/${{baseR2}}_fastqc.zip {output.zip4} || true
         """
 
 
