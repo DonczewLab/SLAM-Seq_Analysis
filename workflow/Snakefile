@@ -220,6 +220,9 @@ rule process_umis:
     output:
         r1_umi="results/fastp/{sample}_umi_R1.fastq.gz",
         r2_umi="results/fastp/{sample}_umi_R2.fastq.gz"
+    params:
+        umi_loc=config["umi_loc"],
+	umi_len=config["umi_len"]
     envmodules:
         config["fastp"]
     log:
@@ -231,8 +234,8 @@ rule process_umis:
             --out1 {output.r1_umi} \
             --out2 {output.r2_umi} \
             --umi \
-            --umi_loc read2 \
-            --umi_len 12 \
+            --umi_loc {params.umi_loc} \
+            --umi_len {params.umi_len} \
             --disable_adapter_trimming \
             --disable_trim_poly_g \
             --disable_quality_filtering \
