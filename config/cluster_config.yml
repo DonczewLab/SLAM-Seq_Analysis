@@ -74,6 +74,15 @@ multiqc_trimmed:
   output: logs/{rule}.out
   error: logs/{rule}.err
 
+rename_trimmed_fastqs:
+  cpus-per-task: 1
+  mem: "1G"
+  cores: 1
+  time: "00:05:00"
+  name: "{rule}"
+  output: logs/{rule}.out
+  error: logs/{rule}.err
+
 # ------------------------------------------------------------------------------
 # SLAMDUNK - main processing step
 # ------------------------------------------------------------------------------

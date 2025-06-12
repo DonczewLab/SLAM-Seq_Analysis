@@ -58,26 +58,19 @@ def fq_dict_from_sample(wildcards):
 
 # Function to return fastq files from "results/trimmed" folder based on sample name
 def fq_dict_trimmed_sample(wildcards):
-    """
-    Return a dictionary with keys 'r1' and 'r2' that match fastq files 
-    for the given sample using wildcards.
-    """
     sample = wildcards.sample
-    trimmed_dir = "results/trimmed"  # All fastq files are in this directory
+    trimmed_dir = "results/trimmed"
     
-    # Get all the fastq files from the results/trimmed folder for the specific sample
-    r1_files = sorted([f for f in os.listdir(trimmed_dir) if f.startswith(f"{sample}_R1_trimmed.fastq.gz")])
-    r2_files = sorted([f for f in os.listdir(trimmed_dir) if f.startswith(f"{sample}_R2_trimmed.fastq.gz")])
+    # Get all R1 and R2 files for the sample
+    r1_files = sorted([f"{trimmed_dir}/{sample}_R1_trimmed.fastq.gz"])
+    r2_files = sorted([f"{trimmed_dir}/{sample}_R2_trimmed.fastq.gz"])
 
-    # Ensure we have the same number of R1 and R2 files
+    # Ensure both R1 and R2 files are available
     if len(r1_files) != len(r2_files):
         raise ValueError(f"Mismatch in number of R1 and R2 files for sample {sample}.")
 
-    # Return the dict with paired files
-    return {
-        "r1": [f"{trimmed_dir}/{file}" for file in r1_files],
-        "r2": [f"{trimmed_dir}/{file}" for file in r2_files]
-    }
+    # Return a combined list of R1 and R2 files
+    return r1_files + r2_files
 
 # Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
 merge_groups = samples_df["merge_group"].unique().tolist()
@@ -227,6 +220,9 @@ rule process_umis:
     output:
         r1_umi="results/fastp/{sample}_umi_R1.fastq.gz",
         r2_umi="results/fastp/{sample}_umi_R2.fastq.gz"
+    params:
+        umi_loc=config["umi_loc"],
+	umi_len=config["umi_len"]
     envmodules:
         config["fastp"]
     log:
@@ -238,8 +234,8 @@ rule process_umis:
             --out1 {output.r1_umi} \
             --out2 {output.r2_umi} \
             --umi \
-            --umi_loc read2 \
-            --umi_len 12 \
+            --umi_loc {params.umi_loc} \
+            --umi_len {params.umi_len} \
             --disable_adapter_trimming \
             --disable_trim_poly_g \
             --disable_quality_filtering \
@@ -268,6 +264,9 @@ rule trim_adapters:
         "results/logs/trim/{sample}.log"
     shell:
         """
+        # Ensure the trimmed directory exists
+        mkdir -p results/trimmed
+
         bbduk.sh \
             in1={input.r1} \
             in2={input.r2} \
@@ -348,13 +347,30 @@ rule multiqc_trimmed:
 ###################################################################################################################################################
 
 ##################################################################
+##                        Rename R1 files                       ##
+##################################################################
+
+# new rule
+rule rename_trimmed_fastqs:
+    input:
+        r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz"
+    output:
+        r1_trim_rename="results/trimmed/{sample}_trimmed.fastq.gz"
+    log:
+        "results/logs/trimmed/rename_trimmed_fastqs_{sample}.log"
+    shell:
+        """
+        mv {input} {output}
+        """
+
+
+##################################################################
 ##                         Slam Dunk All                        ##
 ##################################################################
 
 rule slamdunk_all:
     input:
-        r1=fq_dict_trimmed_sample(wildcards)["r1"],
-        r2=fq_dict_trimmed_sample(wildcards)["r2"]
+        fastqs=expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES) + expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES)
     output:
         bams="results/slamdunk_scer/all_counts/{sample}.bam",
         csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
@@ -369,13 +385,18 @@ rule slamdunk_all:
 	min_coverage=config["min_coverage"],
 	output_dir="results/slamdunk_scer/all_counts"
     envmodules:
-        config["slamdunk"]
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"],
+	config["samtools"]
     log:
         "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
         """
-    	echo "Input R1 files: {input.r1}"
-    	echo "Input R2 files: {input.r2}"
+        # Cleanup any pre-existing directories
+        rm -rf {params.output_dir}/map
+
+    	echo "Input files: {input}"
 
         slamdunk all \
 		--reference {params.scer_genome} \
@@ -390,7 +411,7 @@ rule slamdunk_all:
 		--min-base-qual {params.min_base_qual} \
 		--skip-sam \
 		--threads 24 \
-		{input.r1} {input.r2}
+		{input.fastqs}
         """
 
 
@@ -405,7 +426,7 @@ rule slamdunk_count:
         bams="results/slamdunk_scer/count_twotcreadcount/{sample}.bam",
         csv="results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv"
     params:
-        reference=config["slamdunk_ref"],
+        reference=config["scer_genome"],
         bed=config["bed_file"],
 	max_read_len=config["max_read_length"],
 	min_base_qual=config["min_base_qual"]
@@ -443,7 +464,7 @@ rule alleyoop_rates:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_rates"
     params:
-        slamdunk_ref=config["slamdunk_ref"],
+        slamdunk_ref=config["scer_genome"],
         min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"]
@@ -466,7 +487,7 @@ rule alleyoop_tccontext:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_tccontext"
     params:
-        slamdunk_ref=config["slamdunk_ref"],
+        slamdunk_ref=config["scer_genome"],
         min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"]
@@ -489,7 +510,7 @@ rule alleyoop_utrrates:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_utrrates"
     params:
-        slamdunk_ref=config["slamdunk_ref"],
+        slamdunk_ref=config["scer_genome"],
         bed_file=config["bed_file"],
         max_read_length=config["max_read_length"],
         min_base_qual=config["min_base_qual"]
@@ -515,7 +536,7 @@ rule alleyoop_snpeval:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_snpeval"
     params:
-        slamdunk_ref = config["slamdunk_ref"],
+        slamdunk_ref = config["scer_genome"],
         bed_file = config["bed_file"],
         min_coverage = config["min_coverage"],
         var_fraction = config["var_fraction"],
@@ -612,7 +633,7 @@ rule alleyoop_tcperreadpos:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_tcperreadpos"
     params:
-        slamdunk_ref = config["slamdunk_ref"],
+        slamdunk_ref = config["scer_genome"],
         max_read_length = config["max_read_length"],
         min_base_qual = config["min_base_qual"]
     envmodules:
@@ -636,7 +657,7 @@ rule alleyoop_dump:
     output:
         "results/slamdunk_scer/alleyoop/{sample}_dump"
     params:
-        slamdunk_ref = config["slamdunk_ref"],
+        slamdunk_ref = config["scer_genome"],
         min_base_qual = config["min_base_qual"]
     envmodules:
         config["slamdunk"]
