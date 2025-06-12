@@ -370,10 +370,9 @@ rule rename_trimmed_fastqs:
 
 rule slamdunk_all:
     input:
-        fastqs=expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES) + expand("results/trimmed/{sample}_R2_trimmed.fastq.gz", sample=SAMPLES)
+        fastqs=expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES)
     output:
-        bams="results/slamdunk_scer/all_counts/{sample}.bam",
-        csv="results/slamdunk_scer/all_counts/{sample}.count.csv"
+        touch("results/slamdunk_scer/all_counts/done.txt")
     params:
         scer_genome=config["scer_genome"],
         scer_bed=config["bed_file"],
@@ -390,7 +389,7 @@ rule slamdunk_all:
 	config["varscan"],
 	config["samtools"]
     log:
-        "results/logs/slamdunk/slamdunk_all_{sample}.log"
+        "results/logs/slamdunk/slamdunk_all.log"
     shell:
         """
         # Cleanup any pre-existing directories
@@ -412,6 +411,8 @@ rule slamdunk_all:
 		--skip-sam \
 		--threads 24 \
 		{input.fastqs}
+	
+	touch {output}
         """
 
 
