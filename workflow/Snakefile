@@ -416,6 +416,9 @@ rule slamdunk_all:
 ##                        Slam Dunk Count                       ##
 ##################################################################
 
+# Auto-detect completed samples
+samples, = glob_wildcards("results/slamdunk_scer/all_counts/{sample}.bam")
+
 rule slamdunk_count:
     input:
         bam="results/slamdunk_scer/all_counts/{sample}.bam"
