@@ -130,13 +130,13 @@ rule all:
         "results/qc/trimmed/multiqc/multiqc_report.html",
 
         # 5) BAM and CSV files from Slam Dunk All
-	"results/slamdunk_scer/all_counts/done.txt"
+	"results/slamdunk_scer/all_counts/done.txt",
         #expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
         #expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES)
 
         # 6) Slam Dunk Count files
         expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES),
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv", sample=SAMPLES)
 
         # 7) Alleyoop outputs
         #expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
