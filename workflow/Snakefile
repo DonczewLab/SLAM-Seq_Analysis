@@ -424,7 +424,7 @@ rule slamdunk_count:
     params:
         genome=config["scer_genome"],
         bed=config["bed_file"],
-	snp_dir="results/slamdunk_scer/snp",
+	snp_dir="results/slamdunk_scer/all_counts/snp",
 	output_dir="results/slamdunk_scer/count_twotcreadcount",
 	max_read_len=config["max_read_length"],
 	min_base_qual=config["min_base_qual"]
