@@ -134,13 +134,11 @@ rule all:
         expand("results/qc/trimmed/fastqc/{sample}_R2_trimmed_fastqc.html", sample=SAMPLES),
         "results/qc/trimmed/multiqc/multiqc_report.html",
 
-        # 5) BAM and CSV files from Slam Dunk All
-        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
-        #expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES)
+        # 5) Filtered BAM files from Slam Dunk All
+        expand("results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
 
         # 6) Slam Dunk Count files
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES),
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES)
 
         # 7) Alleyoop outputs
         #expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
@@ -364,7 +362,7 @@ rule slamdunk_all:
     input:
         fastqs=expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES)
     output:
-        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES)
+        expand("results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES)
     params:
         scer_genome=config["scer_genome"],
         scer_bed=config["bed_file"],
@@ -420,10 +418,9 @@ rule slamdunk_all:
 
 rule slamdunk_count:
     input:
-        bam="results/slamdunk_scer/all_counts/{sample}.bam"
+        bam="results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        bam_out="results/slamdunk_scer/count_twotcreadcount/{sample}.bam",
-        count_csv="results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv"
+        bam_out="results/slamdunk_scer/count_twotcreadcount/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     params:
         genome=config["scer_genome"],
         bed=config["bed_file"],
