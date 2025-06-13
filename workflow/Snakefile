@@ -136,7 +136,7 @@ rule all:
 
         # 5) BAM and CSV files from Slam Dunk All
 	"results/slamdunk_scer/all_counts/done.txt",
-        #expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
+        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
         #expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES)
 
         # 6) Slam Dunk Count files
@@ -365,7 +365,8 @@ rule slamdunk_all:
     input:
         fastqs=expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES)
     output:
-        slamdunk_all_outputs
+        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
+        "results/slamdunk_scer/all_counts/done.txt"
     params:
         scer_genome=config["scer_genome"],
         scer_bed=config["bed_file"],
