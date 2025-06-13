@@ -8,7 +8,7 @@ configfile: "config/config.yml"
 # Email: kevinboyd76@gmail.com
 # GitHub: https://github.com/kevinboyd76
 # Date Created: May 27, 2025
-# Last Modified: June 2, 2025
+# Last Modified: June 12, 2025
 # Version: 1.0.0
 #
 # Description: This workflow processes SLAM-Seq data from raw FASTQ
@@ -135,8 +135,8 @@ rule all:
         #expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES)
 
         # 6) Slam Dunk Count files
-        #expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES),
-        #expand("results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES),
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv", sample=SAMPLES),
 
         # 7) Alleyoop outputs
         #expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
@@ -333,11 +333,6 @@ rule multiqc_trimmed:
         multiqc results/qc/trimmed/fastqc -o {params.outdir} 2> {log}
         """
 
-###################################################################################################################################################
-###################################################################################################################################################
-#                       					Working Area									  #
-###################################################################################################################################################
-###################################################################################################################################################
 
 ##################################################################
 ##                        Rename R1 files                       ##
@@ -388,8 +383,10 @@ rule slamdunk_all:
         # Cleanup any pre-existing directories
         rm -rf {params.output_dir}/map
 
+	# show files input for slamdunk all
     	echo "Input files: {input}"
 
+	# run slamdunk all
         slamdunk all \
 		--reference {params.scer_genome} \
 		--bed {params.scer_bed} \
@@ -409,43 +406,52 @@ rule slamdunk_all:
         """
 
 
+###################################################################################################################################################
+###################################################################################################################################################
+#                       					Working Area									  #
+###################################################################################################################################################
+###################################################################################################################################################
+
 ##################################################################
 ##                        Slam Dunk Count                       ##
 ##################################################################
 
 rule slamdunk_count:
     input:
-        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES)
+        bam="results/slamdunk_scer/all_counts/{sample}.bam"
     output:
-        bams="results/slamdunk_scer/count_twotcreadcount/{sample}.bam",
-        csv="results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv"
+        bam_out="results/slamdunk_scer/count_twotcreadcount/{sample}.bam",
+        count_csv="results/slamdunk_scer/count_twotcreadcount/{sample}.count.csv"
     params:
-        reference=config["scer_genome"],
+        genome=config["scer_genome"],
         bed=config["bed_file"],
+	snp_dir="results/slamdunk_scer/snp",
+	output_dir="results/slamdunk_scer/count_twotcreadcount",
 	max_read_len=config["max_read_length"],
 	min_base_qual=config["min_base_qual"]
     envmodules:
-        config["slamdunk"]
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"],
+	config["samtools"]
     log:
         "results/logs/slamdunk/slamdunk_count_{sample}.log" 
     shell:
         """
         # Define the output directory
-        output_dir="results/slamdunk_scer/count_twotcreadcount"
-
-        # Create the output directory
-        mkdir -p $output_dir
+        mkdir -p {params.output_dir}
 
         # Run slam dunk count
         slamdunk count \
-		--reference {params.reference} \
+		--reference {params.genome} \
 		--bed {params.bed} \
-		--snp-directory $output_dir/snp \
-		--outputDir $output_dir \
+		--snp-directory {params.snp_dir} \
+		--outputDir {params.output_dir} \
 		--max-read-length {params.max_read_len} \
 		--min-base-qual {params.min_base_qual} \
 		--conversion-threshold 2 \
-		--threads 24
+		--threads 24 \
+		{input.bam}
         """
 
 ##################################################################
