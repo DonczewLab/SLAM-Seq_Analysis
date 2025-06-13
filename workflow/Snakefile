@@ -135,7 +135,6 @@ rule all:
         "results/qc/trimmed/multiqc/multiqc_report.html",
 
         # 5) BAM and CSV files from Slam Dunk All
-	"results/slamdunk_scer/all_counts/done.txt",
         expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
         #expand("results/slamdunk_scer/all_counts/{sample}.count.csv", sample=SAMPLES)
 
