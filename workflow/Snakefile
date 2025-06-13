@@ -364,8 +364,7 @@ rule slamdunk_all:
     input:
         fastqs=expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES)
     output:
-        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
-        "results/slamdunk_scer/all_counts/done.txt"
+        expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES)
     params:
         scer_genome=config["scer_genome"],
         scer_bed=config["bed_file"],
