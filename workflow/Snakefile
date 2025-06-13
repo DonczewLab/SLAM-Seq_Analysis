@@ -72,6 +72,11 @@ def fq_dict_trimmed_sample(wildcards):
     # Return a combined list of R1 and R2 files
     return r1_files + r2_files
 
+# slamdunk all output list
+def slamdunk_all_outputs(wildcards):
+    bam_files = [f"results/slamdunk_scer/all_counts/{sample}.bam" for sample in SAMPLES]
+    return bam_files + ["results/slamdunk_scer/all_counts/done.txt"]
+
 # Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
 merge_groups = samples_df["merge_group"].unique().tolist()
 
@@ -360,7 +365,7 @@ rule slamdunk_all:
     input:
         fastqs=expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES)
     output:
-        touch("results/slamdunk_scer/all_counts/done.txt")
+        slamdunk_all_outputs
     params:
         scer_genome=config["scer_genome"],
         scer_bed=config["bed_file"],
@@ -401,8 +406,6 @@ rule slamdunk_all:
 		--skip-sam \
 		--threads 24 \
 		{input.fastqs}
-	
-	touch {output}
         """
 
 
