@@ -360,6 +360,7 @@ rule slamdunk_all:
     input:
         fastqs=expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES)
     output:
+	bams=expand("results/slamdunk_scer/all_counts/{sample}.bam", sample=SAMPLES),
         touch("results/slamdunk_scer/all_counts/done.txt")
     params:
         scer_genome=config["scer_genome"],
