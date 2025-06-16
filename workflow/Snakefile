@@ -106,8 +106,9 @@ rule all:
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES),
 
-        # 6) Slam Dunk Count files
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+        # 6) Slam Dunk Count files and rename one tc count folder
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+	"results/slamdunk_scer/count_onetcreadcount/done.txt"
 
         # 7) Alleyoop outputs
         #expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
@@ -431,7 +432,7 @@ rule count_to_onetcreadcount:
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES)
     output:
-        temp("results/slamdunk_scer/count_onetcreadcount/done.txt")
+        "results/slamdunk_scer/count_onetcreadcount/done.txt"
     log:
         "results/logs/slamdunk/count_to_onetcreadcount.log"
     shell:
