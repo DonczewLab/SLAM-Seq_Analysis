@@ -446,12 +446,13 @@ rule count_to_onetcreadcount:
 
 rule alleyoop_rates:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
+        bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
         "results/slamdunk_scer/alleyoop/{sample}_rates"
     params:
         slamdunk_ref=config["scer_genome"],
-        min_base_qual=config["min_base_qual"]
+        min_base_qual=config["min_base_qual"],
+	output_dir="results/slamdunk_scer/alleyoop/rates",
     envmodules:
         config["slamdunk"]
     log:
