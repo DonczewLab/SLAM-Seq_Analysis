@@ -360,9 +360,9 @@ rule rename_trimmed_fastqs:
 
 rule slamdunk_all:
     input:
-        fastqs=expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES)
+        fastqs="results/trimmed/{sample}_trimmed.fastq.gz"
     output:
-        expand("results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES)
+        bams="results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     params:
         scer_genome=config["scer_genome"],
         scer_bed=config["bed_file"],
@@ -379,14 +379,14 @@ rule slamdunk_all:
 	config["varscan"],
 	config["samtools"]
     log:
-        "results/logs/slamdunk/slamdunk_all.log"
+        "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
         """
-        # Cleanup any pre-existing directories
-        rm -rf {params.output_dir}/map
-
 	# show files input for slamdunk all
-    	echo "Input files: {input}"
+    	echo "Input files: {input.fastqs}"
+
+	# make sure directory is present 
+	mkdir -p {params.output_dir}
 
 	# run slamdunk all
         slamdunk all \
@@ -405,12 +405,6 @@ rule slamdunk_all:
 		{input.fastqs}
         """
 
-
-###################################################################################################################################################
-###################################################################################################################################################
-#                       					Working Area									  #
-###################################################################################################################################################
-###################################################################################################################################################
 
 ##################################################################
 ##                        Slam Dunk Count                       ##
