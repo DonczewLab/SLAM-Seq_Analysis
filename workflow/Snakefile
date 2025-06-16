@@ -101,7 +101,7 @@ rule all:
         "results/qc/trimmed/multiqc/multiqc_report.html",
 
         # 5) Filtered BAM files from Slam Dunk All
-        expand("results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+        expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
 
         # 6) Slam Dunk Count files
         expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
@@ -328,7 +328,7 @@ rule slamdunk_all:
     input:
         fastqs="results/trimmed/{sample}_trimmed.fastq.gz"
     output:
-        bams="results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+        bams="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     params:
         scer_genome=config["scer_genome"],
         scer_bed=config["bed_file"],
@@ -338,7 +338,7 @@ rule slamdunk_all:
 	min_base_qual=config["min_base_qual"],
 	var_fraction=config["var_fraction"],
 	min_coverage=config["min_coverage"],
-	output_dir="results/slamdunk_scer/all_counts"
+	output_dir="results/slamdunk_scer"
     envmodules:
         config["slamdunk"],
 	config["nextgenmap"],
@@ -378,7 +378,7 @@ rule slamdunk_all:
 
 rule slamdunk_count:
     input:
-        bam="results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+        bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
         bam_out="results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv"
     params:
