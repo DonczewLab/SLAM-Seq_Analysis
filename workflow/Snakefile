@@ -100,8 +100,11 @@ rule all:
         expand("results/qc/trimmed/fastqc/{sample}_R2_trimmed_fastqc.html", sample=SAMPLES),
         "results/qc/trimmed/multiqc/multiqc_report.html",
 
-        # 5) Filtered BAM files from Slam Dunk All
+        # 5) Filtered BAM, count, and bedgraph files from Slam Dunk All
         expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES),
 
         # 6) Slam Dunk Count files
         expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
@@ -328,7 +331,10 @@ rule slamdunk_all:
     input:
         fastqs="results/trimmed/{sample}_trimmed.fastq.gz"
     output:
-        bams="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+        bams="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam",
+	counts="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv",
+	minus_bedgraph="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph",
+	plus_bedgraph="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph"
     params:
         scer_genome=config["scer_genome"],
         scer_bed=config["bed_file"],
@@ -411,6 +417,27 @@ rule slamdunk_count:
 		--conversion-threshold 2 \
 		--threads 24 \
 		{input.bam}
+        """
+
+
+##################################################################
+##              Rename count to count_onetcreadcount            ##
+##################################################################
+
+rule count_to_onetcreadcount:
+    input:
+        expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES)
+    output:
+        temp("results/slamdunk_scer/count_onetcreadcount/done.txt")
+    log:
+        "results/logs/slamdunk/count_to_onetcreadcount.log"
+    shell:
+        """
+        mv results/slamdunk_scer/count results/slamdunk_scer/count_onetcreadcount
+	touch {output}
         """
 
 ##################################################################
