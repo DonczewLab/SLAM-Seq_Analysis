@@ -72,43 +72,9 @@ def fq_dict_trimmed_sample(wildcards):
     # Return a combined list of R1 and R2 files
     return r1_files + r2_files
 
-# slamdunk all output list
-def slamdunk_all_outputs(wildcards):
-    bam_files = [f"results/slamdunk_scer/all_counts/{sample}.bam" for sample in SAMPLES]
-    return bam_files + ["results/slamdunk_scer/all_counts/done.txt"]
-
 # Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
 merge_groups = samples_df["merge_group"].unique().tolist()
 
-# define begraphs input for average scale factor (CPM) tracks
-def bedgraphs_for_group(wildcards):
-    """
-    Return a list of bedGraph files belonging to 'merge_group' == wildcards.group.
-    """
-    # Filter samples by group
-    samples_in_group = [
-        s for s in SAMPLES
-        if samples_df.loc[s, "merge_group"] == wildcards.group
-    ]
-    # Build the bedGraph filenames for those samples
-    return [
-        f"results/bedgraph/cpm/{sample}_cpm.bg"
-        for sample in samples_in_group
-    ]
-
-# define bedgraphs input for average spike in tracks
-def spikein_bedgraphs_for_group(wildcards):
-    """
-    Return a list of spike-in normalized bedGraph files for the given merge_group.
-    """
-    samples_in_group = [
-        s for s in SAMPLES
-        if samples_df.loc[s, "merge_group"] == wildcards.group
-    ]
-    return [
-        f"results/bedgraph/spikein/{sample}_spikein.bg"
-        for sample in samples_in_group
-    ]
 
 ##################################################################
 ##                          Rule All                            ##
