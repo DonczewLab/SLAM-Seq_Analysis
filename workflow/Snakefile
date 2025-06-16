@@ -102,6 +102,7 @@ rule all:
 
         # 5) Filtered BAM, count, and bedgraph files from Slam Dunk All
         expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log", sample=SAMPLES),
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES),
@@ -333,6 +334,7 @@ rule slamdunk_all:
         fastqs="results/trimmed/{sample}_trimmed.fastq.gz"
     output:
         bams="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam",
+	logs="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log",
 	counts="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv",
 	minus_bedgraph="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph",
 	plus_bedgraph="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph"
