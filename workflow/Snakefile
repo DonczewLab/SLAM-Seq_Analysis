@@ -777,7 +777,7 @@ rule alleyoop_dump:
     params:
         slamdunk_ref = config["scer_genome"],
         min_base_qual = config["min_base_qual"],
-	snp_dir="results/slamdunk_scer/snp"
+	snp_dir="results/slamdunk_scer/snp",
 	output_dir="results/slamdunk_scer/alleyoop/dump"
     envmodules:
         config["slamdunk"],
