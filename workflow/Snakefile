@@ -813,8 +813,8 @@ rule multiqc_slamdunk:
     output:
         "results/qc/slamdunk_scer/multiqc/multiqc_report.html"
     params:
-	input_dir="results/slamdunk_scer/alleyoop",
-        output_dir="results/qc/slamdunk_scer/multiqc"
+        output_dir="results/qc/slamdunk_scer/multiqc",
+	input_dir="results/slamdunk_scer/alleyoop"
     envmodules:
         config["multiqc"]
     log:
