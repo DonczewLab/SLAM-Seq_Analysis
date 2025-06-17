@@ -72,43 +72,9 @@ def fq_dict_trimmed_sample(wildcards):
     # Return a combined list of R1 and R2 files
     return r1_files + r2_files
 
-# slamdunk all output list
-def slamdunk_all_outputs(wildcards):
-    bam_files = [f"results/slamdunk_scer/all_counts/{sample}.bam" for sample in SAMPLES]
-    return bam_files + ["results/slamdunk_scer/all_counts/done.txt"]
-
 # Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
 merge_groups = samples_df["merge_group"].unique().tolist()
 
-# define begraphs input for average scale factor (CPM) tracks
-def bedgraphs_for_group(wildcards):
-    """
-    Return a list of bedGraph files belonging to 'merge_group' == wildcards.group.
-    """
-    # Filter samples by group
-    samples_in_group = [
-        s for s in SAMPLES
-        if samples_df.loc[s, "merge_group"] == wildcards.group
-    ]
-    # Build the bedGraph filenames for those samples
-    return [
-        f"results/bedgraph/cpm/{sample}_cpm.bg"
-        for sample in samples_in_group
-    ]
-
-# define bedgraphs input for average spike in tracks
-def spikein_bedgraphs_for_group(wildcards):
-    """
-    Return a list of spike-in normalized bedGraph files for the given merge_group.
-    """
-    samples_in_group = [
-        s for s in SAMPLES
-        if samples_df.loc[s, "merge_group"] == wildcards.group
-    ]
-    return [
-        f"results/bedgraph/spikein/{sample}_spikein.bg"
-        for sample in samples_in_group
-    ]
 
 ##################################################################
 ##                          Rule All                            ##
@@ -134,11 +100,16 @@ rule all:
         expand("results/qc/trimmed/fastqc/{sample}_R2_trimmed_fastqc.html", sample=SAMPLES),
         "results/qc/trimmed/multiqc/multiqc_report.html",
 
-        # 5) Filtered BAM files from Slam Dunk All
-        expand("results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+        # 5) Filtered BAM, count, and bedgraph files from Slam Dunk All
+        expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES),
 
-        # 6) Slam Dunk Count files
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+        # 6) Slam Dunk Count files and rename one tc count folder
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+	"results/slamdunk_scer/count_onetcreadcount/done.txt"
 
         # 7) Alleyoop outputs
         #expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
@@ -360,9 +331,13 @@ rule rename_trimmed_fastqs:
 
 rule slamdunk_all:
     input:
-        fastqs=expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES)
+        fastqs="results/trimmed/{sample}_trimmed.fastq.gz"
     output:
-        expand("results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES)
+        bams="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam",
+	logs="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log",
+	counts="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv",
+	minus_bedgraph="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph",
+	plus_bedgraph="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph"
     params:
         scer_genome=config["scer_genome"],
         scer_bed=config["bed_file"],
@@ -372,21 +347,21 @@ rule slamdunk_all:
 	min_base_qual=config["min_base_qual"],
 	var_fraction=config["var_fraction"],
 	min_coverage=config["min_coverage"],
-	output_dir="results/slamdunk_scer/all_counts"
+	output_dir="results/slamdunk_scer"
     envmodules:
         config["slamdunk"],
 	config["nextgenmap"],
 	config["varscan"],
 	config["samtools"]
     log:
-        "results/logs/slamdunk/slamdunk_all.log"
+        "results/logs/slamdunk/slamdunk_all_{sample}.log"
     shell:
         """
-        # Cleanup any pre-existing directories
-        rm -rf {params.output_dir}/map
-
 	# show files input for slamdunk all
-    	echo "Input files: {input}"
+    	echo "Input files: {input.fastqs}"
+
+	# make sure directory is present 
+	mkdir -p {params.output_dir}
 
 	# run slamdunk all
         slamdunk all \
@@ -406,19 +381,13 @@ rule slamdunk_all:
         """
 
 
-###################################################################################################################################################
-###################################################################################################################################################
-#                       					Working Area									  #
-###################################################################################################################################################
-###################################################################################################################################################
-
 ##################################################################
 ##                        Slam Dunk Count                       ##
 ##################################################################
 
 rule slamdunk_count:
     input:
-        bam="results/slamdunk_scer/all_counts/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+        bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
         bam_out="results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv"
     params:
@@ -453,18 +422,40 @@ rule slamdunk_count:
 		{input.bam}
         """
 
+
+##################################################################
+##              Rename count to count_onetcreadcount            ##
+##################################################################
+
+rule count_to_onetcreadcount:
+    input:
+        expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
+	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES)
+    output:
+        "results/slamdunk_scer/count_onetcreadcount/done.txt"
+    log:
+        "results/logs/slamdunk/count_to_onetcreadcount.log"
+    shell:
+        """
+        mv results/slamdunk_scer/count results/slamdunk_scer/count_onetcreadcount
+	touch {output}
+        """
+
 ##################################################################
 ##                        Alleyoop Rates                        ##
 ##################################################################
 
 rule alleyoop_rates:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
+        bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
         "results/slamdunk_scer/alleyoop/{sample}_rates"
     params:
         slamdunk_ref=config["scer_genome"],
-        min_base_qual=config["min_base_qual"]
+        min_base_qual=config["min_base_qual"],
+	output_dir="results/slamdunk_scer/alleyoop/rates",
     envmodules:
         config["slamdunk"]
     log:
