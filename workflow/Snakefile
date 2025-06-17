@@ -128,6 +128,7 @@ rule all:
 
         # 9) TcPerReadPos and TcPerUtrPos and Alleyoop Dump
 	expand("results/slamdunk_scer/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv", sample=SAMPLES),
+	expand("results/slamdunk_scer/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.log", sample=SAMPLES),
 	expand("results/slamdunk_scer/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutrpos.csv", sample=SAMPLES),
 	expand("results/slamdunk_scer/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk", sample=SAMPLES),
 
@@ -703,7 +704,8 @@ rule alleyoop_tcperreadpos:
     input:
         bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        tcperreadpos="results/slamdunk_scer/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv"
+        tcperreadpos="results/slamdunk_scer/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv",
+	tcperreadpos_log="results/slamdunk_scer/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.log"
     params:
         slamdunk_ref=config["scer_genome"],
         max_read_length=config["max_read_length"],
