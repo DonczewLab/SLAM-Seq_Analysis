@@ -118,14 +118,14 @@ rule all:
         expand("results/slamdunk_scer/alleyoop/tccontext/{sample}.fastq_slamdunk_mapped_filtered_tccontext.csv", sample=SAMPLES),
         expand("results/slamdunk_scer/alleyoop/utrrates/{sample}.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv", sample=SAMPLES),
         expand("results/slamdunk_scer/alleyoop/snp/{sample}.fastq_slamdunk_mapped_filtered_SNPeval.csv", sample=SAMPLES),
-        "results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv"
-
-        # 8) Slam Dunk and Alleyoop Merged Outputs
+        
+	# 8) Alleyoop Summary and Merged outputs
+	"results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv",
+	"results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv"
         #expand("results/slamdunk_scer/alleyoop/{sample}_merge_totalreadcount.tsv", sample=SAMPLES),
         #expand("results/slamdunk_scer/alleyoop/{sample}_merge_onetcreadcount.tsv", sample=SAMPLES),
         #expand("results/slamdunk_scer/alleyoop/{sample}_merge_twotcreadcount.tsv", sample=SAMPLES),
-        #expand("results/slamdunk_scer/alleyoop/{sample}_summary_onetcreadcount.tsv", sample=SAMPLES),
-        #expand("results/slamdunk_scer/alleyoop/{sample}_summary_twotcreadcount.tsv", sample=SAMPLES),
+
 
         # 9) Final MultiQC on Slam Dunk Outputs
         #"results/logs/multiqc/slamdunk_scer/multiqc_report.html"
