@@ -124,7 +124,7 @@ rule all:
 	"results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv",
 	"results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
 	"results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
-	"results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv"
+	"results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
 
         # 9) TcPerReadPos and TcPerUtrPos
 	expand("results/slamdunk_scer/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv", sample=SAMPLES),
