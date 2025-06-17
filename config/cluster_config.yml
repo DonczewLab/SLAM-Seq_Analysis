@@ -143,7 +143,16 @@ alleyoop_snpeval:
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-alleyoop_summary:
+alleyoop_summary_onetcreadcount:
+  cpus-per-task: 16
+  mem: "64G"
+  cores: 16
+  time: "04:00:00"
+  name: "{rule}"
+  output: logs/{rule}.out
+  error: logs/{rule}.err
+
+alleyoop_summary_twotcreadcount:
   cpus-per-task: 16
   mem: "64G"
   cores: 16
