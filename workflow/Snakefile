@@ -594,14 +594,24 @@ rule alleyoop_summary_onetcreadcount:
 
 rule alleyoop_summary_twotcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
+        expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/{sample}_summary_twotcreadcount.tsv"
+        summary="results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv"
+    params:
+        tcount_dir="results/slamdunk_scer/count_twotcreadcount"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
     log:
-        "results/logs/alleyoop/alleyoop_summary_twotcreadcount_{sample}.log"
+        "results/logs/alleyoop/alleyoop_summary_twotcreadcount.log"
     shell:
         """
-        alleyoop summary --output {output} --tcountDir {input} --threads 24
+        alleyoop summary \
+		--output {output.summary} \
+		--tcountDir {params.tcount_dir} \
+		--threads 24 \
+		{input}
         """
 
 
