@@ -104,15 +104,6 @@ slamdunk_count:
   output: logs/{rule}.{wildcards.sample}.out
   error: logs/{rule}.{wildcards.sample}.err
 
-count_to_onetcreadcount:
-  cpus-per-task: 4
-  mem: "8G"
-  cores: 4
-  time: "00:10:00"
-  name: "{rule}"
-  output: logs/{rule}.out
-  error: logs/{rule}.err
-
 # ------------------------------------------------------------------------------
 # Alleyoop (analysis on SLAM-Seq results)
 # ------------------------------------------------------------------------------
