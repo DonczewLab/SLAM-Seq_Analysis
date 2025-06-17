@@ -567,7 +567,7 @@ rule alleyoop_snpeval:
 
 rule alleyoop_summary_onetcreadcount:
     input:
-        expand(bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", samples=SAMPLES)
+        expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", samples=SAMPLES)
     output:
         summary="results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv"
     params:
