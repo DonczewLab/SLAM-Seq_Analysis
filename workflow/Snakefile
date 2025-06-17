@@ -114,10 +114,10 @@ rule all:
         expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
 
         # 7) Alleyoop outputs
-        expand("results/slamdunk_scer/alleyoop/rates/{sample}.fastq_slamdunk_mapped_filtered_overallrates.csv", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/tccontext/{sample}.fastq_slamdunk_mapped_filtered_tccontext.csv", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/utrrates/{sample}.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/snp/{sample}.fastq_slamdunk_mapped_filtered_SNPeval.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/snp/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv", sample=SAMPLES),
         
 	# 8) Alleyoop Summary and Merged outputs
 	"results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv",
@@ -433,7 +433,7 @@ rule alleyoop_rates:
     input:
         bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        rates="results/slamdunk_scer/alleyoop/rates/{sample}.fastq_slamdunk_mapped_filtered_overallrates.csv"
+        rates="results/slamdunk_scer/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.csv"
     params:
         slamdunk_ref=config["scer_genome"],
         min_base_qual=config["min_base_qual"],
@@ -463,7 +463,7 @@ rule alleyoop_tccontext:
     input:
         bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        tccontext="results/slamdunk_scer/alleyoop/tccontext/{sample}.fastq_slamdunk_mapped_filtered_tccontext.csv"
+        tccontext="results/slamdunk_scer/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.csv"
     params:
         slamdunk_ref=config["scer_genome"],
         min_base_qual=config["min_base_qual"],
@@ -493,7 +493,7 @@ rule alleyoop_utrrates:
     input:
         bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        utrrates="results/slamdunk_scer/alleyoop/utrrates/{sample}.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv"
+        utrrates="results/slamdunk_scer/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv"
     params:
         slamdunk_ref=config["scer_genome"],
         bed_file=config["bed_file"],
@@ -528,7 +528,7 @@ rule alleyoop_snpeval:
     input:
         bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        snp_eval="results/slamdunk_scer/alleyoop/snp/{sample}.fastq_slamdunk_mapped_filtered_SNPeval.csv"
+        snp_eval="results/slamdunk_scer/alleyoop/snp/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv"
     params:
         slamdunk_ref = config["scer_genome"],
         bed_file = config["bed_file"],
