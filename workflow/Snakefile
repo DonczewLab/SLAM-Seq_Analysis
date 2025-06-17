@@ -107,9 +107,8 @@ rule all:
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES),
 
-        # 6) Slam Dunk Count files and rename one tc count folder
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
-	"results/slamdunk_scer/count_onetcreadcount/done.txt"
+        # 6) Slam Dunk Count files for twoTCreadcount
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
 
         # 7) Alleyoop outputs
         #expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
@@ -422,26 +421,6 @@ rule slamdunk_count:
 		{input.bam}
         """
 
-
-##################################################################
-##              Rename count to count_onetcreadcount            ##
-##################################################################
-
-rule count_to_onetcreadcount:
-    input:
-        expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
-	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log", sample=SAMPLES),
-	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
-	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES)
-    output:
-        "results/slamdunk_scer/count_onetcreadcount/done.txt"
-    log:
-        "results/logs/slamdunk/count_to_onetcreadcount.log"
-    shell:
-        """
-        mv results/slamdunk_scer/count results/slamdunk_scer/count_onetcreadcount
-	touch {output}
-        """
 
 ##################################################################
 ##                        Alleyoop Rates                        ##
