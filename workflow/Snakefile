@@ -121,11 +121,10 @@ rule all:
         
 	# 8) Alleyoop Summary and Merged outputs
 	"results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv",
-	"results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv"
-        #expand("results/slamdunk_scer/alleyoop/{sample}_merge_totalreadcount.tsv", sample=SAMPLES),
-        #expand("results/slamdunk_scer/alleyoop/{sample}_merge_onetcreadcount.tsv", sample=SAMPLES),
-        #expand("results/slamdunk_scer/alleyoop/{sample}_merge_twotcreadcount.tsv", sample=SAMPLES),
-
+	"results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv",
+	"results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
+	"results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
+	"results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv"
 
         # 9) Final MultiQC on Slam Dunk Outputs
         #"results/logs/multiqc/slamdunk_scer/multiqc_report.html"
@@ -583,7 +582,6 @@ rule alleyoop_summary_onetcreadcount:
         alleyoop summary \
 		--output {output.summary} \
 		--tcountDir {params.tcount_dir} \
-		--threads 24 \
 		{input}
         """
 
@@ -610,7 +608,6 @@ rule alleyoop_summary_twotcreadcount:
         alleyoop summary \
 		--output {output.summary} \
 		--tcountDir {params.tcount_dir} \
-		--threads 24 \
 		{input}
         """
 
