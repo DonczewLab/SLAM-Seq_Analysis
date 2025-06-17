@@ -811,7 +811,7 @@ rule multiqc_slamdunk:
         snpeval_logs=expand("results/slamdunk_scer/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log", sample=SAMPLES),
         tccontext_logs=expand("results/slamdunk_scer/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.log", sample=SAMPLES),
         tcperreadpos_logs=expand("results/slamdunk_scer/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.log", sample=SAMPLES),
-        tcperutrpos_logs=expand("results/slamdunk_scer/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.log", sample=SAMPLES),
+        tcperutrpos_logs=expand("results/slamdunk_scer/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutrpos.log", sample=SAMPLES),
         utrrates_logs=expand("results/slamdunk_scer/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.log", sample=SAMPLES),
 	summary_logs=["results/slamdunk_scer/alleyoop/summary_onetcreadcount.log","results/slamdunk_scer/alleyoop/summary_twotcreadcount.log"]
     output:
