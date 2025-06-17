@@ -117,7 +117,7 @@ rule all:
         expand("results/slamdunk_scer/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.csv", sample=SAMPLES),
         expand("results/slamdunk_scer/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.csv", sample=SAMPLES),
         expand("results/slamdunk_scer/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv", sample=SAMPLES),
-        expand("results/slamdunk_scer/alleyoop/snp/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv", sample=SAMPLES),
         
 	# 8) Alleyoop Summary and Merged outputs
 	"results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv",
@@ -528,7 +528,7 @@ rule alleyoop_snpeval:
     input:
         bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        snp_eval="results/slamdunk_scer/alleyoop/snp/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv"
+        snp_eval="results/slamdunk_scer/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv"
     params:
         slamdunk_ref = config["scer_genome"],
         bed_file = config["bed_file"],
