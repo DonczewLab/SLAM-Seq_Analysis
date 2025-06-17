@@ -126,9 +126,10 @@ rule all:
 	"results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
 	"results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
 
-        # 9) TcPerReadPos and TcPerUtrPos
+        # 9) TcPerReadPos and TcPerUtrPos and Alleyoop Dump
 	expand("results/slamdunk_scer/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv", sample=SAMPLES),
-	expand("results/slamdunk_scer/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutrpos.csv", sample=SAMPLES)
+	expand("results/slamdunk_scer/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutrpos.csv", sample=SAMPLES),
+	expand("results/slamdunk_scer/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk", sample=SAMPLES)
 
 	# 10) Final MultiQC on Slam Dunk Outputs
         #"results/logs/multiqc/slamdunk_scer/multiqc_report.html"
@@ -770,20 +771,29 @@ rule alleyoop_tcperutrpos:
 
 rule alleyoop_dump:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
+        bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        "results/slamdunk_scer/alleyoop/{sample}_dump"
+        dunk="results/slamdunk_scer/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk"
     params:
         slamdunk_ref = config["scer_genome"],
-        min_base_qual = config["min_base_qual"]
+        min_base_qual = config["min_base_qual"],
+	snp_dir="results/slamdunk_scer/snp"
+	output_dir="results/slamdunk_scer/alleyoop/dump"
     envmodules:
-        config["slamdunk"]
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_dump_{sample}.log"
     shell:
         """
-        alleyoop dump --outputDir {output} --reference {params.slamdunk_ref} --snp-directory {output}/snp \
-            --min-basequality {params.min_base_qual} --threads 24 {input}
+        alleyoop dump \
+		--outputDir {output} \
+		--reference {params.slamdunk_ref} \
+		--snp-directory {output}/snp \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input}
         """
 
 
