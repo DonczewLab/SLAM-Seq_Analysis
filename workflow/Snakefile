@@ -616,36 +616,80 @@ rule alleyoop_summary_twotcreadcount:
 
 
 ##################################################################
-##                   Alleyoop Summary 1 Merged                  ##
+##                 Alleyoop Summary Total Merged                ##
+##################################################################
+
+rule alleyoop_merge_totalreadcount:
+    input:
+        expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+    output:
+        merge="results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv"
+    params:
+        column="ReadCount"
+    envmodules:
+        config["slamdunk"],
+        config["nextgenmap"],
+        config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_merged_totalreadcount.log"
+    shell:
+        """
+        alleyoop merge \
+        --output {output.merge} \
+        --column {params.column} \
+        {input}
+        """
+
+
+##################################################################
+##                 Alleyoop Summary OneTC Merged                ##
 ##################################################################
 
 rule alleyoop_merge_onetcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
+        expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/{sample}_merge_onetcreadcount.tsv"
+        merge="results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv"
+    params:
+        column="TcReadCount"
+    envmodules:
+        config["slamdunk"],
+        config["nextgenmap"],
+        config["varscan"]
     log:
-        "results/logs/alleyoop/alleyoop_merge_onetcreadcount_{sample}.log"
+        "results/logs/alleyoop/alleyoop_merged_onereadcount.log"
     shell:
         """
-        alleyoop merge --output {output} --column "TcReadCount" {input} --threads 24
+        alleyoop merge \
+        --output {output.merge} \
+        --column {params.column} \
+        {input}
         """
 
 
 ##################################################################
-##                   Alleyoop Summary 2 Merged                  ##
+##                 Alleyoop Summary TwoTC Merged                ##
 ##################################################################
 
 rule alleyoop_merge_twotcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/{sample}_merge_twotcreadcount.tsv"
+        merge="results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv"
+    params:
+        column="TcReadCount"
+    envmodules:
+        config["slamdunk"],
+        config["nextgenmap"],
+        config["varscan"]
     log:
-        "results/logs/alleyoop/alleyoop_merge_twotcreadcount_{sample}.log"
+        "results/logs/alleyoop/alleyoop_merged_tworeadcount.log"
     shell:
         """
-        alleyoop merge --output {output} --column "TcReadCount" {input} --threads 24
+        alleyoop merge \
+        --output {output.merge} \
+        --column {params.column} \
+        {input}
         """
 
 
