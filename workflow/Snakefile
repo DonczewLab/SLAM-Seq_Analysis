@@ -399,7 +399,7 @@ rule slamdunk_count:
     params:
         genome=config["scer_genome"],
         bed=config["bed_file"],
-	snp_dir="results/slamdunk_scer/all_counts/snp",
+	snp_dir="results/slamdunk_scer/snp",
 	output_dir="results/slamdunk_scer/count_twotcreadcount",
 	max_read_len=config["max_read_length"],
 	min_base_qual=config["min_base_qual"]
@@ -788,9 +788,9 @@ rule alleyoop_dump:
     shell:
         """
         alleyoop dump \
-		--outputDir {output} \
+		--outputDir {params.output_dir} \
 		--reference {params.slamdunk_ref} \
-		--snp-directory {output}/snp \
+		--snp-directory {params.snp_dir} \
 		--min-basequality {params.min_base_qual} \
 		--threads 24 \
 		{input}
