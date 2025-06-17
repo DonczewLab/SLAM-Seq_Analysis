@@ -8,12 +8,15 @@ configfile: "config/config.yml"
 # Email: kevinboyd76@gmail.com
 # GitHub: https://github.com/kevinboyd76
 # Date Created: May 27, 2025
-# Last Modified: June 12, 2025
-# Version: 1.0.0
+# Last Modified: June 17, 2025
+# Version: 1.0.1
 #
-# Description: This workflow processes SLAM-Seq data from raw FASTQ
-# files to normalized signal tracks with spike-in and scale factor 
-# correction.
+# Description:
+# This Snakemake workflow processes SLAM-Seq data from raw paired-end
+# FASTQ files through quality control, UMI (unique molecular identifiers) processing, adapter trimming,
+# and SLAM-Dunk alignment and quantification. It supports both default
+# and custom two-TC read count thresholds for comparison.  
+# 
 # 
 # Adapted from: SLAM-Seq Protocol from Rafal Donczew & John Ridenour
 
@@ -22,16 +25,16 @@ configfile: "config/config.yml"
 ##################################################################
 
 # Steps:
-#  1) FastQC / MultiQC (Raw Samples)
-#  2) Process Raw Fastq UMIs - Unique Molecular Identifiers
-#  3) Adapter Trim (BBDuk)
-#  4) FastQC / MultiQC (Trimmed Samples)
-#  5) Run Slam Dunk All
-#  6) Run Slam Dunk Count
-#  7) Run Alleyoop Summary and Merge
-#  8) Run Alleyoop Outputs (rates, context, UTR reads, and SNP evaluations)
-#  9) Run Slam Dunk and Alleyoop Merged Outputs
-# 10) Run MultiQC on Slam Dunk Outputs
+#  1) Quality Control: FastQC / MultiQC (Raw Samples)
+#  2) Process Raw Fastq UMIs (Unique Molecular Identifiers) with fastp
+#  3) Adapter Trim with BBDuk
+#  4) Quality Control: FastQC / MultiQC (Trimmed Samples)
+#  5) Slam Dunk All (map, filter, snp, count)
+#  6) Slam Dunk Count with converstion threshold 2
+#  7) Alleyoop Summary and Merge
+#  8) Alleyoop Outputs (rates, context, UTR reads, and SNP evaluations)
+#  9) Slam Dunk and Alleyoop Merged Outputs
+# 10) Quality Control: MultiQC on Slam Dunk Outputs
 
 ##################################################################
 ##                    Define input functions                    ##
@@ -108,14 +111,14 @@ rule all:
 	expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES),
 
         # 6) Slam Dunk Count files for twoTCreadcount
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+        expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
 
         # 7) Alleyoop outputs
-        #expand("results/slamdunk_scer/alleyoop/{sample}_rates", sample=SAMPLES),
-        #expand("results/slamdunk_scer/alleyoop/{sample}_tccontext", sample=SAMPLES),
-        #expand("results/slamdunk_scer/alleyoop/{sample}_utrrates", sample=SAMPLES),
-        #expand("results/slamdunk_scer/alleyoop/{sample}_snpeval", sample=SAMPLES),
-        #expand("results/slamdunk_scer/alleyoop/{sample}_summary", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/rates/{sample}.fastq_slamdunk_mapped_filtered_overallrates.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/tccontext/{sample}.fastq_slamdunk_mapped_filtered_tccontext.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/utrrates/{sample}.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv", sample=SAMPLES),
+        expand("results/slamdunk_scer/alleyoop/snp/{sample}.fastq_slamdunk_mapped_filtered_SNPeval.csv", sample=SAMPLES),
+        "results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv"
 
         # 8) Slam Dunk and Alleyoop Merged Outputs
         #expand("results/slamdunk_scer/alleyoop/{sample}_merge_totalreadcount.tsv", sample=SAMPLES),
@@ -430,19 +433,25 @@ rule alleyoop_rates:
     input:
         bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        "results/slamdunk_scer/alleyoop/{sample}_rates"
+        rates="results/slamdunk_scer/alleyoop/rates/{sample}.fastq_slamdunk_mapped_filtered_overallrates.csv"
     params:
         slamdunk_ref=config["scer_genome"],
         min_base_qual=config["min_base_qual"],
-	output_dir="results/slamdunk_scer/alleyoop/rates",
+	output_dir="results/slamdunk_scer/alleyoop/rates"
     envmodules:
-        config["slamdunk"]
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_rates_{sample}.log"
     shell:
         """
-        alleyoop rates --outputDir {output} --reference {params.slamdunk_ref} \
-            --min-basequality {params.min_base_qual} --threads 24 {input}
+        alleyoop rates \
+		--outputDir {params.output_dir} \
+		--reference {params.slamdunk_ref} \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
         """
 
 
@@ -452,20 +461,27 @@ rule alleyoop_rates:
 
 rule alleyoop_tccontext:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
+        bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        "results/slamdunk_scer/alleyoop/{sample}_tccontext"
+        tccontext="results/slamdunk_scer/alleyoop/tccontext/{sample}.fastq_slamdunk_mapped_filtered_tccontext.csv"
     params:
         slamdunk_ref=config["scer_genome"],
-        min_base_qual=config["min_base_qual"]
+        min_base_qual=config["min_base_qual"],
+	output_dir="results/slamdunk_scer/alleyoop/tccontext"
     envmodules:
-        config["slamdunk"]
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_tccontext_{sample}.log"
     shell:
         """
-        alleyoop tccontext --outputDir {output} --reference {params.slamdunk_ref} --min-basequality {params.min_base_qual} \
-            --threads 24
+        alleyoop tccontext \
+		--outputDir {params.output_dir} \
+		--reference {params.slamdunk_ref} \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
         """
 
 
@@ -475,23 +491,32 @@ rule alleyoop_tccontext:
 
 rule alleyoop_utrrates:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
+        bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        "results/slamdunk_scer/alleyoop/{sample}_utrrates"
+        utrrates="results/slamdunk_scer/alleyoop/utrrates/{sample}.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv"
     params:
         slamdunk_ref=config["scer_genome"],
         bed_file=config["bed_file"],
         max_read_length=config["max_read_length"],
-        min_base_qual=config["min_base_qual"]
+        min_base_qual=config["min_base_qual"],
+	output_dir="results/slamdunk_scer/alleyoop/utrrates"
     envmodules:
-        config["slamdunk"]
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_utrrates_{sample}.log"
     shell:
         """
-        alleyoop utrrates --outputDir {output} --reference {params.slamdunk_ref} --bed {params.bed_file} \
-            --multiTCStringency --max-read-length {params.max_read_length} --min-basequality {params.min_base_qual} \
-            --threads 24 {input}
+        alleyoop utrrates \
+		--outputDir {params.output_dir} \
+		--reference {params.slamdunk_ref} \
+		--bed {params.bed_file} \
+		--multiTCStringency \
+		--max-read-length {params.max_read_length} \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
         """
 
 
@@ -501,26 +526,38 @@ rule alleyoop_utrrates:
 
 rule alleyoop_snpeval:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.bam", sample=SAMPLES)
+        bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
-        "results/slamdunk_scer/alleyoop/{sample}_snpeval"
+        snp_eval="results/slamdunk_scer/alleyoop/snp/{sample}.fastq_slamdunk_mapped_filtered_SNPeval.csv"
     params:
         slamdunk_ref = config["scer_genome"],
         bed_file = config["bed_file"],
         min_coverage = config["min_coverage"],
         var_fraction = config["var_fraction"],
         max_read_length = config["max_read_length"],
-        min_base_qual = config["min_base_qual"]
+        min_base_qual = config["min_base_qual"],
+	output_dir="results/slamdunk_scer/alleyoop/snpeval",
+	snp_dir="results/slamdunk_scer/snp"
     envmodules:
-        config["slamdunk"]
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_snpeval_{sample}.log"
     shell:
         """
-        alleyoop snpeval --outputDir {output} --snp-directory {output}/snp --reference {params.slamdunk_ref} \
-            --bed {params.bed_file} --min-coverage {params.min_coverage} --var-fraction {params.var_fraction} \
-            --multiTCStringency --max-read-length {params.max_read_length} --min-base-qual {params.min_base_qual} \
-            --threads 24 {input}
+        alleyoop snpeval \
+		--outputDir {params.output_dir} \
+		--snp-directory {params.snp_dir} \
+		--reference {params.slamdunk_ref} \
+		--bed {params.bed_file} \
+		--min-coverage {params.min_coverage} \
+		--var-fraction {params.var_fraction} \
+		--multiTCStringency \
+		--max-read-length {params.max_read_length} \
+		--min-base-qual {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
         """
 
 
@@ -530,14 +567,25 @@ rule alleyoop_snpeval:
 
 rule alleyoop_summary_onetcreadcount:
     input:
-        expand("results/slamdunk_scer/count_twotcreadcount/{sample}.tsv", sample=SAMPLES)
+        expand(bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", samples=SAMPLES)
     output:
-        "results/slamdunk_scer/alleyoop/{sample}_summary_onetcreadcount.tsv"
+        "results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv"
+    params:
+	output_dir="results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv",
+	tcount_dir="results/slamdunk_scer/count"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
     log:
-        "results/logs/alleyoop/alleyoop_summary_onetcreadcount_{sample}.log"
+        "results/logs/alleyoop/alleyoop_summary_onetcreadcount.log"
     shell:
         """
-        alleyoop summary --output {output} --tcountDir {input} --threads 24
+        alleyoop summary \
+		--output {params.output_dir} \
+		--tcountDir {params.tcount_dir} \
+		--threads 24 \
+		{input}
         """
 
 
