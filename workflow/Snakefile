@@ -544,7 +544,7 @@ rule alleyoop_snpeval:
         bam="results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
     output:
         snp_eval="results/slamdunk_scer/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv",
-	snp_eval_log=results/slamdunk_scer/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log"
+	snp_eval_log="results/slamdunk_scer/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log"
     params:
         slamdunk_ref = config["scer_genome"],
         bed_file = config["bed_file"],
