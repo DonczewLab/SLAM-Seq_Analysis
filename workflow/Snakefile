@@ -115,7 +115,7 @@ rule all:
 
         # 7) Alleyoop rates, tccontext, utrrates, snpeval outputs
         expand("results/slamdunk_scer/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.csv", sample=SAMPLES),
-	expand("results/slamdunk_scer/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.log, sample=SAMPLES),
+	expand("results/slamdunk_scer/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.log", sample=SAMPLES),
         expand("results/slamdunk_scer/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.csv", sample=SAMPLES),
 	expand("results/slamdunk_scer/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.log", sample=SAMPLES),
         expand("results/slamdunk_scer/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv", sample=SAMPLES),
