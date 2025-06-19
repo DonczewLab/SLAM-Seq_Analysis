@@ -99,7 +99,6 @@ rule all:
         
         # 4) FastQC / MultiQC reports for trimmed data
         expand("results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.html", sample=SAMPLES),
-        expand("results/qc/trimmed/fastqc/{sample}_R2_trimmed_fastqc.html", sample=SAMPLES),
         "results/qc/trimmed/multiqc/multiqc_report.html",
 
         # 5) Filtered BAM, count, and bedgraph files from Slam Dunk All
