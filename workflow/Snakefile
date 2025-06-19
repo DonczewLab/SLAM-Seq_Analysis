@@ -278,9 +278,7 @@ rule fastqc_trimmed:
         r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz"
     output:
         html3="results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.html",
-        zip3 ="results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.zip",
-        html4="results/qc/trimmed/fastqc/{sample}_R2_trimmed_fastqc.html",
-        zip4 ="results/qc/trimmed/fastqc/{sample}_R2_trimmed_fastqc.zip"
+        zip3 ="results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.zip"
     envmodules:
         config["fastqc"]
     log:
