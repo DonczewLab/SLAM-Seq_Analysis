@@ -1,5 +1,8 @@
 # SLAM-Seq_Analysis
 
+![SLAM-Seq Analysis](/images/SLAM-seq.png)  
+- OpenAI. (2025). Scientific data visualization: SLAM-seq pipeline schematic [AI-generated image]. DALL-E. Retrieved from ChatGPT interface.
+
 ---
 
 # 1) Summary
