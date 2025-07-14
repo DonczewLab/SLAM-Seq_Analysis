@@ -94,12 +94,13 @@ rule all:
         expand("results/fastp/{sample}_umi_R1.fastq.gz", sample=SAMPLES),
         expand("results/fastp/{sample}_umi_R2.fastq.gz", sample=SAMPLES),
         
-        # 3) Trim Adapters in R1 FASTQ files
-        expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
+        # 3) Trim Adapters in R1 FASTQ files (commented out because it is now a temp file)
+        #expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
         
         # 4) FastQC / MultiQC reports for trimmed data
         expand("results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.html", sample=SAMPLES),
         "results/qc/trimmed/multiqc/multiqc_report.html",
+	expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES),
 
         # 5) Filtered BAM, count, and bedgraph files from Slam Dunk All
         expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
@@ -240,7 +241,7 @@ rule trim_adapters:
     input:
         unpack(fq_dict_from_sample)
     output:
-        r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz"
+        r1_trim=temp("results/trimmed/{sample}_R1_trimmed.fastq.gz")
     params:
         bbmap_ref=config["bbmap_ref"]
     envmodules:
