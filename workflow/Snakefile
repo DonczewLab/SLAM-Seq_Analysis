@@ -575,7 +575,8 @@ rule alleyoop_snpeval:
 
 rule alleyoop_summary_onetcreadcount:
     input:
-        expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES)
+        bams=expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+	tcounts=expand("results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
     output:
         summary="results/slamdunk_scer/alleyoop/summary_onetcreadcount.tsv",
 	summary_log="results/slamdunk_scer/alleyoop/summary_onetcreadcount.log"
@@ -592,7 +593,7 @@ rule alleyoop_summary_onetcreadcount:
         alleyoop summary \
 		--output {output.summary} \
 		--tcountDir {params.tcount_dir} \
-		{input}
+		{input.bams}
         """
 
 
@@ -602,7 +603,8 @@ rule alleyoop_summary_onetcreadcount:
 
 rule alleyoop_summary_twotcreadcount:
     input:
-        expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES)
+	bams=expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+    	tcounts=expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
     output:
         summary="results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv",
 	summary_log="results/slamdunk_scer/alleyoop/summary_twotcreadcount.log"
@@ -619,7 +621,7 @@ rule alleyoop_summary_twotcreadcount:
         alleyoop summary \
 		--output {output.summary} \
 		--tcountDir {params.tcount_dir} \
-		{input}
+		{input.bams}
         """
 
 
