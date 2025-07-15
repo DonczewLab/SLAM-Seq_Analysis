@@ -605,8 +605,8 @@ rule alleyoop_summary_onetcreadcount:
 
 rule alleyoop_summary_twotcreadcount:
     input:
-	bams=expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
-    	tcounts=expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+        bams=expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+        tcounts=expand("results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
     output:
         summary="results/slamdunk_scer/alleyoop/summary_twotcreadcount.tsv",
 	summary_log="results/slamdunk_scer/alleyoop/summary_twotcreadcount.log"
