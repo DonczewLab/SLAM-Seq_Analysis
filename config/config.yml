@@ -15,7 +15,7 @@ umi_len: 12
 # ==============================================================================
 # TRIM_GALORE PARAMETERS
 # ==============================================================================
-use_trim_galore: false  # Set to false to use fastp instead
+use_trim_galore: false  # Set to false to use bbduk instead
 stringency: 3
 length: 10
 
