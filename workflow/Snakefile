@@ -78,6 +78,14 @@ def fq_dict_trimmed_sample(wildcards):
 # Extract unique merge groups from the new column (e.g. DMSO, IAA, etc.)
 merge_groups = samples_df["merge_group"].unique().tolist()
 
+# pull trim galore true/false out
+use_trim_galore = config["use_trim_galore"]
+
+# Dynamically assign the generic rule name `trim_adapters`
+if use_trim_galore:
+    rule trim_adapters = trim_with_trimgalore
+else:
+    rule trim_adapters = trim_with_bbduk
 
 ##################################################################
 ##                          Rule All                            ##
@@ -94,15 +102,12 @@ rule all:
         expand("results/fastp/{sample}_umi_R1.fastq.gz", sample=SAMPLES),
         expand("results/fastp/{sample}_umi_R2.fastq.gz", sample=SAMPLES),
         
-        #Trim Adapters in R1 FASTQ files (commented out because it is now a temp file)
-        #expand("results/trimmed/{sample}_R1_trimmed.fastq.gz", sample=SAMPLES),
+        # 3) Trim Adapters in R1 FASTQ files (commented out because it is now a temp file)
+        expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES),
         
-        # 3) FastQC / MultiQC reports for trimmed data
-        expand("results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.html", sample=SAMPLES),
+        # 4) FastQC / MultiQC reports for trimmed data
+        expand("results/qc/trimmed/fastqc/{sample}_trimmed_fastqc.html", sample=SAMPLES),
         "results/qc/trimmed/multiqc/multiqc_report.html",
-	
-	# 4) Change R1 filename for downstream analysis
-	expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES),
 
         # 5) Filtered BAM, count, and bedgraph files from Slam Dunk All
         expand("results/slamdunk_scer/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
@@ -235,53 +240,65 @@ rule process_umis:
 
 
 ##################################################################
-##            Adapter Trimming (BBduk or Trim_Galore)           ##
+##                 Adapter Trimming (Trim_Galore)               ##
 ##################################################################
 
-rule trim_adapters:
+rule trim_with_trimgalore:
     input:
         r1="results/fastp/{sample}_umi_R1.fastq.gz"
     output:
-        r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz"
+        r1_trim="results/trimmed/{sample}_trimmed.fastq.gz"
     log:
         "results/logs/trim/{sample}.log"
     envmodules:
-        config["trim_galore"] if config["use_trim_galore"] else config["bbmap"]
+        config["trim_galore"]
     params:
-        bbmap_ref=config["bbmap_ref"],
-        stringency=config["stringency"],
-        length=config["length"]
-    run:
-        if config["use_trim_galore"]:
-            shell(f"""
-                mkdir -p results/trimmed
-                trim_galore \
-                    --stringency {params.stringency} \
-                    --length {params.length} \
-                    --cores 4 \
-                    --gzip \
-                    --output_dir results/trimmed \
-                    {input.r1} \
-                    2> {log}
+        stringency=config.get("stringency", 3),
+        length=config.get("length", 10)
+    shell:
+        """
+        trim_galore \
+            --stringency {params.stringency} \
+            --length {params.length} \
+            --cores 4 \
+            --gzip \
+            --output_dir results/trimmed \
+            {input.r1} \
+            2> {log}
+        mv results/trimmed/*_trimmed.fq.gz {output.r1_trim}
+        """
 
-                mv results/trimmed/*_trimmed.fq.gz {output.r1_trim}
-            """)
-        else:
-            shell(f"""
-                mkdir -p results/trimmed
-                bbduk.sh \
-                    in1={input.r1} \
-                    out1={output.r1_trim} \
-                    ref={params.bbmap_ref} \
-                    trimpolya=12 \
-                    k=13 \
-                    ktrim=r \
-                    mink=5 \
-                    qtrim=r \
-                    trimq=10 \
-                    minlength=20 \
-                    2> {log}
-            """)
+
+##################################################################
+##                    Adapter Trimming (BBduk)                  ##
+##################################################################
+
+rule trim_with_bbduk:
+    input:
+        r1="results/fastp/{sample}_umi_R1.fastq.gz"
+    output:
+        r1_trim="results/trimmed/{sample}_trimmed.fastq.gz"
+    log:
+        "results/logs/trim/{sample}.log"
+    envmodules:
+        config["bbmap"]
+    params:
+        bbmap_ref=config["bbmap_ref"]
+    shell:
+        """
+        bbduk.sh \
+            in1={input.r1} \
+            out1={output.r1_trim} \
+            ref={params.bbmap_ref} \
+            trimpolya=12 \
+            k=13 \
+            ktrim=r \
+            mink=5 \
+            qtrim=r \
+            trimq=10 \
+            minlength=20 \
+            2> {log}
+        """
 
 
 ##################################################################
@@ -290,10 +307,10 @@ rule trim_adapters:
 
 rule fastqc_trimmed:
     input:
-        r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz"
+        r1_trim="results/trimmed/{sample}_trimmed.fastq.gz"
     output:
-        html3="results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.html",
-        zip3 ="results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.zip"
+        html3="results/qc/trimmed/fastqc/{sample}_trimmed_fastqc.html",
+        zip3 ="results/qc/trimmed/fastqc/{sample}_trimmed_fastqc.zip"
     envmodules:
         config["fastqc"]
     log:
@@ -311,7 +328,7 @@ rule fastqc_trimmed:
 
 rule multiqc_trimmed:
     input:
-        expand("results/qc/trimmed/fastqc/{sample}_R1_trimmed_fastqc.zip", sample=SAMPLES)
+        expand("results/qc/trimmed/fastqc/{sample}_trimmed_fastqc.zip", sample=SAMPLES)
     output:
         "results/qc/trimmed/multiqc/multiqc_report.html"
     params:
@@ -325,24 +342,6 @@ rule multiqc_trimmed:
         rm -rf {params.outdir}
         mkdir -p {params.outdir}
         multiqc results/qc/trimmed/fastqc -o {params.outdir} 2> {log}
-        """
-
-
-##################################################################
-##                        Rename R1 files                       ##
-##################################################################
-
-# new rule
-rule rename_trimmed_fastqs:
-    input:
-        r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz"
-    output:
-        r1_trim_rename="results/trimmed/{sample}_trimmed.fastq.gz"
-    log:
-        "results/logs/trimmed/rename_trimmed_fastqs_{sample}.log"
-    shell:
-        """
-        cp {input} {output}
         """
 
 
