@@ -81,11 +81,6 @@ merge_groups = samples_df["merge_group"].unique().tolist()
 # pull trim galore true/false out
 use_trim_galore = config["use_trim_galore"]
 
-# Dynamically assign the generic rule name `trim_adapters`
-if use_trim_galore:
-    rule trim_adapters = trim_with_trimgalore
-else:
-    rule trim_adapters = trim_with_bbduk
 
 ##################################################################
 ##                          Rule All                            ##
@@ -253,8 +248,8 @@ rule trim_with_trimgalore:
     envmodules:
         config["trim_galore"]
     params:
-        stringency=config.get("stringency", 3),
-        length=config.get("length", 10)
+        stringency=config["stringency"],
+        length=config["length"]
     shell:
         """
         trim_galore \
@@ -300,6 +295,10 @@ rule trim_with_bbduk:
             2> {log}
         """
 
+if use_trim_galore:
+    rule trim_adapters = trim_with_trimgalore
+else:
+    rule trim_adapters = trim_with_bbduk
 
 ##################################################################
 ##                   Fastqc on Trimmed Fastqs                   ##
