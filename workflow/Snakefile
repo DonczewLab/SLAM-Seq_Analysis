@@ -226,7 +226,6 @@ rule process_umis:
             --umi_loc {params.umi_loc} \
             --umi_len {params.umi_len} \
             --disable_adapter_trimming \
-            --disable_trim_poly_g \
             --disable_quality_filtering \
             --disable_length_filtering \
 	    --json results/logs/fastp/{wildcards.sample}_umi_fastp.json \
@@ -259,7 +258,6 @@ rule trim_adapters:
             in1={input.r1} \
             out1={output.r1_trim} \
             ref={params.bbmap_ref} \
-            trimpolyg=12 \
 	    trimpolya=12 \
             k=13 \
     	    ktrim=r \
