@@ -235,38 +235,54 @@ rule process_umis:
 
 
 ##################################################################
-##                      Adapter Trimming                        ##
+##            Adapter Trimming (BBduk or Trim_Galore)           ##
 ##################################################################
 
 rule trim_adapters:
     input:
-        unpack(fq_dict_from_sample)
+        r1="results/fastp/{sample}_umi_R1.fastq.gz"
     output:
-        r1_trim=temp("results/trimmed/{sample}_R1_trimmed.fastq.gz")
-    params:
-        bbmap_ref=config["bbmap_ref"]
-    envmodules:
-        config["bbmap"]
+        r1_trim="results/trimmed/{sample}_R1_trimmed.fastq.gz"
     log:
         "results/logs/trim/{sample}.log"
-    shell:
-        """
-        # Ensure the trimmed directory exists
-        mkdir -p results/trimmed
+    envmodules:
+        config["trim_galore"] if config["use_trim_galore"] else config["bbmap"]
+    params:
+        bbmap_ref=config["bbmap_ref"],
+        stringency=config.get("stringency", 3),
+        length=config.get("length", 10)
+    run:
+        import os
+        if config["use_trim_galore"]:
+            shell(f"""
+                mkdir -p results/trimmed
+                trim_galore \
+                    --stringency {params.stringency} \
+                    --length {params.length} \
+                    --cores 4 \
+                    --gzip \
+                    --output_dir results/trimmed \
+                    {input.r1} \
+                    2> {log}
 
-        bbduk.sh \
-            in1={input.r1} \
-            out1={output.r1_trim} \
-            ref={params.bbmap_ref} \
-	    trimpolya=12 \
-            k=13 \
-    	    ktrim=r \
-    	    mink=5 \
-            qtrim=r \
-    	    trimq=10 \
-    	    minlength=20 \
-            2> {log}
-        """
+                mv results/trimmed/*_trimmed.fq.gz {output.r1_trim}
+            """)
+        else:
+            shell(f"""
+                mkdir -p results/trimmed
+                bbduk.sh \
+                    in1={input.r1} \
+                    out1={output.r1_trim} \
+                    ref={params.bbmap_ref} \
+                    trimpolya=12 \
+                    k=13 \
+                    ktrim=r \
+                    mink=5 \
+                    qtrim=r \
+                    trimq=10 \
+                    minlength=20 \
+                    2> {log}
+            """)
 
 
 ##################################################################
