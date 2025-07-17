@@ -297,7 +297,8 @@ rule trim_with_bbduk:
 
 if use_trim_galore:
     rule trim_adapters = trim_with_trimgalore
-else:
+
+if not use_trim_galore:
     rule trim_adapters = trim_with_bbduk
 
 ##################################################################
