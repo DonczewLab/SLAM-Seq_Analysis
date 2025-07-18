@@ -7,51 +7,156 @@
 
 ---
 
-# 1) Summary
-This workflow processes SLAM-Seq data, performing quality control on raw and trimmed FASTQ files, extracting UMIs, trimming adapters, running SlamDunk for read counts, and analyzing the data with Alleyoop for various evaluations. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
+## 1) Project Description
+
+**SLAM-Seq_Analysis** is a modular, high-throughput Snakemake pipeline designed to analyze **SLAM-Seq** data. It quantifies RNA synthesis and degradation by detecting **T>C transitions**. This pipeline processes raw **paired-end FASTQ** files through quality control, UMI extraction, adapter trimming, alignment, mutation counting, and context-specific mutation analysis using **SLAM-Dunk** and **Alleyoop**. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
+
+It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs.
+
+### Key Features
+
++ **UMI Support**  
+  + Extracts UMIs using `fastp`, allowing for duplicate-aware alignment and quantification
+
++ **Optional Adapter Trimming Method**  
+  + Choose between **Trim Galore** or **BBduk** using a config flag
+
++ **Comprehensive QC Reports**  
+  + FastQC on raw and trimmed reads  
+  + MultiQC reports summarize results in unified HTML
+
++ **SLAM-Dunk Integration**  
+  + `slam-dunk all`: Align, filter, SNP call, and count  
+  + `slam-dunk count`: Rerun mutation quantification with 2-TC threshold
+
++ **Alleyoop Analysis**  
+  + Generates mutation rates, context, UTR rates, SNP evaluation  
+  + Summarizes and merges mutation counts across samples  
+  + Outputs T>C mutation information per read and UTR position
+
++ **Scalable and Reproducible**  
+  + Parallelizable via Snakemake  
+  + Designed for Slurm HPC environments
 
 ---
 
-# 2) Detailed Steps
-## Steps:
-+ **1)** **FastQC / MultiQC (Raw Samples)** - Perform quality control on raw FASTQ files.
-+ **2)** **Process Raw Fastq UMIs** - Process UMIs (Unique Molecular Identifiers) in the raw FASTQ files.
-+ **3)** **Adapter Trim (BBDuk)** - Trim adapters from the raw FASTQ files using BBDuk.
-+ **4)** **FastQC / MultiQC (Trimmed Samples)** - Perform quality control on the trimmed FASTQ files.
-+ **5)** **Run Slam Dunk All** - Run SlamDunk with the trimmed FASTQ files, generating BAM and count CSV files.
-+ **6)** **Run Slam Dunk Count** - Count reads with SlamDunk on the BAM files generated in the previous step.
-+ **7)** **Run Alleyoop Rates** - Analyze read counts and generate rates using Alleyoop.
-+ **8)** **Run Alleyoop TCContext** - Analyze context-specific read distributions using Alleyoop.
-+ **9)** **Run Alleyoop UTRrates** - Analyze untranslated region read counts using Alleyoop.
-+ **10)** **Run Alleyoop SNPeval** - Evaluate SNPs (Single Nucleotide Polymorphisms) using Alleyoop.
-+ **11)** **Run Alleyoop Summary** - Generate summary files for read counts and evaluation data.
-+ **12)** **Run Alleyoop Merge** - Merge read count files for further analysis.
-+ **13)** **Run Alleyoop TCperReadPos** - Analyze read positions in the context of TCs (Transcript Coordinates).
-+ **14)** **Run Alleyoop Dump** - Dump all raw data for inspection and analysis.
-+ **15)** **Run MultiQC on Slam Dunk Output** - Generate a final MultiQC report on all SlamDunk and Alleyoop results.
+## 2) Intended Use Case
+
+This pipeline is built for researchers analyzing **RNA turnover** via **SLAM-seq**, especially when interested in:
+
++ Mutation counts (T>C transitions) per gene or region  
++ Comparing samples using 1-TC vs. 2-TC thresholds  
++ Producing summary metrics and mutation contexts  
++ Running in a reproducible and modular HPC environment
+
+Starting from raw paired-end FASTQs, it provides all necessary intermediate and final outputs, from filtered BAMs to mutation summaries and log diagnostics.
 
 ---
 
-# 3) Instructions to run on Slurm managed HPC
-3A. Download version controlled repository
+## 3) Dependencies and Configuration
+
+All user-defined settings and tool versions are declared in `config/config.yml`.
+
+**Key fields include**:
++ `scer_genome`: reference genome FASTA  
++ `bed_file`: annotation BED file  
++ `bbmap_ref`: adapter reference for BBduk (optional)  
++ `umi_loc`, `umi_len`: UMI extraction parameters  
++ `trim_5p`, `max_read_length`, `min_base_qual`: parameters for SLAM-Dunk  
++ `use_trim_galore`: Boolean to toggle trimming tool  
++ `stringency`, `length`: used by Trim Galore
+
+**Tool Versions**  
++ `fastqc`, `multiqc`, `fastp`, `bbmap`, `trim_galore`, `slamdunk`, `samtools`, `varscan`, `nextgenmap`
+
+---
+
+## 4) Tools & Modules
+
+This pipeline uses the following tools via HPC environment modules:
+
++ **FastQC** — raw and trimmed read QC  
++ **MultiQC** — unified reporting of QC metrics  
++ **Fastp** — UMI extraction  
++ **BBduk** or **Trim Galore** — adapter trimming  
++ **SLAM-Dunk** — alignment, mutation calling, filtering  
++ **Alleyoop** — contextual mutation analysis and merging  
++ **Samtools**, **VarScan**, **NextGenMap** — used internally by SLAM-Dunk  
++ **Snakemake** — workflow management
+
+---
+
+## 5) Example `samples.csv`
+
+Your `config/samples.csv` file should look like this:
+
+| sample           | fastq1                        | fastq2                       | merge_group |
+|------------------|-------------------------------|------------------------------|-------------|
+| **WT_rep1**      | /data/WT_rep1_R1.fastq.gz     | /data/WT_rep1_R2.fastq.gz    | WT          |
+| **WT_rep2**      | /data/WT_rep2_R1.fastq.gz     | /data/WT_rep2_R2.fastq.gz    | WT          |
+| **KO_rep1**      | /data/KO_rep1_R1.fastq.gz     | /data/KO_rep1_R2.fastq.gz    | KO          |
+
++ **sample**: unique ID used to label output files  
++ **fastq1/fastq2**: paired-end FASTQ paths  
++ **merge_group**: optional group for downstream averaging or plotting
+
+---
+
+## 6) Output Structure
+
+The pipeline generates output across several folders:
+
+1. **Quality Control**
+   + `results/qc/raw/fastqc/` — FastQC HTML/ZIP for raw FASTQs  
+   + `results/qc/raw/multiqc/` — MultiQC report for raw reads  
+   + `results/qc/trimmed/fastqc/` — FastQC on trimmed FASTQs  
+   + `results/qc/trimmed/multiqc/` — MultiQC report for trimmed reads
+
+2. **Preprocessing**
+   + `results/fastp/` — FASTQs with UMIs extracted  
+   + `results/trimmed/` — Adapter-trimmed FASTQs  
+
+3. **SLAM-Dunk Core Output**
+   + `results/slamdunk_scer/filter/` — Filtered BAM files  
+   + `results/slamdunk_scer/count/` — 1-TC tcount TSVs, logs, bedgraphs  
+   + `results/slamdunk_scer/count_twotcreadcount/` — 2-TC threshold tcount files
+
+4. **Alleyoop Output**
+   + `alleyoop/rates/` — overall mutation rates  
+   + `alleyoop/tccontext/` — T>C context profiles  
+   + `alleyoop/utrrates/` — UTR region mutation rates  
+   + `alleyoop/snpeval/` — SNP evaluation outputs  
+   + `alleyoop/tcperreadpos/` — mutation per read  
+   + `alleyoop/tcperutrpos/` — mutation per UTR position  
+   + `alleyoop/dump/` — `.sdunk` read info dump  
+   + `alleyoop/summary_*` — summary stats for 1-TC and 2-TC thresholds  
+   + `alleyoop/merge_*` — merged summary tables across all samples
+
+5. **Final QC**
+   + `results/qc/slamdunk_scer/multiqc/` — Summary MultiQC report of SLAM-Dunk logs
+
+---
+
+## 7) Instructions to Run on HPC
+7A. Download version controlled repository
 ```
 git clone https://github.com/RD-Cobre-Help/SLAM-Seq_Analysis.git
 ```
-3B. Load modules
+7B. Load modules
 ```
 module purge
 module load slurm python/3.10 pandas/2.2.3 numpy/1.22.3 matplotlib/3.7.1
 ```
-3C. Modify samples and config file
+7C. Modify samples and config file
 ```
 vim samples.csv
 vim config.yml
 ```
-3D. Dry Run
+7D. Dry Run
 ```
 snakemake -npr
 ```
-3E. Run on HPC with config.yml options
+7E. Run on HPC with config.yml options
 ```
 sbatch --wrap="snakemake -j 20 --use-envmodules --rerun-incomplete --latency-wait 300 --cluster-config config/cluster_config.yml --cluster 'sbatch -A {cluster.account} -p {cluster.partition} --cpus-per-task {cluster.cpus-per-task}  -t {cluster.time} --mem {cluster.mem} --output {cluster.output} --job-name {cluster.name}'"
 ```
