@@ -90,11 +90,14 @@ This pipeline uses the following tools via HPC environment modules:
 
 Your `config/samples.csv` file should look like this:
 
-| sample           | fastq1                        | fastq2                       | merge_group |
-|------------------|-------------------------------|------------------------------|-------------|
-| **WT_rep1**      | /data/WT_rep1_R1.fastq.gz     | /data/WT_rep1_R2.fastq.gz    | WT          |
-| **WT_rep2**      | /data/WT_rep2_R1.fastq.gz     | /data/WT_rep2_R2.fastq.gz    | WT          |
-| **KO_rep1**      | /data/KO_rep1_R1.fastq.gz     | /data/KO_rep1_R2.fastq.gz    | KO          |
+| sample           | fastq1                              | fastq2                              | merge_group |
+|------------------|-------------------------------------|-------------------------------------|-------------|
+| **RDY73_DMSO_A** | /path/RDHTS192_S63_R1_001.fastq.gz  | /path/RDHTS192_S63_R2_001.fastq.gz  | DMSO        |
+| **RDY73_IAA_A**  | /path/RDHTS193_S64_R1_001.fastq.gz  | /path/RDHTS193_S64_R2_001.fastq.gz  | IAA         |
+| **RDY73_DMSO_B** | /path/RDHTS195_S66_R1_001.fastq.gz  | /path/RDHTS195_S66_R2_001.fastq.gz  | DMSO        |
+| **RDY73_IAA_B**  | /path/RDHTS196_S67_R1_001.fastq.gz  | /path/RDHTS196_S67_R2_001.fastq.gz  | IAA         |
+| **RDY73_DMSO_C** | /path/RDHTS198_S69_R1_001.fastq.gz  | /path/RDHTS198_S69_R2_001.fastq.gz  | DMSO        |
+| **RDY73_IAA_C**  | /path/RDHTS199_S70_R1_001.fastq.gz  | /path/RDHTS199_S70_R2_001.fastq.gz  | IAA         |
 
 + **sample**: unique ID used to label output files  
 + **fastq1/fastq2**: paired-end FASTQ paths  
