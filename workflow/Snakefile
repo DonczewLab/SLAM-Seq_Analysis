@@ -97,7 +97,7 @@ rule all:
         expand("results/fastp/{sample}_umi_R1.fastq.gz", sample=SAMPLES),
         expand("results/fastp/{sample}_umi_R2.fastq.gz", sample=SAMPLES),
         
-        # 3) Trim Adapters in R1 FASTQ files (commented out because it is now a temp file)
+        # 3) Trim Adapters in R1 FASTQ files
         expand("results/trimmed/{sample}_trimmed.fastq.gz", sample=SAMPLES),
         
         # 4) FastQC / MultiQC reports for trimmed data
@@ -235,71 +235,51 @@ rule process_umis:
 
 
 ##################################################################
-##                 Adapter Trimming (Trim_Galore)               ##
+##            Adapter Trimming (Trim_Galore or BBduk)           ##
 ##################################################################
 
-rule trim_with_trimgalore:
+rule trim_adapters:
     input:
         r1="results/fastp/{sample}_umi_R1.fastq.gz"
     output:
         r1_trim="results/trimmed/{sample}_trimmed.fastq.gz"
     log:
         "results/logs/trim/{sample}.log"
-    envmodules:
-        config["trim_galore"]
     params:
-        stringency=config["stringency"],
-        length=config["length"]
+        bbmap_ref=config["bbmap_ref"],
+        stringency=config.get("stringency", 3),
+        length=config.get("length", 10),
+        use_trim_galore=use_trim_galore
+    envmodules:
+        config["trim_galore"] if use_trim_galore else config["bbmap"]
     shell:
         """
-        trim_galore \
-            --stringency {params.stringency} \
-            --length {params.length} \
-            --cores 4 \
-            --gzip \
-            --output_dir results/trimmed \
-            {input.r1} \
-            2> {log}
-        mv results/trimmed/*_trimmed.fq.gz {output.r1_trim}
+        mkdir -p results/trimmed
+        if [ "{params.use_trim_galore}" == "True" ]; then
+            trim_galore \
+                --stringency {params.stringency} \
+                --length {params.length} \
+                --cores 4 \
+                --gzip \
+                --output_dir results/trimmed \
+                {input.r1} \
+                2> {log}
+            mv results/trimmed/*_trimmed.fq.gz {output.r1_trim}
+        else
+            bbduk.sh \
+                in1={input.r1} \
+                out1={output.r1_trim} \
+                ref={params.bbmap_ref} \
+                trimpolya=12 \
+                k=13 \
+                ktrim=r \
+                mink=5 \
+                qtrim=r \
+                trimq=10 \
+                minlength=20 \
+                2> {log}
+        fi
         """
-
-
-##################################################################
-##                    Adapter Trimming (BBduk)                  ##
-##################################################################
-
-rule trim_with_bbduk:
-    input:
-        r1="results/fastp/{sample}_umi_R1.fastq.gz"
-    output:
-        r1_trim="results/trimmed/{sample}_trimmed.fastq.gz"
-    log:
-        "results/logs/trim/{sample}.log"
-    envmodules:
-        config["bbmap"]
-    params:
-        bbmap_ref=config["bbmap_ref"]
-    shell:
-        """
-        bbduk.sh \
-            in1={input.r1} \
-            out1={output.r1_trim} \
-            ref={params.bbmap_ref} \
-            trimpolya=12 \
-            k=13 \
-            ktrim=r \
-            mink=5 \
-            qtrim=r \
-            trimq=10 \
-            minlength=20 \
-            2> {log}
-        """
-
-if use_trim_galore:
-    rule trim_adapters = trim_with_trimgalore
-
-if not use_trim_galore:
-    rule trim_adapters = trim_with_bbduk
 
 ##################################################################
 ##                   Fastqc on Trimmed Fastqs                   ##
