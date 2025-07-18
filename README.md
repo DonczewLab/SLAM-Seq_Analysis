@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/991471979.svg)](https://doi.org/10.5281/zenodo.16106789)
+
 # SLAM-Seq_Analysis
 
 ![SLAM-Seq Analysis](/images/SLAM-seq.png)  
