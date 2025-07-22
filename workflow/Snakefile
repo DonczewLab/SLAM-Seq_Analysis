@@ -81,6 +81,19 @@ merge_groups = samples_df["merge_group"].unique().tolist()
 # pull trim galore true/false out
 use_trim_galore = config["use_trim_galore"]
 
+# Toggle for spike-in normalization
+use_spikein = config["use_spikein"]
+
+# Define spike-in output targets if enabled
+spikein_targets = []
+if use_spikein:
+    spikein_targets = [
+        expand("results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+        expand("results/slamdunk_spikein/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+        "results/slamdunk_spikein/alleyoop/summary_twotcreadcount.tsv",
+        "results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv"
+        # Add other spike-in outputs here later (when I get R script)
+    ]
 
 ##################################################################
 ##                          Rule All                            ##
@@ -141,7 +154,10 @@ rule all:
 	expand("results/slamdunk_scer/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk", sample=SAMPLES),
 
 	# 10) Final MultiQC on Slam Dunk Outputs
-	"results/qc/slamdunk_scer/multiqc/multiqc_report.html"
+	"results/qc/slamdunk_scer/multiqc/multiqc_report.html",
+
+	# 11) Spike in Analysis (S. pombe)
+	*spikein_targets
 
 
 ##################################################################
