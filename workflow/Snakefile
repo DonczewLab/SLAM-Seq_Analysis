@@ -81,6 +81,52 @@ merge_groups = samples_df["merge_group"].unique().tolist()
 # pull trim galore true/false out
 use_trim_galore = config["use_trim_galore"]
 
+# Toggle for spike-in normalization
+use_spikein = config["use_spikein"]
+
+# Define spike-in output targets if enabled
+spikein_targets = []
+if use_spikein:
+    spikein_targets = [
+        # 5) Filtered BAMs and counts (spike-in)
+        expand("results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES),
+
+        # 6) TwoTC count (spike-in)
+        expand("results/slamdunk_spikein/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+
+        # 7) Alleyoop rates, tccontext, utrrates, snpeval outputs (spike-in)
+        expand("results/slamdunk_spikein/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.csv", sample=SAMPLES),
+	expand("results/slamdunk_spikein/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.csv", sample=SAMPLES),
+	expand("results/slamdunk_spikein/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv", sample=SAMPLES),
+	expand("results/slamdunk_spikein/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv", sample=SAMPLES),
+	expand("results/slamdunk_spikein/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log", sample=SAMPLES),
+
+        # 8) Alleyoop Summary and Merged outputs (spike-in)
+	"results/slamdunk_spikein/alleyoop/summary_onetcreadcount.tsv",
+	"results/slamdunk_spikein/alleyoop/summary_onetcreadcount.log",
+	"results/slamdunk_spikein/alleyoop/summary_twotcreadcount.tsv",
+	"results/slamdunk_spikein/alleyoop/summary_twotcreadcount.log",
+	"results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv",
+	"results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv",
+	"results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv",
+
+        # 9) TcPerReadPos and TcPerUtrPos and Alleyoop Dump (spike-in)
+	expand("results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv", sample=SAMPLES),
+	expand("results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.log", sample=SAMPLES),
+	expand("results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.csv", sample=SAMPLES),
+	expand("results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.log", sample=SAMPLES),
+	expand("results/slamdunk_spikein/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk", sample=SAMPLES),
+
+	# 10) Final MultiQC on Slam Dunk Outputs (spike-in)
+	"results/qc/slamdunk_spikein/multiqc/multiqc_report.html"
+    ]
 
 ##################################################################
 ##                          Rule All                            ##
@@ -141,7 +187,10 @@ rule all:
 	expand("results/slamdunk_scer/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk", sample=SAMPLES),
 
 	# 10) Final MultiQC on Slam Dunk Outputs
-	"results/qc/slamdunk_scer/multiqc/multiqc_report.html"
+	"results/qc/slamdunk_scer/multiqc/multiqc_report.html",
+
+	# 11) Spike in Analysis (S. pombe)
+	*spikein_targets
 
 
 ##################################################################
@@ -342,7 +391,7 @@ rule slamdunk_all:
 	plus_bedgraph="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph"
     params:
         scer_genome=config["scer_genome"],
-        scer_bed=config["bed_file"],
+        scer_bed=config["scer_bed"],
 	trim_5p=config["trim_5p"],
 	topn=config["topn"],
 	max_read_len=config["max_read_length"],
@@ -394,7 +443,7 @@ rule slamdunk_count:
         bam_out="results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv"
     params:
         genome=config["scer_genome"],
-        bed=config["bed_file"],
+        bed=config["scer_bed"],
 	snp_dir="results/slamdunk_scer/snp",
 	output_dir="results/slamdunk_scer/count_twotcreadcount",
 	max_read_len=config["max_read_length"],
@@ -499,7 +548,7 @@ rule alleyoop_utrrates:
 	utrrates_log="results/slamdunk_scer/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.log"
     params:
         slamdunk_ref=config["scer_genome"],
-        bed_file=config["bed_file"],
+        bed_file=config["scer_bed"],
         max_read_length=config["max_read_length"],
         min_base_qual=config["min_base_qual"],
 	output_dir="results/slamdunk_scer/alleyoop/utrrates"
@@ -535,7 +584,7 @@ rule alleyoop_snpeval:
 	snp_eval_log="results/slamdunk_scer/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log"
     params:
         slamdunk_ref = config["scer_genome"],
-        bed_file = config["bed_file"],
+        bed_file = config["scer_bed"],
         min_coverage = config["min_coverage"],
         var_fraction = config["var_fraction"],
         max_read_length = config["max_read_length"],
@@ -746,7 +795,7 @@ rule alleyoop_tcperutrpos:
 	tcperutrpos_log="results/slamdunk_scer/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.log"
     params:
         slamdunk_ref=config["scer_genome"],
-        bed_file=config["bed_file"],
+        bed_file=config["scer_bed"],
         max_read_length=config["max_read_length"],
         min_base_qual=config["min_base_qual"],
 	snp_dir="results/slamdunk_scer/snp",
@@ -825,6 +874,522 @@ rule multiqc_slamdunk:
         config["multiqc"]
     log:
         "results/logs/multiqc/slamdunk_scer/multiqc_slamdunk_report.log"
+    shell:
+        """
+        multiqc {params.input_dir} --outdir {params.output_dir} --quiet &> {log}
+        """
+
+################
+################
+################
+################
+################
+################  SPIKE IN WORKFLOW
+################
+################
+################
+################
+################
+################
+
+##################################################################
+##                   Slam Dunk All - Spike-In                   ##
+##################################################################
+
+rule slamdunk_all_spikeIn:
+    input:
+        fastqs="results/trimmed/{sample}_trimmed.fastq.gz"
+    output:
+        bams="results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam",
+	logs="results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log",
+	counts="results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv",
+	minus_bedgraph="results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph",
+	plus_bedgraph="results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph"
+    params:
+        spikein_genome=config["spikein_genome"],
+        spikein_bed=config["spikein_bed"],
+	trim_5p=config["trim_5p"],
+	topn=config["topn"],
+	max_read_len=config["max_read_length"],
+	min_base_qual=config["min_base_qual"],
+	var_fraction=config["var_fraction"],
+	min_coverage=config["min_coverage"],
+	output_dir="results/slamdunk_spikein"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"],
+	config["samtools"]
+    log:
+        "results/logs/slamdunk/slamdunk_all_spikein_{sample}.log"
+    shell:
+        """
+	# show files input for slamdunk all
+    	echo "Input files: {input.fastqs}"
+
+	# make sure directory is present 
+	mkdir -p {params.output_dir}
+
+	# run slamdunk all
+        slamdunk all \
+		--reference {params.spikein_genome} \
+		--bed {params.spikein_bed} \
+		--outputDir {params.output_dir} \
+		--trim-5p {params.trim_5p} \
+		--topn {params.topn} \
+		--multimap \
+		--min-coverage {params.min_coverage} \
+		--var-fraction {params.var_fraction} \
+		--max-read-length {params.max_read_len} \
+		--min-base-qual {params.min_base_qual} \
+		--skip-sam \
+		--threads 24 \
+		{input.fastqs}
+        """
+
+
+##################################################################
+##                   Slam Dunk Count - Spike-In                 ##
+##################################################################
+
+rule slamdunk_count_spikeIn:
+    input:
+        bam="results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+    output:
+        bam_out="results/slamdunk_spikein/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv"
+    params:
+        genome=config["spikein_genome"],
+        bed=config["spikein_bed"],
+	snp_dir="results/slamdunk_spikein/snp",
+	output_dir="results/slamdunk_spikein/count_twotcreadcount",
+	max_read_len=config["max_read_length"],
+	min_base_qual=config["min_base_qual"]
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"],
+	config["samtools"]
+    log:
+        "results/logs/slamdunk/slamdunk_count_spikein_{sample}.log" 
+    shell:
+        """
+        # Define the output directory
+        mkdir -p {params.output_dir}
+
+        # Run slam dunk count
+        slamdunk count \
+		--reference {params.genome} \
+		--bed {params.bed} \
+		--snp-directory {params.snp_dir} \
+		--outputDir {params.output_dir} \
+		--max-read-length {params.max_read_len} \
+		--min-base-qual {params.min_base_qual} \
+		--conversion-threshold 2 \
+		--threads 24 \
+		{input.bam}
+        """
+
+
+##################################################################
+##                        Alleyoop Rates                        ##
+##################################################################
+
+rule alleyoop_rates_spikeIn:
+    input:
+        bam="results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+    output:
+        rates="results/slamdunk_spikein/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.csv",
+	rates_logs="results/slamdunk_spikein/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.log"
+    params:
+        slamdunk_ref=config["spikein_genome"],
+        min_base_qual=config["min_base_qual"],
+	output_dir="results/slamdunk_spikein/alleyoop/rates"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_rates_spikein_{sample}.log"
+    shell:
+        """
+        alleyoop rates \
+		--outputDir {params.output_dir} \
+		--reference {params.slamdunk_ref} \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
+        """
+
+
+##################################################################
+##                      Alleyoop TCcontext                      ##
+##################################################################
+
+rule alleyoop_tccontext_spikeIn:
+    input:
+        bam="results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+    output:
+        tccontext="results/slamdunk_spikein/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.csv",
+	tccontext_log="results/slamdunk_spikein/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.log"
+    params:
+        slamdunk_ref=config["spikein_genome"],
+        min_base_qual=config["min_base_qual"],
+	output_dir="results/slamdunk_spikein/alleyoop/tccontext"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_tccontext_spikein_{sample}.log"
+    shell:
+        """
+        alleyoop tccontext \
+		--outputDir {params.output_dir} \
+		--reference {params.slamdunk_ref} \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
+        """
+
+
+##################################################################
+##                       Alleyoop UTRrates                      ##
+##################################################################
+
+rule alleyoop_utrrates_spikeIn:
+    input:
+        bam="results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+    output:
+        utrrates="results/slamdunk_spikein/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv",
+	utrrates_log="results/slamdunk_spikein/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.log"
+    params:
+        slamdunk_ref=config["spikein_genome"],
+        bed_file=config["spikein_bed"],
+        max_read_length=config["max_read_length"],
+        min_base_qual=config["min_base_qual"],
+	output_dir="results/slamdunk_spikein/alleyoop/utrrates"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_utrrates_spikein_{sample}.log"
+    shell:
+        """
+        alleyoop utrrates \
+		--outputDir {params.output_dir} \
+		--reference {params.slamdunk_ref} \
+		--bed {params.bed_file} \
+		--multiTCStringency \
+		--max-read-length {params.max_read_length} \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
+        """
+
+
+##################################################################
+##                       Alleyoop SNPeval                       ##
+##################################################################
+
+rule alleyoop_snpeval_spikeIn:
+    input:
+        bam="results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+    output:
+        snp_eval="results/slamdunk_spikein/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv",
+	snp_eval_log="results/slamdunk_spikein/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log"
+    params:
+        slamdunk_ref = config["spikein_genome"],
+        bed_file = config["spikein_bed"],
+        min_coverage = config["min_coverage"],
+        var_fraction = config["var_fraction"],
+        max_read_length = config["max_read_length"],
+        min_base_qual = config["min_base_qual"],
+	output_dir="results/slamdunk_spikein/alleyoop/snpeval",
+	snp_dir="results/slamdunk_spikein/snp"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_snpeval_spikein_{sample}.log"
+    shell:
+        """
+        alleyoop snpeval \
+		--outputDir {params.output_dir} \
+		--snp-directory {params.snp_dir} \
+		--reference {params.slamdunk_ref} \
+		--bed {params.bed_file} \
+		--min-coverage {params.min_coverage} \
+		--var-fraction {params.var_fraction} \
+		--multiTCStringency \
+		--max-read-length {params.max_read_length} \
+		--min-base-qual {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
+        """
+
+
+##################################################################
+##                      Alleyoop Summary 1                      ##
+##################################################################
+
+rule alleyoop_summary_onetcreadcount_spikeIn:
+    input:
+        bams=expand("results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+	tcounts=expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+    output:
+        summary="results/slamdunk_spikein/alleyoop/summary_onetcreadcount.tsv",
+	summary_log="results/slamdunk_spikein/alleyoop/summary_onetcreadcount.log"
+    params:
+        tcount_dir="results/slamdunk_spikein/count"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_summary_onetcreadcount_spikein.log"
+    shell:
+        """
+        alleyoop summary \
+		--output {output.summary} \
+		--tcountDir {params.tcount_dir} \
+		{input.bams}
+        """
+
+
+##################################################################
+##                      Alleyoop Summary 2                      ##
+##################################################################
+
+rule alleyoop_summary_twotcreadcount_spikeIn:
+    input:
+        bams=expand("results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+        tcounts=expand("results/slamdunk_spikein/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+    output:
+        summary="results/slamdunk_spikein/alleyoop/summary_twotcreadcount.tsv",
+	summary_log="results/slamdunk_spikein/alleyoop/summary_twotcreadcount.log"
+    params:
+        tcount_dir="results/slamdunk_spikein/count_twotcreadcount"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_summary_twotcreadcount_spikein.log"
+    shell:
+        """
+        alleyoop summary \
+		--output {output.summary} \
+		--tcountDir {params.tcount_dir} \
+		{input.bams}
+        """
+
+
+##################################################################
+##                 Alleyoop Summary Total Merged                ##
+##################################################################
+
+rule alleyoop_merge_totalreadcount_spikeIn:
+    input:
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+    output:
+        merge="results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv"
+    params:
+        column="ReadCount"
+    envmodules:
+        config["slamdunk"],
+        config["nextgenmap"],
+        config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_merged_totalreadcount_spikein.log"
+    shell:
+        """
+        alleyoop merge \
+        --output {output.merge} \
+        --column {params.column} \
+        {input}
+        """
+
+
+##################################################################
+##                 Alleyoop Summary OneTC Merged                ##
+##################################################################
+
+rule alleyoop_merge_onetcreadcount_spikeIn:
+    input:
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+    output:
+        merge="results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv"
+    params:
+        column="TcReadCount"
+    envmodules:
+        config["slamdunk"],
+        config["nextgenmap"],
+        config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_merged_onereadcount_spikein.log"
+    shell:
+        """
+        alleyoop merge \
+        --output {output.merge} \
+        --column {params.column} \
+        {input}
+        """
+
+
+##################################################################
+##                 Alleyoop Summary TwoTC Merged                ##
+##################################################################
+
+rule alleyoop_merge_twotcreadcount_spikeIn:
+    input:
+        expand("results/slamdunk_spikein/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES)
+    output:
+        merge="results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv"
+    params:
+        column="TcReadCount"
+    envmodules:
+        config["slamdunk"],
+        config["nextgenmap"],
+        config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_merged_tworeadcount_spikein.log"
+    shell:
+        """
+        alleyoop merge \
+        --output {output.merge} \
+        --column {params.column} \
+        {input}
+        """
+
+
+##################################################################
+##                     Alleyoop TcPerReadPos                    ##
+##################################################################
+
+rule alleyoop_tcperreadpos_spikeIn:
+    input:
+        bam="results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+    output:
+        tcperreadpos="results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv",
+	tcperreadpos_log="results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.log"
+    params:
+        slamdunk_ref=config["spikein_genome"],
+        max_read_length=config["max_read_length"],
+        min_base_qual=config["min_base_qual"],
+	snp_dir="results/slamdunk_spikein/snp",
+	output_dir="results/slamdunk_spikein/alleyoop/tcperreadpos"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_tcperreadpos_spikein_{sample}.log"
+    shell:
+        """
+        alleyoop tcperreadpos \
+		--outputDir {params.output_dir} \
+		--reference {params.slamdunk_ref} \
+		--snp-directory {params.snp_dir} \
+		--max-read-length {params.max_read_length} \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
+        """
+
+
+##################################################################
+##                     Alleyoop TcPerUtrPos                    ##
+##################################################################
+
+rule alleyoop_tcperutrpos_spikeIn:
+    input:
+        bam="results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+    output:
+        tcperutrpos="results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.csv",
+	tcperutrpos_log="results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.log"
+    params:
+        slamdunk_ref=config["spikein_genome"],
+        bed_file=config["spikein_bed"],
+        max_read_length=config["max_read_length"],
+        min_base_qual=config["min_base_qual"],
+	snp_dir="results/slamdunk_spikein/snp",
+	output_dir="results/slamdunk_spikein/alleyoop/tcperutrpos"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_tcperutrpos_spikein_{sample}.log"
+    shell:
+        """
+        alleyoop tcperutrpos \
+		--outputDir {params.output_dir} \
+		--reference {params.slamdunk_ref} \
+		--bed {params.bed_file} \
+		--snp-directory {params.snp_dir} \
+		--max-read-length {params.max_read_length} \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input.bam}
+        """
+
+
+##################################################################
+##                         Alleyoop Dump                        ##
+##################################################################
+
+rule alleyoop_dump_spikeIn:
+    input:
+        bam="results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam"
+    output:
+        dunk="results/slamdunk_spikein/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk"
+    params:
+        slamdunk_ref = config["spikein_genome"],
+        min_base_qual = config["min_base_qual"],
+	snp_dir="results/slamdunk_spikein/snp",
+	output_dir="results/slamdunk_spikein/alleyoop/dump"
+    envmodules:
+        config["slamdunk"],
+	config["nextgenmap"],
+	config["varscan"]
+    log:
+        "results/logs/alleyoop/alleyoop_dump_spikein_{sample}.log"
+    shell:
+        """
+        alleyoop dump \
+		--outputDir {params.output_dir} \
+		--reference {params.slamdunk_ref} \
+		--snp-directory {params.snp_dir} \
+		--min-basequality {params.min_base_qual} \
+		--threads 24 \
+		{input}
+        """
+
+
+##################################################################
+##                  MultiQC on Slam Dunk Output                 ##
+##################################################################
+
+rule multiqc_slamdunk_spikeIn:
+    input:
+        rates_logs=expand("results/slamdunk_spikein/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.log", sample=SAMPLES),
+        snpeval_logs=expand("results/slamdunk_spikein/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log", sample=SAMPLES),
+        tccontext_logs=expand("results/slamdunk_spikein/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.log", sample=SAMPLES),
+        tcperreadpos_logs=expand("results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.log", sample=SAMPLES),
+        tcperutrpos_logs=expand("results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.log", sample=SAMPLES),
+        utrrates_logs=expand("results/slamdunk_spikein/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.log", sample=SAMPLES),
+	summary_logs=["results/slamdunk_spikein/alleyoop/summary_onetcreadcount.log","results/slamdunk_spikein/alleyoop/summary_twotcreadcount.log"]
+    output:
+        "results/qc/slamdunk_spikein/multiqc/multiqc_report.html"
+    params:
+        output_dir="results/qc/slamdunk_spikein/multiqc",
+	input_dir="results/slamdunk_spikein/alleyoop"
+    envmodules:
+        config["multiqc"]
+    log:
+        "results/logs/multiqc/slamdunk_spikein/multiqc_slamdunk_report_spikein.log"
     shell:
         """
         multiqc {params.input_dir} --outdir {params.output_dir} --quiet &> {log}

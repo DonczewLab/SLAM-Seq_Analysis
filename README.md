@@ -11,45 +11,52 @@
 
 **SLAM-Seq_Analysis** is a modular, high-throughput Snakemake pipeline designed to analyze **SLAM-Seq** data. It quantifies RNA synthesis and degradation by detecting **T>C transitions**. This pipeline processes raw **paired-end FASTQ** files through quality control, UMI extraction, adapter trimming, alignment, mutation counting, and context-specific mutation analysis using **SLAM-Dunk** and **Alleyoop**. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
 
-It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs.
+It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs. Additionally, the pipeline optionally supports a **spike-in genome** (e.g., S. pombe), allowing for parallel alignment and mutation quantification for normalization and QC purposes. Spike-in analysis is controlled by the flag `use_spikein` in the `config.yml` and produces a parallel set of filtered BAMs, mutation calls, and summary reports in a separate output directory `results/slamdunk_spikein`.  
 
-### Key Features
+### Key Features  
 
 + **UMI Support**  
-  + Extracts UMIs using `fastp`, allowing for duplicate-aware alignment and quantification
+  + Extracts UMIs using `fastp`, allowing for duplicate-aware alignment and quantification  
 
-+ **Optional Adapter Trimming Method**  
-  + Choose between **Trim Galore** or **BBduk** using a config flag
++ **Multiple Adapter Trimming Methods Set in `config.yml` (optional)**  
+  + Choose between **Trim Galore** or **BBduk**  
+  + `use_trim_galore`: toggle between BBduk and Trim Galore  
 
 + **Comprehensive QC Reports**  
   + FastQC on raw and trimmed reads  
-  + MultiQC reports summarize results in unified HTML
+  + MultiQC reports summarize results in unified HTML  
+
++ **Spike-In Genome Support in `config.yml` (optional)**  
+  + `use_spikein`: toggle between true/false to enable/disable spike-in genome alignment  
+  + `spikein_genome`, `spikein_bed`: reference FASTA and BED for spike-in genome  
+  + Generates its own BAMs, tcount files, and QC reports  
 
 + **SLAM-Dunk Integration**  
   + `slam-dunk all`: Align, filter, SNP call, and count  
-  + `slam-dunk count`: Rerun mutation quantification with 2-TC threshold
+  + `slam-dunk count`: Rerun mutation quantification with 2-TC threshold  
 
 + **Alleyoop Analysis**  
   + Generates mutation rates, context, UTR rates, SNP evaluation  
   + Summarizes and merges mutation counts across samples  
-  + Outputs T>C mutation information per read and UTR position
+  + Outputs T>C mutation information per read and UTR position  
 
 + **Scalable and Reproducible**  
   + Parallelizable via Snakemake  
-  + Designed for Slurm HPC environments
+  + Designed for Slurm HPC environments  
 
 ---
 
 ## 2) Intended Use Case
 
-This pipeline is built for researchers analyzing **RNA turnover** via **SLAM-seq**, especially when interested in:
+This pipeline is built for researchers analyzing **RNA turnover** via **SLAM-seq**, especially when interested in:  
 
 + Mutation counts (T>C transitions) per gene or region  
 + Comparing samples using 1-TC vs. 2-TC thresholds  
 + Producing summary metrics and mutation contexts  
-+ Running in a reproducible and modular HPC environment
++ Running in a reproducible and modular HPC environment  
++ Supports optional spike-in controls (e.g., *S. pombe*) to facilitate normalization across samples or conditions.  
 
-Starting from raw paired-end FASTQs, it provides all necessary intermediate and final outputs, from filtered BAMs to mutation summaries and log diagnostics.
+Starting from raw paired-end FASTQs, it provides all necessary intermediate and final outputs, from filtered BAMs to mutation summaries and log diagnostics.  
 
 ---
 
@@ -64,7 +71,7 @@ All user-defined settings and tool versions are declared in `config/config.yml`.
 + `umi_loc`, `umi_len`: UMI extraction parameters  
 + `trim_5p`, `max_read_length`, `min_base_qual`: parameters for SLAM-Dunk  
 + `use_trim_galore`: Boolean to toggle trimming tool  
-+ `stringency`, `length`: used by Trim Galore
++ `stringency`, `length`: used by Trim Galore  
 
 **Tool Versions**  
 + `fastqc`, `multiqc`, `fastp`, `bbmap`, `trim_galore`, `slamdunk`, `samtools`, `varscan`, `nextgenmap`
@@ -105,9 +112,9 @@ Your `config/samples.csv` file should look like this:
 
 ---
 
-## 6) Output Structure
+## 6) Output Structure  
 
-The pipeline generates output across several folders:
+  The pipeline generates output across several folders:  
 
 1. **Quality Control**
    + `results/qc/raw/fastqc/` — FastQC HTML/ZIP for raw FASTQs  
@@ -137,6 +144,15 @@ The pipeline generates output across several folders:
 
 5. **Final QC**
    + `results/qc/slamdunk_scer/multiqc/` — Summary MultiQC report of SLAM-Dunk logs
+
+6. **Spike-In Genome Output (if `use_spikein: true`)**  
+    + `results/slamdunk_spikein/filter/` — filtered BAMs aligned to spike-in genome  
+    + `results/slamdunk_spikein/count/` — 1-TC tcount TSVs, logs, bedgraphs  
+    + `results/slamdunk_spikein/count_twotcreadcount/` — 2-TC threshold tcount files  
+    + `results/slamdunk_spikein/alleyoop/` — all standard mutation metrics (rates, context, UTRs, SNP eval, dump, summaries, merges)  
+    + `results/qc/slamdunk_spikein/multiqc/` — MultiQC summary report for spike-in genome  
+
+*This output mirrors the primary genome `slamdunk_scer/` and can be used for spike-in normalization or quality control tracking.*
 
 ---
 
