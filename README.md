@@ -205,7 +205,7 @@ If you use this workflow in your research, please cite:
 
 ## 9) Authorship & Contributions
 
-**Kevin A. Boyd** – Designed and implemented the Snakemake workflow for a Slurm-managed HPC enviornment, modularized the pipeline structure, implemented all processing steps, integrated spike-in normalization support, and created the documentation.  
+**Kevin A. Boyd** – Designed and implemented the Snakemake workflow for a Slurm-managed HPC environment, modularized the pipeline structure, implemented all processing steps, integrated spike-in normalization support, and created the documentation.  
 
 **John Ridenour** – Developed original SLAM-Seq scripts used as the foundation for this pipeline.  
 
@@ -218,4 +218,5 @@ This work was developed under the guidance of Rafal Donczew as part of a COBRE-f
 ## 10) License
 
 This project is licensed under the **Apache 2.0**. See the [LICENSE](LICENSE) file for details.  
+
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
