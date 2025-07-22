@@ -203,7 +203,7 @@ sbatch --wrap="snakemake -j 20 --use-envmodules --rerun-incomplete --latency-wai
 
 If you use this workflow in your research, please cite:  
 
-**Boyd, K.A.**, Ridenour, J., & Donczew, R. (2025). *SLAM-Seq_Analysis: A modular Snakemake workflow for RNA metabolism analysis using SLAM-Seq data*. Zenodo. https://doi.org/10.5281/zenodo.16106788
+**Boyd, K.A.**, Ridenour, J., & Donczew, R. (2025). *SLAM-Seq_Analysis: A reproducible Snakemake workflow for RNA metabolism analysis using SLAM-Seq data*. Zenodo. https://doi.org/10.5281/zenodo.16106788
 
 [![DOI](https://zenodo.org/badge/991471979.svg)](https://doi.org/10.5281/zenodo.16106788)
 
