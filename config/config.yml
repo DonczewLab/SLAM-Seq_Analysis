@@ -33,9 +33,6 @@ length: 10
 scer_genome: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome.fna" # Genome reference for SLAMDUNK
 scer_bed: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/Scerevisiae_R64-3-1_gene3utr.bed" # Gene + 3-prime UTR BED file
 
-# Default spike-in genome = S. pombe
-spikein_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_ASM294v2_genome_bowtie2_index/NCBI_ASM294v2_genome"
-
 # ==============================================================================
 # SLAMDUNK PARAMETERS
 # ==============================================================================
