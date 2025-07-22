@@ -145,10 +145,7 @@ Your `config/samples.csv` file should look like this:
 5. **Final QC**
    + `results/qc/slamdunk_scer/multiqc/` — Summary MultiQC report of SLAM-Dunk logs
 
-6. **Spike-In Genome Output (if `use_spikein: true`)**
-
-+ The following parallel output structure is created under `results/slamdunk_spikein/`:
-  
+6. **Spike-In Genome Output (if `use_spikein: true`)**  
     + `results/slamdunk_spikein/filter/` — filtered BAMs aligned to spike-in genome  
     + `results/slamdunk_spikein/count/` — 1-TC tcount TSVs, logs, bedgraphs  
     + `results/slamdunk_spikein/count_twotcreadcount/` — 2-TC threshold tcount files  
