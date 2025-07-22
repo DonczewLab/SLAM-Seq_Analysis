@@ -205,7 +205,7 @@ If you use this workflow in your research, please cite:
 
 ## 9) Authorship & Contributions
 
-**Kevin A. Boyd** – Designed and implemented the Snakemake workflow, modularized the pipeline structure, implemented all processing steps, integrated spike-in normalization support, and created documentation.  
+**Kevin A. Boyd** – Designed and implemented the Snakemake workflow for a Slurm-managed HPC enviornment, modularized the pipeline structure, implemented all processing steps, integrated spike-in normalization support, and created the documentation.  
 
 **John Ridenour** – Developed original SLAM-Seq scripts used as the foundation for this pipeline.  
 
