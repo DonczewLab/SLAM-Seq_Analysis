@@ -87,22 +87,28 @@ All user-defined settings and tool versions are declared in `config/config.yml`.
 
 ## 4) Tools & Modules
 
-This pipeline uses the following tools via HPC environment modules:
+This pipeline uses the following tools via HPC environment modules:  
 
-+ **FastQC** — raw and trimmed read QC  
-+ **MultiQC** — unified reporting of QC metrics  
-+ **Fastp** — UMI extraction  
-+ **BBduk** or **Trim Galore** — adapter trimming  
-+ **SLAM-Dunk** — alignment, mutation calling, filtering  
-+ **Alleyoop** — contextual mutation analysis and merging  
-+ **Samtools**, **VarScan**, **NextGenMap** — used internally by SLAM-Dunk  
-+ **Snakemake** — workflow management
++ **FastQC** for raw and trimmed read QC  
++ **MultiQC** for unified reporting of QC metrics  
++ **Fastp** for UMI extraction  
++ **BBduk** or **Trim Galore** for adapter trimming  
++ **SLAM-Dunk** for alignment, mutation calling, filtering  
++ **Alleyoop** for contextual mutation analysis and merging  
++ **Samtools**, **VarScan**, **NextGenMap** used internally by SLAM-Dunk  
++ **Snakemake** for workflow management
 
 ---
 
-## 5) Example `samples.csv`
+## 5) Example Data
 
-Your `config/samples.csv` file should look like this:
+A minimal test dataset can be placed in a `resources/` folder (not included currently). Update `samples.csv` to point to these FASTQs for a quick test run. Once confirmed, replace with your personal SLAM-seq data.
+
+---
+
+## 6) Explanation of `samples.csv`
+
+`config/samples.csv` defines which FASTQ files to process, what the naming convention will be, and which samples to create average signal tracks. An example `samples.csv` is provided below:  
 
 | sample           | fastq1                              | fastq2                              | merge_group |
 |------------------|-------------------------------------|-------------------------------------|-------------|
@@ -113,13 +119,13 @@ Your `config/samples.csv` file should look like this:
 | **RDY73_DMSO_C** | /path/RDHTS198_S69_R1_001.fastq.gz  | /path/RDHTS198_S69_R2_001.fastq.gz  | DMSO        |
 | **RDY73_IAA_C**  | /path/RDHTS199_S70_R1_001.fastq.gz  | /path/RDHTS199_S70_R2_001.fastq.gz  | IAA         |
 
-+ **sample**: unique ID used to label output files  
-+ **fastq1/fastq2**: paired-end FASTQ paths  
-+ **merge_group**: optional group for downstream averaging or plotting
++ **sample**: unique sample ID that will serve as file naming convention downstream  
++ **fastq1** and **fastq2**: file paths to paired-end fastq files  
++ **merge_group**: optional group for downstream averaging or plotting  
 
 ---
 
-## 6) Output Structure  
+## 7) Output Structure  
 
   The pipeline generates output across several folders:  
 
@@ -163,37 +169,37 @@ Your `config/samples.csv` file should look like this:
 
 ---
 
-## 7) Instructions to Run on HPC  
+## 8) Instructions to Run on HPC  
 
-7A. Download version controlled repository
+8A. Download version controlled repository
 ```
 wget https://github.com/RD-Cobre-Help/SLAM-Seq_Analysis/releases/download/v1.0.1/SLAM-Seq_Analysis-1.0.1.tar.gz
 tar -xzf SLAM-Seq_Analysis-1.0.1.tar.gz
 rm SLAM-Seq_Analysis-1.0.1.tar.gz
 cd SLAM-Seq_Analysis-1.0.1
 ```
-7B. Load modules
+8B. Load modules
 ```
 module purge
 module load slurm python/3.10 pandas/2.2.3 numpy/1.22.3 matplotlib/3.7.1
 ```
-7C. Modify samples and config file
+8C. Modify samples and config file
 ```
 vim samples.csv
 vim config.yml
 ```
-7D. Dry Run
+8D. Dry Run
 ```
 snakemake -npr
 ```
-7E. Run on HPC with config.yml options
+8E. Run on HPC with config.yml options
 ```
 sbatch --wrap="snakemake -j 20 --use-envmodules --rerun-incomplete --latency-wait 300 --cluster-config config/cluster_config.yml --cluster 'sbatch -A {cluster.account} -p {cluster.partition} --cpus-per-task {cluster.cpus-per-task}  -t {cluster.time} --mem {cluster.mem} --output {cluster.output} --job-name {cluster.name}'"
 ```
 
 ---
 
-## 8) Citation  
+## 9) Citation  
 
 If you use this workflow in your research, please cite:  
 
@@ -203,7 +209,7 @@ If you use this workflow in your research, please cite:
 
 ---
 
-## 9) Authorship & Contributions
+## 10) Authorship & Contributions
 
 **Kevin A. Boyd** – Designed and implemented the Snakemake workflow for a Slurm-managed HPC environment, modularized the pipeline structure, implemented all processing steps, integrated spike-in normalization support, and created the documentation.  
 
@@ -215,7 +221,7 @@ This work was developed under the guidance of Rafal Donczew as part of a COBRE-f
 
 ---
 
-## 10) License
+## 11) License
 
 This project is licensed under the **Apache 2.0**. See the [LICENSE](LICENSE) file for details.  
 
