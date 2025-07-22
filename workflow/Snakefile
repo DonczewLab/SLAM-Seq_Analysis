@@ -746,7 +746,7 @@ rule alleyoop_tcperutrpos:
 	tcperutrpos_log="results/slamdunk_scer/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.log"
     params:
         slamdunk_ref=config["scer_genome"],
-        bed_file=config["bed_file"],
+        bed_file=config["scer_genome"],
         max_read_length=config["max_read_length"],
         min_base_qual=config["min_base_qual"],
 	snp_dir="results/slamdunk_scer/snp",
