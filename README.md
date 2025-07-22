@@ -150,9 +150,9 @@ Your `config/samples.csv` file should look like this:
     + `results/slamdunk_spikein/count/` — 1-TC tcount TSVs, logs, bedgraphs  
     + `results/slamdunk_spikein/count_twotcreadcount/` — 2-TC threshold tcount files  
     + `results/slamdunk_spikein/alleyoop/` — all standard mutation metrics (rates, context, UTRs, SNP eval, dump, summaries, merges)  
-    + `results/qc/slamdunk_spikein/multiqc/` — MultiQC summary report for spike-in genome
+    + `results/qc/slamdunk_spikein/multiqc/` — MultiQC summary report for spike-in genome  
 
-*This output mirrors the primary genome (`slamdunk_scer/`) and can be used for spike-in normalization or quality control tracking.*
+*This output mirrors the primary genome `slamdunk_scer/` and can be used for spike-in normalization or quality control tracking.*
 
 ---
 
