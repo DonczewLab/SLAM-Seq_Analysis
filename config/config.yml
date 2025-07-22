@@ -2,11 +2,11 @@
 samples_csv: "config/samples.csv"
 
 # ==============================================================================
-# TOGGLE ON/OFF SPIKE IN (S. pombe)
+# TOGGLE ON/OFF SPIKE IN (S. pombe default)
 # ==============================================================================
 use_spikein: false
-spom_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_ASM294v2_genome.fna"
-spom_bed: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/Spombe_ASM294v2_gene3utr.bed"
+spikein_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_ASM294v2_genome.fna"
+spikein_bed: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/Spombe_ASM294v2_gene3utr.bed"
 
 # ==============================================================================
 # ADAPTER FILE (BBDuk)
