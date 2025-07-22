@@ -217,5 +217,5 @@ This work was developed under the guidance of Rafal Donczew as part of a COBRE-f
 
 ## 10) License
 
-This project is licensed under the **Apache 2.0**. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the **Apache 2.0**. See the [LICENSE](LICENSE) file for details.  
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
