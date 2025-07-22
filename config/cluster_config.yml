@@ -87,7 +87,7 @@ rename_trimmed_fastqs:
 # SLAMDUNK - main processing step
 # ------------------------------------------------------------------------------
 slamdunk_all:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "08:00:00"
@@ -96,7 +96,7 @@ slamdunk_all:
   error: logs/{rule}.{wildcards.sample}.err
 
 slamdunk_count:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "08:00:00"
@@ -108,7 +108,7 @@ slamdunk_count:
 # Alleyoop (analysis on SLAM-Seq results)
 # ------------------------------------------------------------------------------
 alleyoop_rates:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -117,7 +117,7 @@ alleyoop_rates:
   error: logs/{rule}.{wildcards.sample}.err
 
 alleyoop_tccontext:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -126,7 +126,7 @@ alleyoop_tccontext:
   error: logs/{rule}.{wildcards.sample}.err
 
 alleyoop_utrrates:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -135,7 +135,7 @@ alleyoop_utrrates:
   error: logs/{rule}.{wildcards.sample}.err
 
 alleyoop_snpeval:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -144,7 +144,7 @@ alleyoop_snpeval:
   error: logs/{rule}.{wildcards.sample}.err
 
 alleyoop_summary_onetcreadcount:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -153,7 +153,7 @@ alleyoop_summary_onetcreadcount:
   error: logs/{rule}.err
 
 alleyoop_summary_twotcreadcount:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -247,7 +247,7 @@ multiqc_slamdunk:
 # SLAMDUNK - main processing step
 # ------------------------------------------------------------------------------
 slamdunk_all_spikeIn:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "08:00:00"
@@ -256,7 +256,7 @@ slamdunk_all_spikeIn:
   error: logs/{rule}.{wildcards.sample}.err
 
 slamdunk_count_spikeIn:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "08:00:00"
@@ -268,7 +268,7 @@ slamdunk_count_spikeIn:
 # Alleyoop (analysis on SLAM-Seq results)
 # ------------------------------------------------------------------------------
 alleyoop_rates_spikeIn:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -277,7 +277,7 @@ alleyoop_rates_spikeIn:
   error: logs/{rule}.{wildcards.sample}.err
 
 alleyoop_tccontext_spikeIn:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -286,7 +286,7 @@ alleyoop_tccontext_spikeIn:
   error: logs/{rule}.{wildcards.sample}.err
 
 alleyoop_utrrates_spikeIn:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -295,7 +295,7 @@ alleyoop_utrrates_spikeIn:
   error: logs/{rule}.{wildcards.sample}.err
 
 alleyoop_snpeval_spikeIn:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -304,7 +304,7 @@ alleyoop_snpeval_spikeIn:
   error: logs/{rule}.{wildcards.sample}.err
 
 alleyoop_summary_onetcreadcount_spikeIn:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
@@ -313,7 +313,7 @@ alleyoop_summary_onetcreadcount_spikeIn:
   error: logs/{rule}.err
 
 alleyoop_summary_twotcreadcount_spikeIn:
-  cpus-per-task: 16
+  cpus-per-task: 24
   mem: "64G"
   cores: 16
   time: "04:00:00"
