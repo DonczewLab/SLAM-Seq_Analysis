@@ -88,11 +88,34 @@ use_spikein = config["use_spikein"]
 spikein_targets = []
 if use_spikein:
     spikein_targets = [
+        # 1) Filtered BAMs and counts
         expand("results/slamdunk_spikein/filter/{sample}_trimmed.fastq_slamdunk_mapped_filtered.bam", sample=SAMPLES),
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_mins.bedgraph", sample=SAMPLES),
+        expand("results/slamdunk_spikein/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph", sample=SAMPLES),
+
+        # 2) TwoTC count
         expand("results/slamdunk_spikein/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv", sample=SAMPLES),
+
+        # 3) Alleyoop outputs
+        expand("results/slamdunk_spikein/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.csv", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.csv", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv", sample=SAMPLES),
+        "results/slamdunk_spikein/alleyoop/summary_onetcreadcount.tsv",
         "results/slamdunk_spikein/alleyoop/summary_twotcreadcount.tsv",
-        "results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv"
-        # Add other spike-in outputs here later (when I get R script)
+        "results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv",
+        "results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv",
+        "results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv",
+
+        # 4) TcPerReadPos, TcPerUtrPos, Dump
+        expand("results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.csv", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk", sample=SAMPLES),
+
+        # 5) Final MultiQC on spike-in outputs
+        "results/qc/slamdunk_spikein/multiqc/multiqc_report.html"
     ]
 
 ##################################################################
