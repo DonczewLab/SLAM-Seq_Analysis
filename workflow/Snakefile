@@ -342,7 +342,7 @@ rule slamdunk_all:
 	plus_bedgraph="results/slamdunk_scer/count/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount_plus.bedgraph"
     params:
         scer_genome=config["scer_genome"],
-        scer_bed=config["bed_file"],
+        scer_bed=config["scer_bed"],
 	trim_5p=config["trim_5p"],
 	topn=config["topn"],
 	max_read_len=config["max_read_length"],
@@ -394,7 +394,7 @@ rule slamdunk_count:
         bam_out="results/slamdunk_scer/count_twotcreadcount/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcount.tsv"
     params:
         genome=config["scer_genome"],
-        bed=config["bed_file"],
+        bed=config["scer_bed"],
 	snp_dir="results/slamdunk_scer/snp",
 	output_dir="results/slamdunk_scer/count_twotcreadcount",
 	max_read_len=config["max_read_length"],
@@ -499,7 +499,7 @@ rule alleyoop_utrrates:
 	utrrates_log="results/slamdunk_scer/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.log"
     params:
         slamdunk_ref=config["scer_genome"],
-        bed_file=config["bed_file"],
+        bed_file=config["scer_bed"],
         max_read_length=config["max_read_length"],
         min_base_qual=config["min_base_qual"],
 	output_dir="results/slamdunk_scer/alleyoop/utrrates"
@@ -535,7 +535,7 @@ rule alleyoop_snpeval:
 	snp_eval_log="results/slamdunk_scer/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log"
     params:
         slamdunk_ref = config["scer_genome"],
-        bed_file = config["bed_file"],
+        bed_file = config["scer_bed"],
         min_coverage = config["min_coverage"],
         var_fraction = config["var_fraction"],
         max_read_length = config["max_read_length"],
