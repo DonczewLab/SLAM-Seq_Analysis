@@ -163,7 +163,8 @@ Your `config/samples.csv` file should look like this:
 
 ---
 
-## 7) Instructions to Run on HPC
+## 7) Instructions to Run on HPC  
+
 7A. Download version controlled repository
 ```
 wget https://github.com/RD-Cobre-Help/SLAM-Seq_Analysis/releases/download/v1.0.1/SLAM-Seq_Analysis-1.0.1.tar.gz
@@ -189,3 +190,31 @@ snakemake -npr
 ```
 sbatch --wrap="snakemake -j 20 --use-envmodules --rerun-incomplete --latency-wait 300 --cluster-config config/cluster_config.yml --cluster 'sbatch -A {cluster.account} -p {cluster.partition} --cpus-per-task {cluster.cpus-per-task}  -t {cluster.time} --mem {cluster.mem} --output {cluster.output} --job-name {cluster.name}'"
 ```
+
+---
+
+## 8) Citation  
+
+If you use this workflow in your research, please cite:  
+
+**Boyd, K.A.**, Ridenour, J., & Donczew, R. (2025). *SLAM-Seq_Analysis: A modular Snakemake workflow for RNA metabolism analysis using SLAM-Seq data*. Zenodo. https://doi.org/10.5281/zenodo.16106788
+
+[![DOI](https://zenodo.org/badge/991471979.svg)](https://doi.org/10.5281/zenodo.16106788)
+
+---
+
+## 9) Authorship & Contributions
+
+**Kevin A. Boyd** – Designed and implemented the Snakemake workflow, modularized the pipeline structure, integrated spike-in normalization support, and created documentation.  
+
+**John Ridenour** – Developed original SLAM-Seq scripts used as the foundation for this pipeline.  
+
+**Rafal Donczew** – Provided guidance and design input; contributed to the SLAM-Seq analysis framework and validation.  
+
+This work is based on collaborative development within the Donczew Lab.  
+
+---
+
+## 10) License
+
+This project is licensed under the **Apache 2.0**. See the [LICENSE](LICENSE) file for details.
