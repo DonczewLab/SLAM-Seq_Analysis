@@ -2,6 +2,13 @@
 samples_csv: "config/samples.csv"
 
 # ==============================================================================
+# TOGGLE ON/OFF SPIKE IN (S. pombe)
+# ==============================================================================
+use_spikein: false
+spom_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_ASM294v2_genome.fna"
+spom_bed: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/Spombe_ASM294v2_gene3utr.bed"
+
+# ==============================================================================
 # ADAPTER FILE (BBDuk)
 # ==============================================================================
 bbmap_ref: "/hpc-prj/donczew/genomic_resources/bbmap/truseq_universal_adapters.fa"
@@ -24,7 +31,7 @@ length: 10
 # ==============================================================================
 # Primary (no spike-in) genome = S. cerevisiae
 scer_genome: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome.fna" # Genome reference for SLAMDUNK
-bed_file: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/Scerevisiae_R64-3-1_gene3utr.bed" # Gene + 3-prime UTR BED file
+scer_bed: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/Scerevisiae_R64-3-1_gene3utr.bed" # Gene + 3-prime UTR BED file
 
 # Default spike-in genome = S. pombe
 spikein_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_ASM294v2_genome_bowtie2_index/NCBI_ASM294v2_genome"
