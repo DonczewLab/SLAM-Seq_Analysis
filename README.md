@@ -5,7 +5,7 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/RD-Cobre-Help/SLAM-Seq_Analysis)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/RD-Cobre-Help/SLAM-Seq_Analysis/total)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/RD-Cobre-Help/SLAM-Seq_Analysis/latest)
-[![DOI](https://zenodo.org/badge/991471979.svg)](https://doi.org/10.5281/zenodo.16106789)
+[![DOI](https://zenodo.org/badge/991471979.svg)](https://doi.org/10.5281/zenodo.16106788)
 
 # SLAM-Seq_Analysis
 
