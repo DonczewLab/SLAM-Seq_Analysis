@@ -205,13 +205,13 @@ If you use this workflow in your research, please cite:
 
 ## 9) Authorship & Contributions
 
-**Kevin A. Boyd** – Designed and implemented the Snakemake workflow, modularized the pipeline structure, integrated spike-in normalization support, and created documentation.  
+**Kevin A. Boyd** – Designed and implemented the Snakemake workflow, modularized the pipeline structure, implemented all processing steps, integrated spike-in normalization support, and created documentation.  
 
 **John Ridenour** – Developed original SLAM-Seq scripts used as the foundation for this pipeline.  
 
-**Rafal Donczew** – Provided guidance and design input; contributed to the SLAM-Seq analysis framework and validation.  
+**Rafal Donczew** – Principal Investigator; provided project direction, conceptual guidance, and experimental data for pipeline development.  
 
-This work is based on collaborative development within the Donczew Lab.  
+This work was developed under the guidance of Rafal Donczew as part of a COBRE-funded collaborative effort. While the pipeline was built specifically for use within the Donczew Lab, it is broadly applicable to SLAM-Seq data analysis in other research settings.  
 
 ---
 
