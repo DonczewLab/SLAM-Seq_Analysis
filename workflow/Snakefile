@@ -8,16 +8,19 @@ configfile: "config/config.yml"
 # Email: kevinboyd76@gmail.com
 # GitHub: https://github.com/kevinboyd76
 # Date Created: May 27, 2025
-# Last Modified: June 17, 2025
-# Version: 1.0.1
+# Last Modified: July 22, 2025
+# Version: 1.0.2
 #
 # Description:
 # This Snakemake workflow processes SLAM-Seq data from raw paired-end
-# FASTQ files through quality control, UMI (unique molecular identifiers) processing, adapter trimming,
-# and SLAM-Dunk alignment and quantification. It supports both default
-# and custom two-TC read count thresholds for comparison.  
-# 
-# 
+# FASTQ files through quality control, UMI (unique molecular identifier) extraction,
+# adapter trimming, and SLAM-Dunk alignment and mutation quantification.
+# It supports both default 1-TC and custom 2-TC conversion thresholds for comparative analysis.
+#
+# The pipeline optionally supports alignment to a spike-in genome (e.g., *S. pombe*),
+# allowing parallel processing for normalization or QC purposes. When enabled,
+# spike-in reads are aligned and quantified independently with matching SLAM-Dunk and Alleyoop steps.
+#
 # Adapted from: SLAM-Seq Protocol from Rafal Donczew & John Ridenour
 
 ##################################################################
@@ -27,14 +30,14 @@ configfile: "config/config.yml"
 # Steps:
 #  1) Quality Control: FastQC / MultiQC (Raw Samples)
 #  2) Process Raw Fastq UMIs (Unique Molecular Identifiers) with fastp
-#  3) Adapter Trim with BBDuk
+#  3) Adapter Trimming with BBDuk or Trim Galore
 #  4) Quality Control: FastQC / MultiQC (Trimmed Samples)
-#  5) Slam Dunk All (map, filter, snp, count)
-#  6) Slam Dunk Count with converstion threshold 2
-#  7) Alleyoop Summary and Merge
-#  8) Alleyoop Outputs (rates, context, UTR reads, and SNP evaluations)
-#  9) Slam Dunk and Alleyoop Merged Outputs
-# 10) Quality Control: MultiQC on Slam Dunk Outputs
+#  5) SLAM-Dunk All: Map, Filter, SNP call, T>C Counting (1-TC threshold)
+#  6) SLAM-Dunk Count: Re-count with 2-TC threshold
+#  7) Alleyoop Outputs: Mutation Rates, Context, UTR Rates, SNP Evaluation
+#  8) Alleyoop Summary and Merge
+#  9) Quality Control: Final MultiQC Summary of SLAM-Dunk Outputs
+# 10) (Optional) Repeat Steps 5–9 for Spike-In Genome if `use_spikein: true`
 
 ##################################################################
 ##                    Define input functions                    ##
