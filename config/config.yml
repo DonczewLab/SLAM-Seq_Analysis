@@ -9,15 +9,15 @@ spikein_genome: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/NCBI_
 spikein_bed: "/hpc-prj/donczew/genomic_resources/Spombe_GCF_000002945.1/Spombe_ASM294v2_gene3utr.bed"
 
 # ==============================================================================
-# ADAPTER FILE (BBDuk)
-# ==============================================================================
-bbmap_ref: "/hpc-prj/donczew/genomic_resources/bbmap/truseq_universal_adapters.fa"
-
-# ==============================================================================
 # FASTP PARAMETERS
 # ==============================================================================
 umi_loc: "read2"
 umi_len: 12
+
+# ==============================================================================
+# ADAPTER FILE (BBDuk)
+# ==============================================================================
+bbmap_ref: "/hpc-prj/donczew/genomic_resources/bbmap/truseq_universal_adapters.fa"
 
 # ==============================================================================
 # TRIM_GALORE PARAMETERS
