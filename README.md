@@ -166,7 +166,10 @@ Your `config/samples.csv` file should look like this:
 ## 7) Instructions to Run on HPC
 7A. Download version controlled repository
 ```
-git clone https://github.com/RD-Cobre-Help/SLAM-Seq_Analysis.git
+wget https://github.com/RD-Cobre-Help/SLAM-Seq_Analysis/releases/download/v1.0.1/SLAM-Seq_Analysis-1.0.1.tar.gz
+tar -xzf SLAM-Seq_Analysis-1.0.1.tar.gz
+rm SLAM-Seq_Analysis-1.0.1.tar.gz
+cd SLAM-Seq_Analysis-1.0.1
 ```
 7B. Load modules
 ```
