@@ -11,19 +11,24 @@
 
 **SLAM-Seq_Analysis** is a modular, high-throughput Snakemake pipeline designed to analyze **SLAM-Seq** data. It quantifies RNA synthesis and degradation by detecting **T>C transitions**. This pipeline processes raw **paired-end FASTQ** files through quality control, UMI extraction, adapter trimming, alignment, mutation counting, and context-specific mutation analysis using **SLAM-Dunk** and **Alleyoop**. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
 
-It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs.
+It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs. Additionally, the pipeline optionally supports a **spike-in genome** (e.g., S. pombe), allowing for parallel alignment and mutation quantification for normalization and QC purposes. Spike-in analysis is controlled in the `config.yml` by the flag `use_spikein` and produces its own set of filtered BAMs, mutation calls, and summary reports.
 
 ### Key Features
 
 + **UMI Support**  
   + Extracts UMIs using `fastp`, allowing for duplicate-aware alignment and quantification
 
-+ **Optional Adapter Trimming Method**  
-  + Choose between **Trim Galore** or **BBduk** using a config flag
++ **Optional Adapter Trimming Method Set in `config.yml`**  
+  + Choose between **Trim Galore** or **BBduk**
+  + `use_trim_galore`: toggle between BBduk and Trim Galore
 
 + **Comprehensive QC Reports**  
   + FastQC on raw and trimmed reads  
   + MultiQC reports summarize results in unified HTML
+
++ **Toggle ON/OFF parallel Spike-in genome alignment and analysis in `config.yml`**
+  + `use_spikein`: toggle to enable/disable spike-in genome alignment  
+  + `spikein_genome`, `spikein_bed`: reference FASTA and BED for spike-in genome
 
 + **SLAM-Dunk Integration**  
   + `slam-dunk all`: Align, filter, SNP call, and count  
@@ -48,6 +53,7 @@ This pipeline is built for researchers analyzing **RNA turnover** via **SLAM-seq
 + Comparing samples using 1-TC vs. 2-TC thresholds  
 + Producing summary metrics and mutation contexts  
 + Running in a reproducible and modular HPC environment
++ Supports spike-in controls (e.g., *S. pombe*) to facilitate normalization across samples or conditions.
 
 Starting from raw paired-end FASTQs, it provides all necessary intermediate and final outputs, from filtered BAMs to mutation summaries and log diagnostics.
 
@@ -79,7 +85,7 @@ This pipeline uses the following tools via HPC environment modules:
 + **MultiQC** — unified reporting of QC metrics  
 + **Fastp** — UMI extraction  
 + **BBduk** or **Trim Galore** — adapter trimming  
-+ **SLAM-Dunk** — alignment, mutation calling, filtering  
++ **SLAM-Dunk (dual-genome support)** — alignment, mutation calling, filtering  
 + **Alleyoop** — contextual mutation analysis and merging  
 + **Samtools**, **VarScan**, **NextGenMap** — used internally by SLAM-Dunk  
 + **Snakemake** — workflow management
@@ -137,6 +143,18 @@ The pipeline generates output across several folders:
 
 5. **Final QC**
    + `results/qc/slamdunk_scer/multiqc/` — Summary MultiQC report of SLAM-Dunk logs
+
+6. **Spike-In Genome Output (if `use_spikein: true`)**
+
+The following parallel output structure is created under `results/slamdunk_spikein/`:
+
++ `results/slamdunk_spikein/filter/` — filtered BAMs aligned to spike-in genome  
++ `results/slamdunk_spikein/count/` — 1-TC tcount TSVs, logs, bedgraphs  
++ `results/slamdunk_spikein/count_twotcreadcount/` — 2-TC threshold tcount files  
++ `results/slamdunk_spikein/alleyoop/` — all standard mutation metrics (rates, context, UTRs, SNP eval, dump, summaries, merges)  
++ `results/qc/slamdunk_spikein/multiqc/` — MultiQC summary report for spike-in genome
+
+This output mirrors the primary genome (`slamdunk_scer/`) and can be used for spike-in normalization or quality control tracking.
 
 ---
 
