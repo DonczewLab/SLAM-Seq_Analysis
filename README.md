@@ -112,9 +112,9 @@ Your `config/samples.csv` file should look like this:
 
 ---
 
-## 6) Output Structure
+## 6) Output Structure  
 
-The pipeline generates output across several folders:
+  The pipeline generates output across several folders:  
 
 1. **Quality Control**
    + `results/qc/raw/fastqc/` — FastQC HTML/ZIP for raw FASTQs  
