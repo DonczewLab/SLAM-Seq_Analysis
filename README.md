@@ -1,10 +1,10 @@
-![GitHub Release](https://img.shields.io/github/v/release/RD-Cobre-Help/SLAM-Seq_Analysis)
-![GitHub Release Date](https://img.shields.io/github/release-date/RD-Cobre-Help/SLAM-Seq_Analysis)
-![GitHub repo size](https://img.shields.io/github/repo-size/RD-Cobre-Help/SLAM-Seq_Analysis)
-![GitHub last commit](https://img.shields.io/github/last-commit/RD-Cobre-Help/SLAM-Seq_Analysis)
-![GitHub contributors](https://img.shields.io/github/contributors/RD-Cobre-Help/SLAM-Seq_Analysis)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/RD-Cobre-Help/SLAM-Seq_Analysis/total)
-![GitHub commits since latest release](https://img.shields.io/github/commits-since/RD-Cobre-Help/SLAM-Seq_Analysis/latest)
+![GitHub Release](https://img.shields.io/github/v/release/DonczewLab/SLAM-Seq_Analysis)
+![GitHub Release Date](https://img.shields.io/github/release-date/DonczewLab/SLAM-Seq_Analysis)
+![GitHub repo size](https://img.shields.io/github/repo-size/DonczewLab/SLAM-Seq_Analysis)
+![GitHub last commit](https://img.shields.io/github/last-commit/DonczewLab/SLAM-Seq_Analysis)
+![GitHub contributors](https://img.shields.io/github/contributors/DonczewLab/SLAM-Seq_Analysis)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/DonczewLab/SLAM-Seq_Analysis/total)
+![GitHub commits since latest release](https://img.shields.io/github/commits-since/DonczewLab/SLAM-Seq_Analysis/latest)
 [![DOI](https://zenodo.org/badge/991471979.svg)](https://doi.org/10.5281/zenodo.16106788)
 
 # SLAM-Seq_Analysis
@@ -173,7 +173,7 @@ A minimal test dataset can be placed in a `resources/` folder (not included curr
 
 8A. Download version controlled repository
 ```
-wget https://github.com/RD-Cobre-Help/SLAM-Seq_Analysis/releases/download/v1.0.1/SLAM-Seq_Analysis-1.0.1.tar.gz
+wget https://github.com/DonczewLab/SLAM-Seq_Analysis/releases/download/v1.0.1/SLAM-Seq_Analysis-1.0.1.tar.gz
 tar -xzf SLAM-Seq_Analysis-1.0.1.tar.gz
 rm SLAM-Seq_Analysis-1.0.1.tar.gz
 cd SLAM-Seq_Analysis-1.0.1
