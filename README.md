@@ -6,6 +6,7 @@
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/DonczewLab/SLAM-Seq_Analysis/total)
 ![GitHub commits since latest release](https://img.shields.io/github/commits-since/DonczewLab/SLAM-Seq_Analysis/latest)
 [![DOI](https://zenodo.org/badge/991471979.svg)](https://doi.org/10.5281/zenodo.16106788)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # SLAM-Seq_Analysis
 
