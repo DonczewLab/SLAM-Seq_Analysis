@@ -1268,6 +1268,57 @@ rule alleyoop_merge_twotcreadcount_spikeIn:
 
 
 ##################################################################
+##       Generate counts matrices & normalization factors       ##
+##################################################################
+
+rule slamdunk_counts_and_norms:
+    input:
+        samples_csv = "config/samples.csv",
+        scer_merge_total = "results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
+        scer_merge_one = "results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
+        scer_merge_two = "results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
+        # Spike-in merges are required only if use_spikein is true
+        spike_merge_total = lambda wc: "results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv" if use_spikein else [],
+        spike_merge_one = lambda wc: "results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv"  if use_spikein else [],
+        spike_merge_two = lambda wc: "results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv"  if use_spikein else []
+    output:
+        # Always:
+        "results/processed/totalreadcounts.csv",
+        "results/processed/onetcreadcounts.csv",
+        "results/processed/twotcreadcounts.csv",
+        "results/processed/totalreadcount_normalization_factors.csv",
+        "results/processed/totalreadcount_normalized_twotcreadcounts.csv",
+        # Conditionally included in rule all (see below)
+        spike_nf = temp("results/processed/spikein_normalization_factors.csv") if use_spikein else touch("results/processed/.no_spike_nf"),
+        spike_total = temp("results/processed/totalreadcounts_spikein.csv") if use_spikein else touch("results/processed/.no_spike_total"),
+        spike_one = temp("results/processed/onetcreadcounts_spikein.csv")  if use_spikein else touch("results/processed/.no_spike_one"),
+        spike_two = temp("results/processed/twotcreadcounts_spikein.csv")  if use_spikein else touch("results/processed/.no_spike_two"),
+        spike_norm_two = temp("results/processed/spikein_normalized_twotcreadcounts.csv") if use_spikein else touch("results/processed/.no_spike_norm_two")
+    params:
+        outdir = "results/processed",
+        use_spikein = str(use_spikein)
+    envmodules:
+        config["R"]
+    log:
+        "results/logs/process/slam_counts_and_norms.log"
+    shell:
+        r"""
+        mkdir -p {params.outdir}
+        Rscript scripts/slam_counts_and_norms.R \
+          {input.samples_csv} \
+          {input.scer_merge_total} \
+          {input.scer_merge_one} \
+          {input.scer_merge_two} \
+          {params.outdir} \
+          {params.use_spikein} \
+          {({input.spike_merge_total} if {params.use_spikein} == "True" else "")} \
+          {({input.spike_merge_one}   if {params.use_spikein} == "True" else "")} \
+          {({input.spike_merge_two}   if {params.use_spikein} == "True" else "")} \
+          > {log} 2>&1
+        """
+
+
+##################################################################
 ##                     Alleyoop TcPerReadPos                    ##
 ##################################################################
 
