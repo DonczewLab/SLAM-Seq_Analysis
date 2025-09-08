@@ -131,6 +131,24 @@ if use_spikein:
         "results/qc/slamdunk_spikein/multiqc/multiqc_report.html"
         ]
 
+# Processed outputs produced by the R script
+processed_targets = [
+    "results/processed/totalreadcounts.csv",
+    "results/processed/onetcreadcounts.csv",
+    "results/processed/twotcreadcounts.csv",
+    "results/processed/totalreadcount_normalization_factors.csv",
+    "results/processed/totalreadcount_normalized_twotcreadcounts.csv",
+]
+
+if use_spikein:
+    processed_targets += [
+        "results/processed/totalreadcounts_spikein.csv",
+        "results/processed/onetcreadcounts_spikein.csv",
+        "results/processed/twotcreadcounts_spikein.csv",
+        "results/processed/spikein_normalization_factors.csv",
+        "results/processed/spikein_normalized_twotcreadcounts.csv",
+    ]
+
 ##################################################################
 ##                          Rule All                            ##
 ##################################################################
@@ -193,8 +211,10 @@ rule all:
         "results/qc/slamdunk_scer/multiqc/multiqc_report.html",
 
         # 11) Spike in Analysis (S. pombe)
-        *spikein_targets
+        *spikein_targets,
 
+        # 12) Processed count matrices & normalization factors
+        *processed_targets
 
 ##################################################################
 ##                     Fastqc on Raw Fastqs                     ##
@@ -748,6 +768,60 @@ rule alleyoop_merge_twotcreadcount:
             --output {output.merge} \
             --column {params.column} \
             {input}
+        """
+
+
+##################################################################
+##        Convert merged counts -> matrices & norm factors      ##
+##################################################################
+
+rule counts_and_normfactors:
+    input:
+        samples_csv="config/samples.csv",
+        scer_total="results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
+        scer_oneTC="results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
+        scer_twoTC="results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
+        spike_total=("results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv" if use_spikein else None),
+        spike_oneTC=("results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv" if use_spikein else None),
+        spike_twoTC=("results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv" if use_spikein else None),
+    output:
+        processed_targets
+    params:
+        outdir="results/processed",
+        use_spikein="True" if use_spikein else "False",
+        script="scripts/slamdunk_counts_and_normfactors.R"
+    threads:
+        4
+    envmodules:
+        config["R"]
+    log:
+        "results/logs/r/counts_and_normfactors.log"
+    shell:
+        r"""
+        mkdir -p {params.outdir}
+
+        if [ "{params.use_spikein}" = "True" ]; then
+            Rscript {params.script} \
+              {input.samples_csv} \
+              {input.scer_total} \
+              {input.scer_oneTC} \
+              {input.scer_twoTC} \
+              {params.outdir} \
+              {params.use_spikein} \
+              {input.spike_total} \
+              {input.spike_oneTC} \
+              {input.spike_twoTC} \
+              > {log} 2>&1
+        else
+            Rscript {params.script} \
+              {input.samples_csv} \
+              {input.scer_total} \
+              {input.scer_oneTC} \
+              {input.scer_twoTC} \
+              {params.outdir} \
+              {params.use_spikein} \
+              > {log} 2>&1
+        fi
         """
 
 
