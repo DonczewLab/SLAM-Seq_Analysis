@@ -772,7 +772,7 @@ rule alleyoop_merge_twotcreadcount:
 
 
 ##################################################################
-##        Convert merged counts -> matrices & norm factors      ##
+##                  Create matrices & norm factors              ##
 ##################################################################
 
 rule counts_and_normfactors:
@@ -781,9 +781,12 @@ rule counts_and_normfactors:
         scer_total="results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
         scer_oneTC="results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
         scer_twoTC="results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
-        spike_total=("results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv" if use_spikein else None),
-        spike_oneTC=("results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv" if use_spikein else None),
-        spike_twoTC=("results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv" if use_spikein else None),
+        **({
+            "spike_total": "results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv",
+            "spike_oneTC": "results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv",
+            "spike_twoTC": "results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv",
+        } if use_spikein else {})
+    }
     output:
         processed_targets
     params:
@@ -797,7 +800,7 @@ rule counts_and_normfactors:
     log:
         "results/logs/r/counts_and_normfactors.log"
     shell:
-        r"""
+        """
         mkdir -p {params.outdir}
 
         if [ "{params.use_spikein}" = "True" ]; then
