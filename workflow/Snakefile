@@ -776,7 +776,7 @@ rule alleyoop_merge_twotcreadcount:
 ##################################################################
 
 rule counts_and_normfactors:
-    input:
+    input = {
         samples_csv="config/samples.csv",
         scer_total="results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
         scer_oneTC="results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
