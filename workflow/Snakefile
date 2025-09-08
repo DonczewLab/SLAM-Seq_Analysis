@@ -103,33 +103,33 @@ if use_spikein:
 
         # 7) Alleyoop rates, tccontext, utrrates, snpeval outputs (spike-in)
         expand("results/slamdunk_spikein/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.csv", sample=SAMPLES),
-	expand("results/slamdunk_spikein/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/rates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_overallrates.log", sample=SAMPLES),
         expand("results/slamdunk_spikein/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.csv", sample=SAMPLES),
-	expand("results/slamdunk_spikein/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/tccontext/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tccontext.log", sample=SAMPLES),
         expand("results/slamdunk_spikein/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.csv", sample=SAMPLES),
-	expand("results/slamdunk_spikein/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/utrrates/{sample}_trimmed.fastq_slamdunk_mapped_filtered_mutationrates_utr.log", sample=SAMPLES),
         expand("results/slamdunk_spikein/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.csv", sample=SAMPLES),
-	expand("results/slamdunk_spikein/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/snpeval/{sample}_trimmed.fastq_slamdunk_mapped_filtered_SNPeval.log", sample=SAMPLES),
 
         # 8) Alleyoop Summary and Merged outputs (spike-in)
-	"results/slamdunk_spikein/alleyoop/summary_onetcreadcount.tsv",
-	"results/slamdunk_spikein/alleyoop/summary_onetcreadcount.log",
-	"results/slamdunk_spikein/alleyoop/summary_twotcreadcount.tsv",
-	"results/slamdunk_spikein/alleyoop/summary_twotcreadcount.log",
-	"results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv",
-	"results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv",
-	"results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv",
+        "results/slamdunk_spikein/alleyoop/summary_onetcreadcount.tsv",
+        "results/slamdunk_spikein/alleyoop/summary_onetcreadcount.log",
+        "results/slamdunk_spikein/alleyoop/summary_twotcreadcount.tsv",
+        "results/slamdunk_spikein/alleyoop/summary_twotcreadcount.log",
+        "results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv",
+        "results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv",
+        "results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv",
 
         # 9) TcPerReadPos and TcPerUtrPos and Alleyoop Dump (spike-in)
-	expand("results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv", sample=SAMPLES),
-	expand("results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.log", sample=SAMPLES),
-	expand("results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.csv", sample=SAMPLES),
-	expand("results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.log", sample=SAMPLES),
-	expand("results/slamdunk_spikein/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.csv", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/tcperreadpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperreadpos.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.csv", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/tcperutrpos/{sample}_trimmed.fastq_slamdunk_mapped_filtered_tcperutr.log", sample=SAMPLES),
+        expand("results/slamdunk_spikein/alleyoop/dump/{sample}_trimmed.fastq_slamdunk_mapped_filtered_readinfo.sdunk", sample=SAMPLES),
 
-	# 10) Final MultiQC on Slam Dunk Outputs (spike-in)
-	"results/qc/slamdunk_spikein/multiqc/multiqc_report.html"
-    ]
+        # 10) Final MultiQC on Slam Dunk Outputs (spike-in)
+        "results/qc/slamdunk_spikein/multiqc/multiqc_report.html"
+        ]
 
 ##################################################################
 ##                          Rule All                            ##
@@ -280,8 +280,8 @@ rule process_umis:
             --disable_adapter_trimming \
             --disable_quality_filtering \
             --disable_length_filtering \
-	    --json results/logs/fastp/{wildcards.sample}_umi_fastp.json \
-	    --html results/logs/fastp/{wildcards.sample}_umi_fastp.html \
+            --json results/logs/fastp/{wildcards.sample}_umi_fastp.json \
+            --html results/logs/fastp/{wildcards.sample}_umi_fastp.html \
             2> {log}
         """
 
