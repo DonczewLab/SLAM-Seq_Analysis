@@ -775,26 +775,28 @@ rule alleyoop_merge_twotcreadcount:
 ##                  Create matrices & norm factors              ##
 ##################################################################
 
+counts_inputs = {
+    "samples_csv": "config/samples.csv",
+    "scer_total": "results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
+    "scer_oneTC": "results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
+    "scer_twoTC": "results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
+}
+if use_spikein:
+    counts_inputs.update({
+        "spike_total": "results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv",
+        "spike_oneTC": "results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv",
+        "spike_twoTC": "results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv",
+    })
+
 rule counts_and_normfactors:
-    input = {
-        samples_csv: "config/samples.csv",
-        scer_total: "results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
-        scer_oneTC: "results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
-        scer_twoTC: "results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
-        **({
-            "spike_total": "results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv",
-            "spike_oneTC": "results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv",
-            "spike_twoTC": "results/slamdunk_spikein/alleyoop/merge_twotcreadcount.tsv",
-        } if use_spikein else {})
-    }
+    input:
+        **counts_inputs
     output:
         processed_targets
     params:
         outdir="results/processed",
         use_spikein="True" if use_spikein else "False",
         script="scripts/slamdunk_counts_and_normfactors.R"
-    threads:
-        4
     envmodules:
         config["R"]
     log:
