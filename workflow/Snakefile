@@ -796,10 +796,13 @@ rule counts_and_normfactors:
     params:
         outdir="results/processed",
         use_spikein="True" if use_spikein else "False",
-        spike_args=lambda input: (
-            f" {input.spike_total} {input.spike_oneTC} {input.spike_twoTC}"
-            if all(k in input for k in ["spike_total","spike_oneTC","spike_twoTC"])
-            else ""
+        # append spike-in paths only if they exist in 'input'
+        spike_args=lambda **kw: (
+            " " + " ".join([
+                kw["input"]["spike_total"],
+                kw["input"]["spike_oneTC"],
+                kw["input"]["spike_twoTC"],
+            ]) if "spike_total" in kw["input"] else ""
         ),
         script="scripts/slamdunk_counts_and_normfactors.R"
     envmodules:
@@ -807,31 +810,18 @@ rule counts_and_normfactors:
     log:
         "results/logs/r/slamdunk_counts_and_normfactors.log"
     shell:
-        """
+        r"""
         mkdir -p {params.outdir}
+        mkdir -p $(dirname {log})
 
-        if [ "{params.use_spikein}" = "True" ]; then
-            Rscript {params.script} \
-              {input.samples_csv} \
-              {input.scer_total} \
-              {input.scer_oneTC} \
-              {input.scer_twoTC} \
-              {params.outdir} \
-              {params.use_spikein} \
-              {input.spike_total} \
-              {input.spike_oneTC} \
-              {input.spike_twoTC} \
-              > {log} 2>&1
-        else
-            Rscript {params.script} \
-              {input.samples_csv} \
-              {input.scer_total} \
-              {input.scer_oneTC} \
-              {input.scer_twoTC} \
-              {params.outdir} \
-              {params.use_spikein} \
-              > {log} 2>&1
-        fi
+        Rscript {params.script} \
+          {input.samples_csv} \
+          {input.scer_total} \
+          {input.scer_oneTC} \
+          {input.scer_twoTC} \
+          {params.outdir} \
+          {params.use_spikein}{params.spike_args} \
+          > {log} 2>&1
         """
 
 
