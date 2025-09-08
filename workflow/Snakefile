@@ -404,7 +404,7 @@ rule slamdunk_all:
         output_dir="results/slamdunk_scer"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"],
         config["samtools"]
     log:
@@ -453,7 +453,7 @@ rule slamdunk_count:
         min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"],
         config["samtools"]
     log:
@@ -493,7 +493,7 @@ rule alleyoop_rates:
         output_dir="results/slamdunk_scer/alleyoop/rates"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_rates_{sample}.log"
@@ -524,7 +524,7 @@ rule alleyoop_tccontext:
         output_dir="results/slamdunk_scer/alleyoop/tccontext"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_tccontext_{sample}.log"
@@ -557,7 +557,7 @@ rule alleyoop_utrrates:
         output_dir="results/slamdunk_scer/alleyoop/utrrates"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_utrrates_{sample}.log"
@@ -596,7 +596,7 @@ rule alleyoop_snpeval:
         snp_dir="results/slamdunk_scer/snp"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_snpeval_{sample}.log"
@@ -632,7 +632,7 @@ rule alleyoop_summary_onetcreadcount:
         tcount_dir="results/slamdunk_scer/count"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_summary_onetcreadcount.log"
@@ -660,7 +660,7 @@ rule alleyoop_summary_twotcreadcount:
         tcount_dir="results/slamdunk_scer/count_twotcreadcount"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_summary_twotcreadcount.log"
@@ -686,7 +686,7 @@ rule alleyoop_merge_totalreadcount:
         column="ReadCount"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_merged_totalreadcount.log"
@@ -712,7 +712,7 @@ rule alleyoop_merge_onetcreadcount:
         column="TcReadCount"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_merged_onereadcount.log"
@@ -738,7 +738,7 @@ rule alleyoop_merge_twotcreadcount:
         column="TcReadCount"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_merged_tworeadcount.log"
@@ -769,7 +769,7 @@ rule alleyoop_tcperreadpos:
         output_dir="results/slamdunk_scer/alleyoop/tcperreadpos"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_tcperreadpos_{sample}.log"
@@ -805,7 +805,7 @@ rule alleyoop_tcperutrpos:
         output_dir="results/slamdunk_scer/alleyoop/tcperutrpos"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_tcperutrpos_{sample}.log"
@@ -839,7 +839,7 @@ rule alleyoop_dump:
         output_dir="results/slamdunk_scer/alleyoop/dump"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_dump_{sample}.log"
@@ -908,7 +908,7 @@ rule slamdunk_all_spikeIn:
         output_dir="results/slamdunk_spikein"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"],
         config["samtools"]
     log:
@@ -957,7 +957,7 @@ rule slamdunk_count_spikeIn:
         min_base_qual=config["min_base_qual"]
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"],
         config["samtools"]
     log:
@@ -997,7 +997,7 @@ rule alleyoop_rates_spikeIn:
         output_dir="results/slamdunk_spikein/alleyoop/rates"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_rates_spikein_{sample}.log"
@@ -1028,7 +1028,7 @@ rule alleyoop_tccontext_spikeIn:
         output_dir="results/slamdunk_spikein/alleyoop/tccontext"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_tccontext_spikein_{sample}.log"
@@ -1061,7 +1061,7 @@ rule alleyoop_utrrates_spikeIn:
         output_dir="results/slamdunk_spikein/alleyoop/utrrates"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_utrrates_spikein_{sample}.log"
@@ -1100,7 +1100,7 @@ rule alleyoop_snpeval_spikeIn:
         snp_dir="results/slamdunk_spikein/snp"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_snpeval_spikein_{sample}.log"
@@ -1136,7 +1136,7 @@ rule alleyoop_summary_onetcreadcount_spikeIn:
         tcount_dir="results/slamdunk_spikein/count"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_summary_onetcreadcount_spikein.log"
@@ -1164,7 +1164,7 @@ rule alleyoop_summary_twotcreadcount_spikeIn:
         tcount_dir="results/slamdunk_spikein/count_twotcreadcount"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_summary_twotcreadcount_spikein.log"
@@ -1190,7 +1190,7 @@ rule alleyoop_merge_totalreadcount_spikeIn:
         column="ReadCount"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_merged_totalreadcount_spikein.log"
@@ -1216,7 +1216,7 @@ rule alleyoop_merge_onetcreadcount_spikeIn:
         column="TcReadCount"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_merged_onereadcount_spikein.log"
@@ -1242,7 +1242,7 @@ rule alleyoop_merge_twotcreadcount_spikeIn:
         column="TcReadCount"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_merged_tworeadcount_spikein.log"
@@ -1273,7 +1273,7 @@ rule alleyoop_tcperreadpos_spikeIn:
         output_dir="results/slamdunk_spikein/alleyoop/tcperreadpos"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_tcperreadpos_spikein_{sample}.log"
@@ -1309,7 +1309,7 @@ rule alleyoop_tcperutrpos_spikeIn:
         output_dir="results/slamdunk_spikein/alleyoop/tcperutrpos"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_tcperutrpos_spikein_{sample}.log"
@@ -1343,7 +1343,7 @@ rule alleyoop_dump_spikeIn:
         output_dir="results/slamdunk_spikein/alleyoop/dump"
     envmodules:
         config["slamdunk"],
-        config["nextgenmap"],
+        config["nextgenemap"],
         config["varscan"]
     log:
         "results/logs/alleyoop/alleyoop_dump_spikein_{sample}.log"
