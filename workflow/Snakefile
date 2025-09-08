@@ -777,10 +777,10 @@ rule alleyoop_merge_twotcreadcount:
 
 rule counts_and_normfactors:
     input = {
-        samples_csv="config/samples.csv",
-        scer_total="results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
-        scer_oneTC="results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
-        scer_twoTC="results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
+        samples_csv: "config/samples.csv",
+        scer_total: "results/slamdunk_scer/alleyoop/merge_totalreadcount.tsv",
+        scer_oneTC: "results/slamdunk_scer/alleyoop/merge_onetcreadcount.tsv",
+        scer_twoTC: "results/slamdunk_scer/alleyoop/merge_twotcreadcount.tsv",
         **({
             "spike_total": "results/slamdunk_spikein/alleyoop/merge_totalreadcount.tsv",
             "spike_oneTC": "results/slamdunk_spikein/alleyoop/merge_onetcreadcount.tsv",
