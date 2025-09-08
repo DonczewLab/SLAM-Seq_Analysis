@@ -796,13 +796,13 @@ rule counts_and_normfactors:
     params:
         outdir="results/processed",
         use_spikein="True" if use_spikein else "False",
-        # append spike-in paths only if they exist in 'input'
-        spike_args=lambda **kw: (
+        # Build optional spike-in arg string only when present in input
+        spike_args=lambda wildcards, input: (
             " " + " ".join([
-                kw["input"]["spike_total"],
-                kw["input"]["spike_oneTC"],
-                kw["input"]["spike_twoTC"],
-            ]) if "spike_total" in kw["input"] else ""
+                input["spike_total"],
+                input["spike_oneTC"],
+                input["spike_twoTC"],
+            ]) if "spike_total" in input else ""
         ),
         script="scripts/slamdunk_counts_and_normfactors.R"
     envmodules:
@@ -810,9 +810,9 @@ rule counts_and_normfactors:
     log:
         "results/logs/r/slamdunk_counts_and_normfactors.log"
     shell:
-        """
+        r"""
         mkdir -p {params.outdir}
-        mkdir -p $(dirname {log})
+        mkdir -p "$(dirname {log})"
 
         Rscript {params.script} \
           {input.samples_csv} \
