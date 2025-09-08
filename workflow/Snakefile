@@ -796,11 +796,16 @@ rule counts_and_normfactors:
     params:
         outdir="results/processed",
         use_spikein="True" if use_spikein else "False",
+        spike_args=lambda input: (
+            f" {input.spike_total} {input.spike_oneTC} {input.spike_twoTC}"
+            if all(k in input for k in ["spike_total","spike_oneTC","spike_twoTC"])
+            else ""
+        ),
         script="scripts/slamdunk_counts_and_normfactors.R"
     envmodules:
         config["R"]
     log:
-        "results/logs/r/counts_and_normfactors.log"
+        "results/logs/r/slamdunk_counts_and_normfactors.log"
     shell:
         """
         mkdir -p {params.outdir}
