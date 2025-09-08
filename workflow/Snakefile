@@ -810,7 +810,7 @@ rule counts_and_normfactors:
     log:
         "results/logs/r/slamdunk_counts_and_normfactors.log"
     shell:
-        r"""
+        """
         mkdir -p {params.outdir}
         mkdir -p $(dirname {log})
 
