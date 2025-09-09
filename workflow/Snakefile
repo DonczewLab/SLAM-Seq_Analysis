@@ -34,10 +34,10 @@ configfile: "config/config.yml"
 
 # Steps:
 #  1) Quality Control: FastQC / MultiQC (Raw Samples)
-#  2) Process Raw Fastq UMIs (Unique Molecular Identifiers) with fastp
+#  2) Process Raw FASTQ UMIs (Unique Molecular Identifiers) with fastp
 #  3) Adapter Trimming with BBDuk or Trim Galore
 #  4) Quality Control: FastQC / MultiQC (Trimmed Samples)
-#  5) SLAM-Dunk All: Map, Filter, SNP call, T>C Counting (1-TC threshold)
+#  5) SLAM-Dunk All: Map, Filter, SNP calling, T>C Counting (1-TC threshold)
 #  6) SLAM-Dunk Count: Re-count with 2-TC threshold
 #  7) Alleyoop Outputs: Mutation Rates, Context, UTR Rates, SNP Evaluation
 #  8) Alleyoop Summary and Merge
@@ -322,7 +322,7 @@ rule process_umis:
 
 
 ##################################################################
-##            Adapter Trimming (Trim_Galore or BBduk)           ##
+##            Adapter Trimming (Trim_Galore or BBDuk)           ##
 ##################################################################
 
 rule trim_adapters:
