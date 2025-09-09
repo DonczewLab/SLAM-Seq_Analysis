@@ -10,14 +10,9 @@
 
 # SLAM-Seq_Analysis
 
-![SLAM-Seq Analysis](/images/SLAM-seq.png)  
-<small>- OpenAI. (2025). Scientific data visualization:  pipeline schematic [AI-generated image]. DALL-E. Retrieved from ChatGPT interface.</small>
-
----
-
 <p align="center">
   <img src="/images/SLAM-seq.png" alt="SLAM-Seq Analysis"><br>
-  <em><sub>OpenAI. (2025). Scientific data visualization: pipeline schematic [AI-generated image]. DALL-E. Retrieved from ChatGPT interface.</sub></em>
+  <em><sub>OpenAI. (2025). Scientific data visualization: pipeline schematic [AI-generated image]. DALL-E.</sub></em>
 </p>
 
 ---
