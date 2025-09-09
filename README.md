@@ -84,16 +84,22 @@ Change these to point at your references, adapters, and HPC modules.
 + `config/samples.csv`: path to the sample sheet (see section 6)
 + `use_spikein`: (true/false) enables parallel processing against a spike-in genome (*e.g. S. pombe*) and produces spike-in based normalization outputs  
 + `scer_genome`: path to the reference genome FASTA  
-+ `bed_file`: path to the annotation BED file
++ `scer_bed`: path to the reference annotation BED file
 + `spikein_genome`: path to spike in reference FASTA used by SLAM-Dunk when `use_spikein: true`
++ `spikein_bed`: path to spike in gene/UTR Bed for counting  
 + `bbmap_ref`: adapter reference for BBduk (optional)  
 + `umi_loc`, `umi_len`: UMI extraction parameters  
 + `trim_5p`, `max_read_length`, `min_base_qual`: parameters for SLAM-Dunk  
-+ `use_trim_galore`: Boolean to toggle trimming tool  
++ `use_trim_galore`: (true/false) to enable Trim Galore as trimming tool  
 + `stringency`, `length`: used by Trim Galore  
 
+
+**Changing Genomes**  
++ If using a different reference or spike-in genome, update specific genome and bed sections in the `config.yml`.
+
 **Tool Versions**  
-+ `fastqc`, `multiqc`, `fastp`, `bbmap`, `trim_galore`, `slamdunk`, `samtools`, `varscan`, `nextgenmap`
++ The `config/config.yml` file specifies all software and specific versions.
++ The `config/cluster_config.yml` file defines resource requirements for each Snakemake rule.  
 
 ---
 
@@ -108,7 +114,7 @@ This pipeline uses the following tools via HPC environment modules:
 + **SLAM-Dunk** for alignment, mutation calling, filtering  
 + **Alleyoop** for contextual mutation analysis and merging  
 + **Samtools**, **VarScan**, **NextGenMap** used internally by SLAM-Dunk  
-+ **Snakemake** for workflow management
++ **Snakemake** for workflow management  
 + **R** for counts generation and normalization factors
 
 ---
@@ -121,7 +127,7 @@ A minimal test dataset can be placed in a `resources/` folder (not included curr
 
 ## 6) Explanation of `samples.csv`
 
-`config/samples.csv` defines which FASTQ files to process, what the naming convention will be, and which samples to create average signal tracks. An example `samples.csv` is provided below:  
+`config/samples.csv` defines which FASTQ files to process, what the naming convention will be, and which samples to group together. An example `samples.csv` is provided below:  
 
 | sample           | fastq1                              | fastq2                              | merge_group |
 |------------------|-------------------------------------|-------------------------------------|-------------|
