@@ -174,31 +174,30 @@ A minimal test dataset can be placed in a `resources/` folder (not included curr
    + `alleyoop/summary_*`: summary stats for 1-TC and 2-TC thresholds  
    + `alleyoop/merge_*`: merged summary tables across all samples
 
-5. **Final QC**
+5. **Spike-In Genome Output** (if **`use_spikein: true`**)  
+    + `results/slamdunk_spikein/filter/`: filtered BAMs aligned to spike-in genome  
+    + `results/slamdunk_spikein/count/`: 1-TC tcount TSVs, logs, bedgraphs  
+    + `results/slamdunk_spikein/count_twotcreadcount/`: 2-TC threshold tcount files  
+    + `results/slamdunk_spikein/alleyoop/`: all standard mutation metrics (rates, context, UTRs, SNP eval, dump, summaries, merges)  
+    + `results/qc/slamdunk_spikein/multiqc/`: MultiQC summary report for spike-in genome  
+*This output mirrors the primary genome `slamdunk_scer/` and is used for spike-in normalization and quality control tracking.*
+
+6. **Final QC**
    + `results/qc/slamdunk_scer/multiqc/` — Summary MultiQC report of SLAM-Dunk logs
 
-6. **Processed Matrices & Normalization**
-   + `results/processed/`
-   + Always Produced:
+7. **Processed Matrices & Normalization**
+   + Counts and normalization results in folder `results/processed/`
+   + Files that are always produced:
      + `totalreadcounts.csv`: (primary merged total)
      + `onetcreadcounts.csv`: (primary 1-TC merged)
      + `twotcreadcounts.csv`: (primary 2-TC merged)
      + `totalreadcount_normalization_factors.csv` (primary library size / 10,000,000)
      + `totalreadcount_normalized_twotcreadcounts.csv`: (2-TC normalized by total)
-   + If **`use_spikein: true`**:
+   + If spike in is enabled (**`use_spikein: true`**):
      + `totalreadcounts_spikein.csv`, `onetcreadcounts_spikein.csv`, `twotcreadcounts_spikein.csv`
      + `spikein_normalization_factors.csv`: (spike-in library size / 1,000,000)
      + `spikein_normalized_twotcreadcounts.csv`: (primary 2-TC normalized by spike-in)  
 *Important: The raw count matrices do not change with/without spike-in. Only the additional spike-in-based normalization outputs appear when use_spikein: true.*
-
-7. **Spike-In Genome Output (if `use_spikein: true`)**  
-    + `results/slamdunk_spikein/filter/`: filtered BAMs aligned to spike-in genome  
-    + `results/slamdunk_spikein/count/`: 1-TC tcount TSVs, logs, bedgraphs  
-    + `results/slamdunk_spikein/count_twotcreadcount/`: 2-TC threshold tcount files  
-    + `results/slamdunk_spikein/alleyoop/`: all standard mutation metrics (rates, context, UTRs, SNP eval, dump, summaries, merges)  
-    + `results/qc/slamdunk_spikein/multiqc/`: MultiQC summary report for spike-in genome
-
-*This output mirrors the primary genome `slamdunk_scer/` and can be used for spike-in normalization or quality control tracking.*
 
 ---
 
@@ -236,7 +235,7 @@ sbatch --wrap="snakemake -j 20 --use-envmodules --rerun-incomplete --latency-wai
 
 If you use this workflow in your research, please cite:  
 
-**Boyd, K.A.**, Ridenour, J., & Donczew, R. (2025). *SLAM-Seq_Analysis: A reproducible Snakemake workflow for RNA metabolism analysis using SLAM-Seq data*. Zenodo. https://doi.org/10.5281/zenodo.16106788
+**Boyd, K.A.**, Ridenour, J.B., & Donczew, R. (2025). *SLAM-Seq_Analysis: A reproducible Snakemake workflow for RNA metabolism analysis using SLAM-Seq data*. Zenodo. https://doi.org/10.5281/zenodo.16106788
 
 [![DOI](https://zenodo.org/badge/991471979.svg)](https://doi.org/10.5281/zenodo.16106788)
 
