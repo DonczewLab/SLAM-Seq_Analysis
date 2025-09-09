@@ -15,6 +15,13 @@
 
 ---
 
+<figure>
+  <img src="/images/SLAM-seq.png" alt="SLAM-Seq Analysis">
+  <figcaption><em>OpenAI. (2025). Scientific data visualization: pipeline schematic [AI-generated image]. DALL-E. Retrieved from ChatGPT interface.</em></figcaption>
+</figure>
+
+---
+
 ## 1) Project Description
 
 **SLAM-Seq_Analysis** is a modular, high-throughput Snakemake pipeline designed to analyze **SLAM-Seq** data. It quantifies RNA synthesis and degradation by detecting **T>C transitions**. This pipeline processes raw **paired-end FASTQ** files through quality control, UMI extraction, adapter trimming, alignment, mutation counting, and context-specific mutation analysis using **SLAM-Dunk** and **Alleyoop**. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
