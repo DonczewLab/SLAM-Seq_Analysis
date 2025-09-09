@@ -185,19 +185,18 @@ A minimal test dataset can be placed in a `resources/` folder (not included curr
      + `twotcreadcounts.csv`: (primary 2-TC merged)
      + `totalreadcount_normalization_factors.csv` (primary library size / 10,000,000)
      + `totalreadcount_normalized_twotcreadcounts.csv`: (2-TC normalized by total)
-   + If **spike-in** enabled:
+   + If **`use_spikein: true`**:
      + `totalreadcounts_spikein.csv`, `onetcreadcounts_spikein.csv`, `twotcreadcounts_spikein.csv`
      + `spikein_normalization_factors.csv`: (spike-in library size / 1,000,000)
-     + `spikein_normalized_twotcreadcounts.csv`: (primary 2-TC normalized by spike-in)
-
+     + `spikein_normalized_twotcreadcounts.csv`: (primary 2-TC normalized by spike-in)  
 *Important: The raw count matrices do not change with/without spike-in. Only the additional spike-in-based normalization outputs appear when use_spikein: true.*
 
 7. **Spike-In Genome Output (if `use_spikein: true`)**  
-    + `results/slamdunk_spikein/filter/` — filtered BAMs aligned to spike-in genome  
-    + `results/slamdunk_spikein/count/` — 1-TC tcount TSVs, logs, bedgraphs  
-    + `results/slamdunk_spikein/count_twotcreadcount/` — 2-TC threshold tcount files  
-    + `results/slamdunk_spikein/alleyoop/` — all standard mutation metrics (rates, context, UTRs, SNP eval, dump, summaries, merges)  
-    + `results/qc/slamdunk_spikein/multiqc/` — MultiQC summary report for spike-in genome
+    + `results/slamdunk_spikein/filter/`: filtered BAMs aligned to spike-in genome  
+    + `results/slamdunk_spikein/count/`: 1-TC tcount TSVs, logs, bedgraphs  
+    + `results/slamdunk_spikein/count_twotcreadcount/`: 2-TC threshold tcount files  
+    + `results/slamdunk_spikein/alleyoop/`: all standard mutation metrics (rates, context, UTRs, SNP eval, dump, summaries, merges)  
+    + `results/qc/slamdunk_spikein/multiqc/`: MultiQC summary report for spike-in genome
 
 *This output mirrors the primary genome `slamdunk_scer/` and can be used for spike-in normalization or quality control tracking.*
 
