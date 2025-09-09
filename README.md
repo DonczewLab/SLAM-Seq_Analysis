@@ -20,9 +20,10 @@
 **SLAM-Seq_Analysis** is a modular, high-throughput Snakemake pipeline designed to analyze **SLAM-Seq** data. It quantifies RNA synthesis and degradation by detecting **T>C transitions**. This pipeline processes raw **paired-end FASTQ** files through quality control, UMI extraction, adapter trimming, alignment, mutation counting, and context-specific mutation analysis using **SLAM-Dunk** and **Alleyoop**. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
 
 It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs. Additionally, the pipeline optionally supports a **spike-in genome** (e.g., S. pombe), allowing for parallel alignment and mutation quantification for normalization and QC purposes. Spike-in analysis is controlled by the flag `use_spikein` in the `config.yml` and produces a parallel set of filtered BAMs, mutation calls, and summary reports in a separate output directory `results/slamdunk_spikein`. Post-processing with an R script generates unified count matrices and two normalization strategies:  
-
-+ Total-readcount normalization (library size per sample / 10M)  
-+ Spike-in normalization (if enabled; spike-in library size / 1M)  
++ Total-readcount normalization  
+  + library size per sample / 10M  
++ Spike-in normalization (if enabled)  
+  + spike-in library size / 1M)  
 
 ### Key Features  
 
