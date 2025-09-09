@@ -19,7 +19,10 @@
 
 **SLAM-Seq_Analysis** is a modular, high-throughput Snakemake pipeline designed to analyze **SLAM-Seq** data. It quantifies RNA synthesis and degradation by detecting **T>C transitions**. This pipeline processes raw **paired-end FASTQ** files through quality control, UMI extraction, adapter trimming, alignment, mutation counting, and context-specific mutation analysis using **SLAM-Dunk** and **Alleyoop**. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
 
-It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs. Additionally, the pipeline optionally supports a **spike-in genome** (e.g., S. pombe), allowing for parallel alignment and mutation quantification for normalization and QC purposes. Spike-in analysis is controlled by the flag `use_spikein` in the `config.yml` and produces a parallel set of filtered BAMs, mutation calls, and summary reports in a separate output directory `results/slamdunk_spikein`.  
+It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs. Additionally, the pipeline optionally supports a **spike-in genome** (e.g., S. pombe), allowing for parallel alignment and mutation quantification for normalization and QC purposes. Spike-in analysis is controlled by the flag `use_spikein` in the `config.yml` and produces a parallel set of filtered BAMs, mutation calls, and summary reports in a separate output directory `results/slamdunk_spikein`. Post-processing with an R script generates unified count matrices and two normalization strategies:  
+
++ Total-readcount normalization (library size per sample / 10M)  
++ Spike-in normalization (if enabled; spike-in library size / 1M)  
 
 ### Key Features  
 
@@ -47,6 +50,13 @@ It supports both **default 1-TC** and **custom 2-TC** read count thresholds for 
   + Generates mutation rates, context, UTR rates, SNP evaluation  
   + Summarizes and merges mutation counts across samples  
   + Outputs T>C mutation information per read and UTR position  
+
++ **How Normalization Works**
+  + Total-readcount normalization  
+    + Compute per-sample factors as colSums(totalreadcounts) / 1e7 (reads per 10M), then divide each column of primary twotcreadcounts by these factors.  
+  + Spike-in normalization (optional)  
+    + Compute per-sample spike-in factors as colSums(totalreadcounts_spikein) / 1e6 (spike-in reads per 1M), then divide primary twotcreadcounts by these factors.  
+*This yields two complementary normalizations you can use side-by-side.*  
 
 + **Scalable and Reproducible**  
   + Parallelizable via Snakemake  
@@ -98,6 +108,7 @@ This pipeline uses the following tools via HPC environment modules:
 + **Alleyoop** for contextual mutation analysis and merging  
 + **Samtools**, **VarScan**, **NextGenMap** used internally by SLAM-Dunk  
 + **Snakemake** for workflow management
++ **R** for counts generation and normalization factors
 
 ---
 
@@ -146,25 +157,41 @@ A minimal test dataset can be placed in a `resources/` folder (not included curr
    + `results/slamdunk_scer/count_twotcreadcount/` — 2-TC threshold tcount files
 
 4. **Alleyoop Output**
-   + `alleyoop/rates/` — overall mutation rates  
-   + `alleyoop/tccontext/` — T>C context profiles  
-   + `alleyoop/utrrates/` — UTR region mutation rates  
-   + `alleyoop/snpeval/` — SNP evaluation outputs  
-   + `alleyoop/tcperreadpos/` — mutation per read  
-   + `alleyoop/tcperutrpos/` — mutation per UTR position  
-   + `alleyoop/dump/` — `.sdunk` read info dump  
-   + `alleyoop/summary_*` — summary stats for 1-TC and 2-TC thresholds  
-   + `alleyoop/merge_*` — merged summary tables across all samples
+   + `alleyoop/rates/`: overall mutation rates  
+   + `alleyoop/tccontext/`: T>C context profiles  
+   + `alleyoop/utrrates/`: UTR region mutation rates  
+   + `alleyoop/snpeval/`: SNP evaluation outputs  
+   + `alleyoop/tcperreadpos/`: mutation per read  
+   + `alleyoop/tcperutrpos/`: mutation per UTR position  
+   + `alleyoop/dump/`: `.sdunk` read info dump  
+   + `alleyoop/summary_*`: summary stats for 1-TC and 2-TC thresholds  
+   + `alleyoop/merge_*`: merged summary tables across all samples
 
 5. **Final QC**
    + `results/qc/slamdunk_scer/multiqc/` — Summary MultiQC report of SLAM-Dunk logs
 
-6. **Spike-In Genome Output (if `use_spikein: true`)**  
+6. **Processed Matrices & Normalization**
+   + `results/processed/`
+   + Always Produced:
+     + `totalreadcounts.csv`: (primary merged total)
+     + `onetcreadcounts.csv`: (primary 1-TC merged)
+     + `twotcreadcounts.csv`: (primary 2-TC merged)
+     + `totalreadcount_normalization_factors.csv` (primary library size / 10,000,000)
+     + `totalreadcount_normalized_twotcreadcounts.csv`: (2-TC normalized by total)
+   + If **spike-in** enabled:
+     + `totalreadcounts_spikein.csv`, `onetcreadcounts_spikein.csv`, `twotcreadcounts_spikein.csv`
+     + `spikein_normalization_factors.csv`: (spike-in library size / 1,000,000)
+     + `spikein_normalized_twotcreadcounts.csv`: (primary 2-TC normalized by spike-in)
+
+*Important: The raw count matrices do not change with/without spike-in. Only the additional spike-in-based normalization outputs appear when use_spikein: true.*
+
+7. **Spike-In Genome Output (if `use_spikein: true`)**  
     + `results/slamdunk_spikein/filter/` — filtered BAMs aligned to spike-in genome  
     + `results/slamdunk_spikein/count/` — 1-TC tcount TSVs, logs, bedgraphs  
     + `results/slamdunk_spikein/count_twotcreadcount/` — 2-TC threshold tcount files  
     + `results/slamdunk_spikein/alleyoop/` — all standard mutation metrics (rates, context, UTRs, SNP eval, dump, summaries, merges)  
-    + `results/qc/slamdunk_spikein/multiqc/` — MultiQC summary report for spike-in genome  
+    + `results/qc/slamdunk_spikein/multiqc/` — MultiQC summary report for spike-in genome
+
 
 *This output mirrors the primary genome `slamdunk_scer/` and can be used for spike-in normalization or quality control tracking.*
 
