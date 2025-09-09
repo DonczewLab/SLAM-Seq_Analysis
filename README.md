@@ -50,14 +50,15 @@ It supports both **1-TC** and **2-TC** read count thresholds for downstream comp
 
 + **Normalization**
   + Total-readcount normalization  
-    + Compute per-sample factors as colSums(totalreadcounts) / 1e7 (reads per 10M), then divide each column of primary twotcreadcounts by these factors.  
+    + Compute per-sample factors as colSums(totalreadcounts) / 1e7 (reads per 10M), then divide each column of primary twotcreadcounts by these factors  
   + Spike-in normalization (optional)  
-    + Compute per-sample spike-in factors as colSums(totalreadcounts_spikein) / 1e6 (spike-in reads per 1M), then divide primary twotcreadcounts by these factors.  
-*This yields two complementary normalizations you can use side-by-side.*  
+    + Compute per-sample spike-in factors as colSums(totalreadcounts_spikein) / 1e6 (spike-in reads per 1M), then divide primary twotcreadcounts by these factors  
+*This yields two complementary normalizations you can use side-by-side*  
 
 + **Scalable and Reproducible**  
-  + Parallelizable via Snakemake  
-  + Designed for Slurm HPC environments  
+  + Reproducible workflow with each step defined as a Snakemake rule with explicit inputs/outputs  
+  + Snakemake manages HPC job submissions, ensuring fast parallel processing of samples with the ability to scale up  
+  + Individual steps can be rerun as needed  
 
 ---
 
