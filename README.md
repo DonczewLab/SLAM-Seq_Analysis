@@ -69,7 +69,7 @@ This pipeline is built for researchers analyzing **RNA turnover** via **SLAM-seq
 + Comparing samples using 1-TC vs. 2-TC thresholds  
 + Producing summary metrics and mutation contexts  
 + Running in a reproducible and modular HPC environment  
-+ Supports optional spike-in controls (e.g., *S. pombe*) to facilitate normalization across samples or conditions.  
++ Supports optional spike-in controls (e.g., *S. pombe*) to facilitate normalization.  
 
 Starting from raw paired-end FASTQs, it provides all necessary intermediate and final outputs, from filtered BAMs to mutation summaries and log diagnostics.  
 
