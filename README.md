@@ -19,11 +19,7 @@
 
 **SLAM-Seq_Analysis** is a modular, high-throughput Snakemake pipeline designed to analyze **SLAM-Seq** data. It quantifies RNA synthesis and degradation by detecting **T>C transitions**. This pipeline processes raw **paired-end FASTQ** files through quality control, UMI extraction, adapter trimming, alignment, mutation counting, and context-specific mutation analysis using **SLAM-Dunk** and **Alleyoop**. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
 
-It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs. Additionally, the pipeline optionally supports a **spike-in genome** (e.g., S. pombe), allowing for parallel alignment and mutation quantification for normalization and QC purposes. Spike-in analysis is controlled by the flag `use_spikein` in the `config.yml` and produces a parallel set of filtered BAMs, mutation calls, and summary reports in a separate output directory `results/slamdunk_spikein`. Post-processing with an R script generates unified count matrices and two normalization strategies:  
-+ Total-readcount normalization  
-  + library size per sample / 10M  
-+ Spike-in normalization (if enabled)  
-  + spike-in library size / 1M)  
+It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs. Additionally, the pipeline optionally supports a **spike-in genome** (e.g., S. pombe), allowing for parallel alignment and mutation quantification for normalization and QC purposes. Spike-in analysis is controlled by the flag `use_spikein` in the `config.yml` and produces a parallel set of filtered BAMs, mutation calls, and summary reports in a separate output directory `results/slamdunk_spikein`. Post-processing with an R script generates unified count matrices and two normalization strategies. **Total-readcount normalization** (library size per sample / 10M) and **Spike-in normalization** (if enabled; spike-in library size / 1M).  
 
 ### Key Features  
 
@@ -81,11 +77,15 @@ Starting from raw paired-end FASTQs, it provides all necessary intermediate and 
 
 ## 3) Dependencies and Configuration
 
-All user-defined settings and tool versions are declared in `config/config.yml`.
+All user-defined settings and tool versions are declared in `config/config.yml`.  
+Change these to point at your references, adapters, and HPC modules.  
 
 **Key fields include**:
-+ `scer_genome`: reference genome FASTA  
-+ `bed_file`: annotation BED file  
++ `config/samples.csv`: path to the sample sheet (see section 6)
++ `use_spikein`: (true/false) enables parallel processing against a spike-in genome (*e.g. S. pombe*) and produces spike-in based normalization outputs  
++ `scer_genome`: path to the reference genome FASTA  
++ `bed_file`: path to the annotation BED file
++ `spikein_genome`: path to spike in reference FASTA used by SLAM-Dunk when `use_spikein: true`
 + `bbmap_ref`: adapter reference for BBduk (optional)  
 + `umi_loc`, `umi_len`: UMI extraction parameters  
 + `trim_5p`, `max_read_length`, `min_base_qual`: parameters for SLAM-Dunk  
