@@ -12,7 +12,7 @@
 
 <p align="center">
   <img src="/images/SLAM-seq.png" alt="SLAM-Seq Analysis"><br>
-  <em><sub>OpenAI. (2025). Scientific data visualization: SLAM seq pipeline schematic [AI-generated image]. DALL-E.</sub></em>
+  <em><sub>OpenAI. (2025). Scientific data visualization: SLAM-seq pipeline schematic [AI-generated image]. DALL-E.</sub></em>
 </p>
 
 ---
