@@ -21,6 +21,11 @@ configfile: "config/config.yml"
 # allowing parallel processing for normalization or QC purposes. When enabled,
 # spike-in reads are aligned and quantified independently with matching SLAM-Dunk and Alleyoop steps.
 #
+# An R post processing script produces unified matrices plus two normalization strategies: (1) Total
+# read count normalization (primary library size / 10M) and (2) Spike-in normalization (in enabled;
+# spike-in library size / 1M). Outputs include BAMs, per-sample and merged count tables, positional
+# diagnostics, MultiQC summaries, and finally processed matrices.
+#
 # Adapted from: SLAM-Seq Protocol from Rafal Donczew & John Ridenour
 
 ##################################################################
@@ -36,8 +41,18 @@ configfile: "config/config.yml"
 #  6) SLAM-Dunk Count: Re-count with 2-TC threshold
 #  7) Alleyoop Outputs: Mutation Rates, Context, UTR Rates, SNP Evaluation
 #  8) Alleyoop Summary and Merge
-#  9) Quality Control: Final MultiQC Summary of SLAM-Dunk Outputs
-# 10) (Optional) Repeat Steps 5–9 for Spike-In Genome if `use_spikein: true`
+#  9) Positional diagnostics: tcperreadpos, tcperutrpos, dump (.sdunk)
+# 10) Quality Control: Final MultiQC Summary of SLAM-Dunk Outputs
+# 11) Processed matrices & normalization with R script:
+#     - Always: totalreadcounts.csv, onetcreadcounts.csv, twotcreadcounts.csv,
+#       totalreadcount_normalization_factors.csv, totalreadcount_normalized_twotcreadcounts.csv
+#     - If `use_spikein: true`: totalreadcounts_spikein.csv, onetcreadcounts_spikein.csv,
+#       twotcreadcounts_spikein.csv, spikein_normalization_factors.csv,
+#       spikein_normalized_twotcreadcounts.csv
+#
+# Spike-in genome (optional; only when `use_spikein: true`):
+#  – Repeat steps 5–10 for the spike-in reference; results live under
+#    results/slamdunk_spikein/ with a separate MultiQC summary.
 
 ##################################################################
 ##                    Define input functions                    ##
