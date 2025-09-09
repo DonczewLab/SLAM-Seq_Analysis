@@ -796,6 +796,10 @@ rule counts_and_normfactors:
     params:
         outdir="results/processed",
         use_spikein=use_spikein,
+        spike_args=lambda wildcards, input: (
+            f" {input.spike_total} {input.spike_oneTC} {input.spike_twoTC}"
+            if hasattr(input, "spike_total") else ""
+        ),
         script="scripts/slamdunk_counts_and_normfactors.R"
     envmodules:
         config["R"]
@@ -806,28 +810,14 @@ rule counts_and_normfactors:
         mkdir -p {params.outdir}
         mkdir -p "$(dirname {log})"
 
-        if [ "{'True' if params.use_spikein else 'False'}" = "True" ]; then
-          Rscript {params.script} \
-            {input.samples_csv} \
-            {input.scer_total} \
-            {input.scer_oneTC} \
-            {input.scer_twoTC} \
-            {params.outdir} \
-            True \
-            {input.spike_total} \
-            {input.spike_oneTC} \
-            {input.spike_twoTC} \
-            > {log} 2>&1
-        else
-          Rscript {params.script} \
-            {input.samples_csv} \
-            {input.scer_total} \
-            {input.scer_oneTC} \
-            {input.scer_twoTC} \
-            {params.outdir} \
-            False \
-            > {log} 2>&1
-        fi
+        Rscript {params.script} \
+          {input.samples_csv} \
+          {input.scer_total} \
+          {input.scer_oneTC} \
+          {input.scer_twoTC} \
+          {params.outdir} \
+          {params.use_spikein}{params.spike_args} \
+          > {log} 2>&1
         """
 
 
