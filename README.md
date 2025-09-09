@@ -192,7 +192,6 @@ A minimal test dataset can be placed in a `resources/` folder (not included curr
     + `results/slamdunk_spikein/alleyoop/` — all standard mutation metrics (rates, context, UTRs, SNP eval, dump, summaries, merges)  
     + `results/qc/slamdunk_spikein/multiqc/` — MultiQC summary report for spike-in genome
 
-
 *This output mirrors the primary genome `slamdunk_scer/` and can be used for spike-in normalization or quality control tracking.*
 
 ---
@@ -201,10 +200,10 @@ A minimal test dataset can be placed in a `resources/` folder (not included curr
 
 8A. Download version controlled repository
 ```
-wget https://github.com/DonczewLab/SLAM-Seq_Analysis/releases/download/v1.0.1/SLAM-Seq_Analysis-1.0.1.tar.gz
-tar -xzf SLAM-Seq_Analysis-1.0.1.tar.gz
-rm SLAM-Seq_Analysis-1.0.1.tar.gz
-cd SLAM-Seq_Analysis-1.0.1
+wget https://github.com/DonczewLab/SLAM-Seq_Analysis/releases/download/v2.0.0/SLAM-Seq_Analysis-2.0.0.tar.gz
+tar -xzf SLAM-Seq_Analysis-2.0.0.tar.gz
+rm SLAM-Seq_Analysis-2.0.0.tar.gz
+cd SLAM-Seq_Analysis-2.0.0
 ```
 8B. Load modules
 ```
@@ -239,9 +238,9 @@ If you use this workflow in your research, please cite:
 
 ## 10) Authorship & Contributions
 
-**Kevin A. Boyd** – Designed and implemented the Snakemake workflow for a Slurm-managed HPC environment, modularized the pipeline structure, implemented all processing steps, integrated spike-in normalization support, and created the documentation.  
+**Kevin A. Boyd** – Designed the Snakemake workflows modularized structure, implemented processing steps with optional spike-in normalization, and created documentation.  
 
-**John Ridenour** – Developed original SLAM-Seq bash scripts used as the foundation for this pipeline.  
+**John B. Ridenour** – Developed original SLAM-Seq bash scripts used as the foundation for this pipeline.  
 
 **Rafal Donczew** – Principal Investigator; provided project direction, conceptual guidance, and experimental data for pipeline development.  
 
