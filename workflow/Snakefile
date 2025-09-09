@@ -8,8 +8,8 @@ configfile: "config/config.yml"
 # Email: kevinboyd76@gmail.com
 # GitHub: https://github.com/kevinboyd76
 # Date Created: May 27, 2025
-# Last Modified: July 22, 2025
-# Version: 1.0.1
+# Last Modified: Sept 9, 2025
+# Version: 2.0.0
 #
 # Description:
 # This Snakemake workflow processes SLAM-Seq data from raw paired-end
