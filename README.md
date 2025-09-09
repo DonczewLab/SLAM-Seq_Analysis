@@ -11,7 +11,7 @@
 # SLAM-Seq_Analysis
 
 ![SLAM-Seq Analysis](/images/SLAM-seq.png)  
-- OpenAI. (2025). Scientific data visualization: SLAM-seq pipeline schematic [AI-generated image]. DALL-E. Retrieved from ChatGPT interface.
+- OpenAI. (2025). Scientific data visualization:  pipeline schematic [AI-generated image]. DALL-E. Retrieved from ChatGPT interface.
 
 ---
 
@@ -19,7 +19,7 @@
 
 **SLAM-Seq_Analysis** is a modular, high-throughput Snakemake pipeline designed to analyze **SLAM-Seq** data. It quantifies RNA synthesis and degradation by detecting **T>C transitions**. This pipeline processes raw **paired-end FASTQ** files through quality control, UMI extraction, adapter trimming, alignment, mutation counting, and context-specific mutation analysis using **SLAM-Dunk** and **Alleyoop**. The final output includes BAM files, CSVs, summary files, and MultiQC reports.
 
-It supports both **default 1-TC** and **custom 2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs. Additionally, the pipeline optionally supports a **spike-in genome** (e.g., S. pombe), allowing for parallel alignment and mutation quantification for normalization and QC purposes. Spike-in analysis is controlled by the flag `use_spikein` in the `config.yml` and produces a parallel set of filtered BAMs, mutation calls, and summary reports in a separate output directory `results/slamdunk_spikein`. Post-processing with an R script generates unified count matrices and two normalization strategies. **Total-readcount normalization** (library size per sample / 10M) and **Spike-in normalization** (if enabled; spike-in library size / 1M).  
+It supports both **1-TC** and **2-TC** read count thresholds for downstream comparative analysis and includes fully automated **MultiQC** reports for raw, trimmed, and SLAM-Dunk outputs. Additionally, the pipeline optionally supports a **spike-in genome** (e.g., S. pombe), allowing for parallel alignment and mutation quantification for normalization and QC purposes. Spike-in analysis is controlled by the flag `use_spikein` in the `config.yml` and produces a parallel set of filtered BAMs, mutation calls, and summary reports in a separate output directory `results/slamdunk_spikein`. Post-processing with an R script generates unified count matrices and two normalization strategies. **Total-readcount normalization** (library size per sample / 10M) and **Spike-in normalization** (if enabled; spike-in library size / 1M).  
 
 ### Key Features  
 
@@ -27,8 +27,8 @@ It supports both **default 1-TC** and **custom 2-TC** read count thresholds for 
   + Extracts UMIs using `fastp`, allowing for duplicate-aware alignment and quantification  
 
 + **Multiple Adapter Trimming Methods Set in `config.yml` (optional)**  
-  + Choose between **Trim Galore** or **BBduk**  
-  + `use_trim_galore`: toggle between BBduk and Trim Galore  
+  + Choose between **Trim Galore** or **BBDuk**  
+  + `use_trim_galore`: toggle between BBDuk and Trim Galore  
 
 + **Comprehensive QC Reports**  
   + FastQC on raw and trimmed reads  
@@ -63,7 +63,7 @@ It supports both **default 1-TC** and **custom 2-TC** read count thresholds for 
 
 ## 2) Intended Use Case
 
-This pipeline is built for researchers analyzing **RNA turnover** via **SLAM-seq**, especially when interested in:  
+This pipeline is built for researchers analyzing **RNA turnover** via **SLAM-Seq**, especially when interested in:  
 
 + Mutation counts (T>C transitions) per gene or region  
 + Comparing samples using 1-TC vs. 2-TC thresholds  
@@ -85,9 +85,9 @@ Change these to point at your references, adapters, and HPC modules.
 + `use_spikein`: (true/false) enables parallel processing against a spike-in genome (*e.g. S. pombe*) and produces spike-in based normalization outputs  
 + `scer_genome`: path to the reference genome FASTA  
 + `scer_bed`: path to the reference annotation BED file
-+ `spikein_genome`: path to spike in reference FASTA used by SLAM-Dunk when `use_spikein: true`
-+ `spikein_bed`: path to spike in gene/UTR Bed for counting  
-+ `bbmap_ref`: adapter reference for BBduk (optional)  
++ `spikein_genome`: path to spike-in reference FASTA used by SLAM-Dunk when `use_spikein: true`
++ `spikein_bed`: path to spike-in gene/UTR BED for counting  
++ `bbmap_ref`: adapter reference for BBDuk (optional)  
 + `umi_loc`, `umi_len`: UMI extraction parameters  
 + `trim_5p`, `max_read_length`, `min_base_qual`: parameters for SLAM-Dunk  
 + `use_trim_galore`: (true/false) to enable Trim Galore as trimming tool  
@@ -95,7 +95,7 @@ Change these to point at your references, adapters, and HPC modules.
 
 
 **Changing Genomes**  
-+ If using a different reference or spike-in genome, update specific genome and bed sections in the `config.yml`.
++ If using a different reference or spike-in genome, update specific genome and BED sections in the `config.yml`.
 
 **Tool Versions**  
 + The `config/config.yml` file specifies all software and specific versions.
@@ -110,7 +110,7 @@ This pipeline uses the following tools via HPC environment modules:
 + **FastQC** for raw and trimmed read QC  
 + **MultiQC** for unified reporting of QC metrics  
 + **Fastp** for UMI extraction  
-+ **BBduk** or **Trim Galore** for adapter trimming  
++ **BBDuk** or **Trim Galore** for adapter trimming  
 + **SLAM-Dunk** for alignment, mutation calling, filtering  
 + **Alleyoop** for contextual mutation analysis and merging  
 + **Samtools**, **VarScan**, **NextGenMap** used internally by SLAM-Dunk  
@@ -121,7 +121,7 @@ This pipeline uses the following tools via HPC environment modules:
 
 ## 5) Example Data
 
-A minimal test dataset can be placed in a `resources/` folder (not included currently). Update `samples.csv` to point to these FASTQs for a quick test run. Once confirmed, replace with your personal SLAM-seq data.
+A minimal test dataset can be placed in a `resources/` folder (not included currently). Update `samples.csv` to point to these FASTQs for a quick test run. Once confirmed, replace with your personal SLAM-Seq data.
 
 ---
 
@@ -193,7 +193,7 @@ A minimal test dataset can be placed in a `resources/` folder (not included curr
      + `twotcreadcounts.csv`: (primary 2-TC merged)
      + `totalreadcount_normalization_factors.csv` (primary library size / 10,000,000)
      + `totalreadcount_normalized_twotcreadcounts.csv`: (2-TC normalized by total)
-   + If spike in is enabled (**`use_spikein: true`**):
+   + If spike-in is enabled (**`use_spikein: true`**):
      + `totalreadcounts_spikein.csv`, `onetcreadcounts_spikein.csv`, `twotcreadcounts_spikein.csv`
      + `spikein_normalization_factors.csv`: (spike-in library size / 1,000,000)
      + `spikein_normalized_twotcreadcounts.csv`: (primary 2-TC normalized by spike-in)  
