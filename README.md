@@ -51,7 +51,7 @@ It supports both **default 1-TC** and **custom 2-TC** read count thresholds for 
   + Summarizes and merges mutation counts across samples  
   + Outputs T>C mutation information per read and UTR position  
 
-+ **How Normalization Works**
++ **Normalization**
   + Total-readcount normalization  
     + Compute per-sample factors as colSums(totalreadcounts) / 1e7 (reads per 10M), then divide each column of primary twotcreadcounts by these factors.  
   + Spike-in normalization (optional)  
