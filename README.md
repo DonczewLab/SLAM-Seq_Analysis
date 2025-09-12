@@ -152,19 +152,19 @@ A minimal test dataset can be placed in a `resources/` folder (not included curr
   The pipeline generates output across several folders:  
 
 1. **Quality Control**
-   + `results/qc/raw/fastqc/` — FastQC HTML/ZIP for raw FASTQs  
-   + `results/qc/raw/multiqc/` — MultiQC report for raw reads  
-   + `results/qc/trimmed/fastqc/` — FastQC on trimmed FASTQs  
-   + `results/qc/trimmed/multiqc/` — MultiQC report for trimmed reads
+   + `results/qc/raw/fastqc/`: FastQC HTML/ZIP for raw FASTQs  
+   + `results/qc/raw/multiqc/`: MultiQC report for raw reads  
+   + `results/qc/trimmed/fastqc/`: FastQC on trimmed FASTQs  
+   + `results/qc/trimmed/multiqc/`: MultiQC report for trimmed reads
 
 2. **Preprocessing**
-   + `results/fastp/` — FASTQs with UMIs extracted  
-   + `results/trimmed/` — Adapter-trimmed FASTQs  
+   + `results/fastp/`: FASTQs with UMIs extracted  
+   + `results/trimmed/`: Adapter-trimmed FASTQs  
 
 3. **SLAM-Dunk Core Output**
-   + `results/slamdunk_scer/filter/` — Filtered BAM files  
-   + `results/slamdunk_scer/count/` — 1-TC tcount TSVs, logs, bedgraphs  
-   + `results/slamdunk_scer/count_twotcreadcount/` — 2-TC threshold tcount files
+   + `results/slamdunk_scer/filter/`: Filtered BAM files  
+   + `results/slamdunk_scer/count/`: 1-TC tcount TSVs, logs, bedgraphs  
+   + `results/slamdunk_scer/count_twotcreadcount/`: 2-TC threshold tcount files
 
 4. **Alleyoop Output**
    + `alleyoop/rates/`: overall mutation rates  
