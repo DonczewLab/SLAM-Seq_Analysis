@@ -23,15 +23,12 @@ umi_loc: "read2"
 umi_len: 12
 
 # ==============================================================================
-# ADAPTER FILE (BBDuk)
+# TOGGLE ON/OFF TRIM GALORE (false = BBDuk | true = Trim Galore)
 # ==============================================================================
+use_trim_galore: false
+# BBDuk adapter file
 bbmap_ref: "/hpc-prj/donczew/genomic_resources/bbmap/truseq_universal_adapters.fa"
-
-# ==============================================================================
-# TOGGLE ON/OFF TRIM_GALORE (BBDUK deafult)
-# ==============================================================================
-use_trim_galore: false                 # Set to false to use BBDuk
-# trim galore parameters
+# Trim Galore parameters
 stringency: 3
 length: 10
 
