@@ -2,6 +2,13 @@
 samples_csv: "config/samples.csv"
 
 # ==============================================================================
+# GENOME and BED Files Path
+# ==============================================================================
+# Primary genome (S. cerevisiae default)
+primary_genome: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome.fna"              # Genome reference for SLAMDUNK
+primary_bed: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/Scerevisiae_R64-3-1_gene3utr.bed"       # Gene + 3-prime UTR BED file
+
+# ==============================================================================
 # TOGGLE ON/OFF SPIKE IN (S. pombe default)
 # ==============================================================================
 use_spikein: false
@@ -25,13 +32,6 @@ bbmap_ref: "/hpc-prj/donczew/genomic_resources/bbmap/truseq_universal_adapters.f
 use_trim_galore: false  # Set to false to use bbduk instead
 stringency: 3
 length: 10
-
-# ==============================================================================
-# GENOME and BED Files Path
-# ==============================================================================
-# Primary (no spike-in) genome = S. cerevisiae
-scer_genome: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/SGD_R64-3-1_genome.fna" # Genome reference for SLAMDUNK
-scer_bed: "/hpc-prj/donczew/genomic_resources/Scerevisiae_GCF_000146045.2/Scerevisiae_R64-3-1_gene3utr.bed" # Gene + 3-prime UTR BED file
 
 # ==============================================================================
 # SLAMDUNK PARAMETERS
