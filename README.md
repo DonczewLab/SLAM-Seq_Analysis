@@ -86,8 +86,8 @@ Change these to point at your references, adapters, and HPC modules.
 **Key fields include**:
 + `config/samples.csv`: path to the sample sheet (see section 6)
 + `use_spikein`: (true/false) enables parallel processing against a spike-in genome (*e.g. S. pombe*) and produces spike-in based normalization outputs  
-+ `scer_genome`: path to the reference genome FASTA  
-+ `scer_bed`: path to the reference annotation BED file
++ `primary_genome`: path to the primary genome FASTA  
++ `primary_bed`: path to the primary annotation BED file
 + `spikein_genome`: path to spike-in reference FASTA used by SLAM-Dunk when `use_spikein: true`
 + `spikein_bed`: path to spike-in gene/UTR BED for counting  
 + `bbmap_ref`: adapter reference for BBDuk (optional)  
