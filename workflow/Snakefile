@@ -8,20 +8,20 @@ configfile: "config/config.yml"
 # Email: kevinboyd76@gmail.com
 # GitHub: https://github.com/kevinboyd76
 # Date Created: May 27, 2025
-# Last Modified: Sept 9, 2025
+# Last Modified: Sept 12, 2025
 # Version: 2.0.0
 #
 # Description:
 # This Snakemake workflow processes SLAM-Seq data from raw paired-end
 # FASTQ files through quality control, UMI (unique molecular identifier) extraction,
 # adapter trimming, and SLAM-Dunk alignment and mutation quantification.
-# It supports both default 1-TC and custom 2-TC conversion thresholds for comparative analysis.
+# It supports both 1-TC and 2-TC conversion thresholds for comparative analysis.
 #
 # The pipeline optionally supports alignment to a spike-in genome (e.g., *S. pombe*),
-# allowing parallel processing for normalization or QC purposes. When enabled,
-# spike-in reads are aligned and quantified independently with matching SLAM-Dunk and Alleyoop steps.
+# allowing parallel processing for normalization or QC purposes. When enabled, spike-in
+# reads are aligned and quantified independently with matching SLAM-Dunk and Alleyoop steps.
 #
-# An R post processing script produces unified matrices plus two normalization strategies: (1) Total
+# A post processing R script produces unified matrices plus two normalization strategies: (1) Total
 # read count normalization (primary library size / 10M) and (2) Spike-in normalization (in enabled;
 # spike-in library size / 1M). Outputs include BAMs, per-sample and merged count tables, positional
 # diagnostics, MultiQC summaries, and finally processed matrices.
@@ -51,8 +51,8 @@ configfile: "config/config.yml"
 #       spikein_normalized_twotcreadcounts.csv
 #
 # Spike-in genome (optional; only when `use_spikein: true`):
-#  – Repeat steps 5–10 for the spike-in reference; results live under
-#    results/slamdunk_spikein/ with a separate MultiQC summary.
+#  – Repeat steps 5–10 for the spike-in reference; results are found
+#    in results/slamdunk_spikein/ with a separate MultiQC summary.
 
 ##################################################################
 ##                    Define input functions                    ##
@@ -1067,7 +1067,7 @@ rule slamdunk_count_spikeIn:
 
 
 ##################################################################
-##                        Alleyoop Rates                        ##
+##                   Alleyoop Rates - Spike-In                  ##
 ##################################################################
 
 rule alleyoop_rates_spikeIn:
@@ -1098,7 +1098,7 @@ rule alleyoop_rates_spikeIn:
 
 
 ##################################################################
-##                      Alleyoop TCcontext                      ##
+##                 Alleyoop TCcontext - Spike-In                ##
 ##################################################################
 
 rule alleyoop_tccontext_spikeIn:
@@ -1129,7 +1129,7 @@ rule alleyoop_tccontext_spikeIn:
 
 
 ##################################################################
-##                       Alleyoop UTRrates                      ##
+##                  Alleyoop UTRrates - Spike-In                ##
 ##################################################################
 
 rule alleyoop_utrrates_spikeIn:
@@ -1165,7 +1165,7 @@ rule alleyoop_utrrates_spikeIn:
 
 
 ##################################################################
-##                       Alleyoop SNPeval                       ##
+##                  Alleyoop SNPeval - Spike-In                 ##
 ##################################################################
 
 rule alleyoop_snpeval_spikeIn:
@@ -1207,7 +1207,7 @@ rule alleyoop_snpeval_spikeIn:
 
 
 ##################################################################
-##                      Alleyoop Summary 1                      ##
+##                 Alleyoop Summary 1 - Spike-In                ##
 ##################################################################
 
 rule alleyoop_summary_onetcreadcount_spikeIn:
@@ -1235,7 +1235,7 @@ rule alleyoop_summary_onetcreadcount_spikeIn:
 
 
 ##################################################################
-##                      Alleyoop Summary 2                      ##
+##                 Alleyoop Summary 2 - Spike-In                ##
 ##################################################################
 
 rule alleyoop_summary_twotcreadcount_spikeIn:
@@ -1263,7 +1263,7 @@ rule alleyoop_summary_twotcreadcount_spikeIn:
 
 
 ##################################################################
-##                 Alleyoop Summary Total Merged                ##
+##            Alleyoop Summary Total Merged - Spike-In          ##
 ##################################################################
 
 rule alleyoop_merge_totalreadcount_spikeIn:
@@ -1289,7 +1289,7 @@ rule alleyoop_merge_totalreadcount_spikeIn:
 
 
 ##################################################################
-##                 Alleyoop Summary OneTC Merged                ##
+##            Alleyoop Summary OneTC Merged - Spike-In          ##
 ##################################################################
 
 rule alleyoop_merge_onetcreadcount_spikeIn:
@@ -1315,7 +1315,7 @@ rule alleyoop_merge_onetcreadcount_spikeIn:
 
 
 ##################################################################
-##                 Alleyoop Summary TwoTC Merged                ##
+##            Alleyoop Summary TwoTC Merged - Spike-In          ##
 ##################################################################
 
 rule alleyoop_merge_twotcreadcount_spikeIn:
@@ -1341,7 +1341,7 @@ rule alleyoop_merge_twotcreadcount_spikeIn:
 
 
 ##################################################################
-##                     Alleyoop TcPerReadPos                    ##
+##                Alleyoop TcPerReadPos - Spike-In              ##
 ##################################################################
 
 rule alleyoop_tcperreadpos_spikeIn:
@@ -1376,7 +1376,7 @@ rule alleyoop_tcperreadpos_spikeIn:
 
 
 ##################################################################
-##                     Alleyoop TcPerUtrPos                    ##
+##                Alleyoop TcPerUtrPos - Spike-In               ##
 ##################################################################
 
 rule alleyoop_tcperutrpos_spikeIn:
@@ -1413,7 +1413,7 @@ rule alleyoop_tcperutrpos_spikeIn:
 
 
 ##################################################################
-##                         Alleyoop Dump                        ##
+##                    Alleyoop Dump - Spike-In                  ##
 ##################################################################
 
 rule alleyoop_dump_spikeIn:
@@ -1445,7 +1445,7 @@ rule alleyoop_dump_spikeIn:
 
 
 ##################################################################
-##                  MultiQC on Slam Dunk Output                 ##
+##             MultiQC on Slam Dunk Output - Spike-In           ##
 ##################################################################
 
 rule multiqc_slamdunk_spikeIn:
